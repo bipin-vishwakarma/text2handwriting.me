@@ -33,15 +33,15 @@ export default function Footer() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={containerVariants}
-            className="pt-24 pb-8 border-t border-black/5 relative overflow-hidden"
+            className="pt-16 sm:pt-24 pb-8 border-t border-black/5 relative overflow-hidden"
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 relative z-10">
                 <div className="grid grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-10 lg:gap-8 mb-12 sm:mb-16">
                     {/* Brand Column */}
                     <motion.div variants={itemVariants} className="col-span-2 lg:col-span-4">
-                        <Link to="/" className="flex items-center gap-3 mb-6 group">
+                        <Link to="/" className="flex min-w-0 items-center gap-3 mb-6 group">
                              <Text2HandwritingLogo size={38} />
-                             <span className="font-display font-bold text-2xl tracking-tight text-neutral-900">Text2Handwriting.</span>
+                             <span className="min-w-0 text-xl sm:text-2xl font-display font-bold tracking-tight text-neutral-900 break-words">Text2Handwriting.</span>
                         </Link>
                         <p className="text-neutral-500 leading-relaxed max-w-sm text-sm font-medium">
                             Hyper-realistic handwriting simulator with authentic human errors, pen scratch-outs, smartphone cast shadows, and realistic desk lighting.
@@ -89,7 +89,7 @@ export default function Footer() {
 
                 {/* Bottom Bar */}
                 <div className="border-t border-black/5 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 text-center sm:text-left">
                         <p className="text-xs text-neutral-400 font-bold">
                             &copy; {new Date().getFullYear()} Text2Handwriting. Open Source.
                         </p>
@@ -97,7 +97,7 @@ export default function Footer() {
                             <Github size={14} />
                         </a>
                     </div>
-                    <p className="text-xs text-neutral-400 font-bold flex items-center gap-2">
+                    <p className="text-xs text-neutral-400 font-bold flex flex-wrap items-center justify-center gap-2 text-center sm:text-left">
                         Crafted with <Heart size={12} className="text-rose-500 fill-current" /> by <a href="https://github.com/bipin-vishwakarma" target="_blank" rel="noopener noreferrer" className="text-neutral-900 hover:underline underline-offset-4 font-black">Bipin Vishwakarma</a>
                     </p>
                 </div>

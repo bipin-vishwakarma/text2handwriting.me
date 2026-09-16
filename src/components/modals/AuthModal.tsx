@@ -129,7 +129,7 @@ export default function AuthModal() {
                                         <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-mono font-bold">Beta</span>
                                     </h2>
                                     <p className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
-                                        <CheckCircle2 size={11} /> 100% Free Forever for Students
+                                        <CheckCircle2 size={11} /> Free to design and preview
                                     </p>
                                 </div>
                             </div>
@@ -508,7 +508,7 @@ export default function AuthModal() {
                                     <ShieldCheck size={13} />
                                     <span>{isSupabaseConfigured ? 'Supabase Auth' : 'Client Encrypted'}</span>
                                 </div>
-                                <span>100% Free Public Beta</span>
+                                <span>Transparent pay-per-export pricing</span>
                             </div>
                         </div>
                     </motion.div>

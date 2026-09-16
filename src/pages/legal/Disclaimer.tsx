@@ -13,7 +13,7 @@ export default function Disclaimer() {
 
             <h3>2. Educational Simulation & Student Lab Notebooks</h3>
             <p>
-                Text2Handwriting is engineered specifically to help university and school students format, preview, and print study material, homework drafts, and laboratory practical notebooks (interleaved diagram and ruled observation sheets). It reduces repetitive strain injury (RSI) while providing high-quality digital layout for assignments.
+                Text2Handwriting helps university and school students format, preview, and print study material, homework drafts, and laboratory practical notebooks (interleaved diagram and ruled observation sheets) where this form of assistance is permitted.
             </p>
 
             <h3>3. Academic Integrity & Responsible Use</h3>
@@ -26,9 +26,9 @@ export default function Disclaimer() {
                 Digital handwriting produced by algorithmic rendering engines is a synthetic visual representation. It is not an authorized legal substitute for handwritten wet-ink signatures on formal legal instruments, testamentary documents, government certificates, or sworn affidavits unless explicitly recognized by local statutory frameworks.
             </p>
 
-            <h3>5. Privacy & Zero-Retention Security</h3>
+            <h3>5. Privacy</h3>
             <p>
-                All text rendering, AI cleaning, and PDF exports are processed client-side within your browser. Text2Handwriting does not sell, harvest, or transmit your assignments or document content to external servers.
+                Core text rendering and PDF export are processed in your browser. Optional AI-assisted features may send the text you submit to a third-party model provider; review the Privacy Policy before using those features with sensitive content.
             </p>
 
             <p className="text-sm text-neutral-400 mt-8">

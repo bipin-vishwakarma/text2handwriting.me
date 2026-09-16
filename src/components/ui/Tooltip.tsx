@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useId, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TooltipProps {
@@ -11,7 +11,8 @@ interface TooltipProps {
 
 export function Tooltip({ content, children, delay = 0.3, position = 'bottom' }: TooltipProps) {
     const [isVisible, setIsVisible] = useState(false);
-    const timeoutRef = useRef<NodeJS.Timeout>();
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const tooltipId = useId();
 
     const handleMouseEnter = () => {
         timeoutRef.current = setTimeout(() => setIsVisible(true), delay * 1000);
@@ -23,7 +24,8 @@ export function Tooltip({ content, children, delay = 0.3, position = 'bottom' }:
     };
 
     return (
-        <div 
+        <div
+            aria-describedby={isVisible ? tooltipId : undefined}
             className="relative flex items-center justify-center group/tooltip"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -34,6 +36,8 @@ export function Tooltip({ content, children, delay = 0.3, position = 'bottom' }:
             <AnimatePresence>
                 {isVisible && (
                     <motion.div
+                        id={tooltipId}
+                        role="tooltip"
                         initial={{ opacity: 0, y: position === 'top' ? 5 : position === 'bottom' ? -5 : 0, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}

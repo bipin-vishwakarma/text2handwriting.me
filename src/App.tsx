@@ -45,9 +45,8 @@ function InnerApp() {
 
         <Route path="/" element={<RootLayout />}>
           <Route index element={<LandingPage />} />
-          <Route path="editor" element={
-            <ProtectedRoute><EditorPage /></ProtectedRoute>
-          } />
+          {/* Local drafting/preview needs no account; checkout asks for sign-in. */}
+          <Route path="editor" element={<EditorPage />} />
 
           {/* Legal Pages */}
           <Route path="privacy" element={<PrivacyPolicy />} />
@@ -87,7 +86,7 @@ function InnerApp() {
               seoTitle="Realistic Handwriting Generator | Text2Handwriting"
               seoDescription="Generate ultra-realistic handwriting from text. Includes natural ink smudges, varied pressure, and 3D notebook physics."
               h1="Realistic Handwriting Generator"
-              subtitle="The most advanced AI-powered text to handwriting generator. Indistinguishable from real human handwriting."
+              subtitle="Create natural-looking handwritten pages with adjustable ink, paper, spacing, and realistic variation."
               keyword="Handwriting Generator"
             />
           } />

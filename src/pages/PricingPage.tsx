@@ -1,14 +1,17 @@
 import { motion } from 'framer-motion';
-import { FileText, Check, ArrowRight, Zap, ShieldCheck, Star } from 'lucide-react';
+import { Check, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PageLayout from '../components/layout/PageLayout';
 import MagneticButton from '../components/ui/MagneticButton';
 
 export default function PricingPage() {
     return (
-        <PageLayout maxWidth="max-w-5xl" 
+        <PageLayout
+            maxWidth="max-w-5xl"
             title="Fair pricing for students." 
             subtitle="Stop paying for expensive monthly subscriptions you only use once a semester. Our editor is 100% free to use—you only pay when you export the final PDF."
+            seoTitle="Simple Pay-Per-Export Pricing | Text2Handwriting"
+            description="Create and preview for free, then export for ₹10 plus ₹2 per page. No subscription or recurring charge."
         >
             <div className="relative max-w-4xl mx-auto mt-8">
                 {/* Decorative background glow */}
@@ -24,20 +27,20 @@ export default function PricingPage() {
                         </div>
                         
                         <h3 className="text-3xl font-display font-black text-stone-900 mb-4 leading-tight">
-                            Everything you need to bypass detection.
+                            Create polished, print-ready documents.
                         </h3>
                         
                         <p className="text-stone-600 mb-8 leading-relaxed">
-                            No watermarks, no hidden fees, no subscriptions. Get access to our entire suite of premium handwritten fonts and human imperfection engines instantly.
+                            Explore the editor and preview your document before paying. When you are ready, pay once for that export—without a subscription or recurring charge.
                         </p>
 
                         <ul className="space-y-4 mb-8">
                             {[
-                                'Full access to 30+ premium handwritten fonts',
-                                'Human Imperfection Engine (Bypass AI detection)',
-                                'All custom ink colors & real paper textures',
-                                'Live real-time preview (No watermark)',
-                                'Secure 256-bit encryption on export'
+                                'Handwriting styles and custom font uploads',
+                                'Natural spacing and baseline variation controls',
+                                'Custom ink colors and paper templates',
+                                'Live preview before you export',
+                                'High-resolution PDF document export'
                             ].map((feature, i) => (
                                 <motion.li 
                                     initial={{ opacity: 0, x: -10 }}
@@ -83,7 +86,7 @@ export default function PricingPage() {
 
                         <Link to="/editor" className="w-full block">
                             <MagneticButton className="w-full py-4 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl font-bold text-lg shadow-xl shadow-stone-900/20 transition-all flex items-center justify-center gap-2 group">
-                                Start Writing for Free
+                                Create Your Document
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </MagneticButton>
                         </Link>
@@ -98,16 +101,11 @@ export default function PricingPage() {
 
             {/* Social Proof / Trust */}
             <div className="mt-16 text-center pb-8">
-                <div className="flex items-center justify-center gap-1 mb-3">
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
-                    ))}
-                </div>
                 <p className="text-stone-900 font-bold text-lg">
-                    "Saved me from writing a 30-page lab manual by hand."
+                    Preview first. Pay only when your document is ready.
                 </p>
                 <p className="text-stone-500 mt-1">
-                    Trusted by 10,000+ students across India
+                    Pricing is shown before checkout: ₹10 base fee + ₹2 per page.
                 </p>
             </div>
         </PageLayout>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Sparkles, ExternalLink } from 'lucide-react';
@@ -11,6 +11,7 @@ export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState<string>('');
     const location = useLocation();
+    const mobileMenuId = useId();
 
     // Scroll-spy targets on landing page — ordered to match DOM
     const scrollLinks: { name: string; sectionId: string }[] = [
@@ -27,6 +28,15 @@ export default function Navbar() {
     ];
 
     const isOnLanding = location.pathname === '/';
+
+    useEffect(() => {
+        if (!mobileMenuOpen) return;
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setMobileMenuOpen(false);
+        };
+        window.addEventListener('keydown', closeOnEscape);
+        return () => window.removeEventListener('keydown', closeOnEscape);
+    }, [mobileMenuOpen]);
 
     // Scroll spy when on landing page
     useEffect(() => {
@@ -92,9 +102,9 @@ export default function Navbar() {
             >
                 <div className="w-full max-w-5xl glass rounded-full px-4 sm:px-6 py-2 sm:py-2.5 flex justify-between items-center pointer-events-auto ring-1 ring-black/5 shadow-lg shadow-black/5">
                     {/* Brand Logo */}
-                    <Link to="/" className="flex items-center gap-2.5 group relative shrink-0">
+                    <Link to="/" onClick={() => setMobileMenuOpen(false)} aria-label="Text2Handwriting home" className="flex min-w-0 items-center gap-2 sm:gap-2.5 group relative shrink">
                         <Text2HandwritingLogo size={32} />
-                        <span className="text-lg sm:text-xl font-display font-black text-neutral-900 tracking-tight">Text2Handwriting.</span>
+                        <span className="hidden min-[430px]:block truncate text-base sm:text-xl font-display font-black text-neutral-900 tracking-tight">Text2Handwriting.</span>
                     </Link>
 
                     {/* Desktop Navigation Links */}
@@ -161,7 +171,8 @@ export default function Navbar() {
                             className="px-3.5 sm:px-5 py-1.5 sm:py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full text-xs sm:text-sm font-bold shadow-md shadow-violet-600/20 hover:from-violet-500 hover:to-indigo-500 hover:scale-103 active:scale-97 transition-all flex items-center gap-1.5 whitespace-nowrap"
                         >
                             <Sparkles size={13} className="text-yellow-300" />
-                            <span>Open Studio</span>
+                            <span className="hidden min-[360px]:inline">Open Studio</span>
+                            <span className="min-[360px]:hidden">Studio</span>
                         </Link>
 
                         {/* Mobile Hamburger Toggle */}
@@ -169,7 +180,9 @@ export default function Navbar() {
                             type="button"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             className="md:hidden p-1.5 text-neutral-700 hover:text-neutral-950 rounded-full hover:bg-neutral-100 transition-colors"
-                            title="Toggle menu"
+                            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                            aria-expanded={mobileMenuOpen}
+                            aria-controls={mobileMenuId}
                         >
                             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
                         </button>
@@ -180,12 +193,20 @@ export default function Navbar() {
             {/* Mobile Navigation Drawer */}
             <AnimatePresence>
                 {mobileMenuOpen && (
+                    <>
+                    <button
+                        type="button"
+                        aria-label="Close navigation menu"
+                        className="fixed inset-0 z-30 cursor-default bg-neutral-950/15 backdrop-blur-[2px] md:hidden"
+                        onClick={() => setMobileMenuOpen(false)}
+                    />
                     <motion.div
+                        id={mobileMenuId}
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-x-4 top-20 z-40 md:hidden bg-white/95 backdrop-blur-xl border border-neutral-200/90 rounded-3xl p-5 shadow-2xl space-y-4"
+                        className="fixed inset-x-3 top-18 z-40 max-h-[calc(100dvh-5.5rem)] overflow-y-auto md:hidden bg-white/95 backdrop-blur-xl border border-neutral-200/90 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4"
                     >
                         <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
                             <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-400">
@@ -231,7 +252,7 @@ export default function Navbar() {
                             ))}
                         </div>
 
-                        <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-[11px] font-medium text-neutral-500">
+                        <div className="pt-2 border-t border-neutral-100 grid grid-cols-2 gap-3 text-[11px] font-medium text-neutral-500 min-[430px]:flex min-[430px]:items-center min-[430px]:justify-between">
                             <Link to="/disclaimer" onClick={() => setMobileMenuOpen(false)} className="hover:text-neutral-900">
                                 Disclaimer
                             </Link>
@@ -252,6 +273,7 @@ export default function Navbar() {
                             </a>
                         </div>
                     </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </>

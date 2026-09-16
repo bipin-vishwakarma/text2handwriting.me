@@ -12,17 +12,20 @@ export default function RootLayout() {
     return (
         <>
             {isStudioRoute ? (
-                <div className="w-screen h-screen overflow-hidden bg-[#F3F4F6]">
+                <div className="w-full h-dvh overflow-hidden bg-[#F3F4F6]">
                     <Outlet />
                 </div>
             ) : (
                 <div className="min-h-screen flex flex-col relative isolate">
+                    <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-neutral-950 focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white">
+                        Skip to main content
+                    </a>
                     {/* Global Atmospheric Background */}
                     <div className="mesh-gradient" />
                     <div className="ambient-bg-global" />
                     
                     <Navbar />
-                    <main className="flex-1 relative">
+                    <main id="main-content" className="flex-1 relative" tabIndex={-1}>
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={location.pathname}

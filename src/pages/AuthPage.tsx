@@ -14,9 +14,9 @@ const providerCard =
     'flex items-center justify-center gap-3 w-full px-5 py-3.5 rounded-xl border border-neutral-200/80 bg-white hover:bg-neutral-50/80 transition-all cursor-pointer font-semibold text-neutral-700 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed';
 
 const features = [
-    { icon: PenTool, text: 'Realistic handwriting simulation in seconds', desc: 'Advanced AI mapping creates indistinguishable output.' },
+    { icon: PenTool, text: 'Natural handwriting styling in seconds', desc: 'Adjust paper, ink, spacing, and organic variation.' },
     { icon: BookOpen, text: '15+ authentic student paper types', desc: 'Lab notebooks, ruled pages, and assignment sheets.' },
-    { icon: Sparkles, text: 'Zero watermark, 4K PDF exports', desc: '100% Free during our exclusive Beta period.' },
+    { icon: Sparkles, text: 'Design and preview before paying', desc: 'Exports use simple pay-per-document pricing.' },
 ];
 
 export default function AuthPage() {

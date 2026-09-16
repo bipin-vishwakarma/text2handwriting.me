@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Heart, Sparkles, Shield, FlaskConical, GraduationCap, ArrowRight } from 'lucide-react';
+import { Sparkles, Shield, FlaskConical, GraduationCap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '../components/ui/MagneticButton';
 import { Helmet } from 'react-helmet-async';
@@ -10,6 +10,7 @@ export default function AboutPage() {
             <Helmet>
                 <title>About Us | Text2Handwriting</title>
                 <meta name="description" content="The story behind Text2Handwriting. Built for students, by a student, to bring organic realism back to digital documents." />
+                <link rel="canonical" href="https://text2handwriting.me/about" />
             </Helmet>
 
             {/* Decorative Background */}
@@ -33,7 +34,7 @@ export default function AboutPage() {
                         Bringing the <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">soul of ink</span><br/> back to digital.
                     </h1>
                     <p className="text-lg sm:text-xl text-stone-500 font-serif italic max-w-2xl mx-auto leading-relaxed">
-                        Built out of pure frustration with repetitive university assignments, evolved into the most hyper-realistic handwriting engine on the web.
+                        Built to make handwritten-style documents easier to format, personalize, preview, and print.
                     </p>
                 </motion.div>
 
@@ -50,10 +51,10 @@ export default function AboutPage() {
                         </h2>
                         <div className="prose prose-stone prose-lg text-stone-600 leading-relaxed">
                             <p>
-                                In an era dominated by sterile digital fonts and mechanical typing, the irreplaceable warmth and character of handwritten work was getting lost. We realized that students were spending hundreds of hours mechanically copying lab manuals and assignments.
+                                Digital tools are efficient, but they often lose the warmth and character of handwritten work. We saw an opportunity to make study notes, drafts, and permitted document layouts easier to prepare.
                             </p>
                             <p>
-                                <strong>Text2Handwriting</strong> was created by <strong>Bipin Vishwakarma</strong> to solve this exact problem. By mapping natural human imperfections—variations in pressure, margin spacing, and ink bleed—we bridge the divide between authentic analog aesthetics and digital speed.
+                                <strong>Text2Handwriting</strong> was created by <strong>Bipin Vishwakarma</strong> to bridge analog aesthetics and digital speed. Its controls reproduce variations in spacing, margins, and ink presentation while keeping the author responsible for the content and its permitted use.
                             </p>
                         </div>
                     </motion.div>
@@ -108,7 +109,7 @@ export default function AboutPage() {
                                 color: "text-amber-500",
                                 bg: "bg-amber-50",
                                 title: "Student-First",
-                                desc: "Designed explicitly for academic rigorousness. From ruled lab manuals to custom graph paper, we built this for survival."
+                                desc: "Designed for responsible study, drafting, and presentation. Always follow your institution's rules when preparing work for submission."
                             }
                         ].map((value, i) => (
                             <motion.div 
@@ -142,7 +143,7 @@ export default function AboutPage() {
                             Ready to craft your masterpiece?
                         </h2>
                         <p className="text-stone-400 text-lg mb-10">
-                            Join thousands of students and creators who have already made the switch. No signup required to test the waters.
+                            Open the editor to explore styles and preview your document. Pay only when you choose to export.
                         </p>
                         <Link to="/editor" className="inline-block">
                             <MagneticButton className="px-8 py-4 bg-white hover:bg-stone-100 text-stone-900 rounded-2xl font-bold text-lg shadow-xl transition-all flex items-center gap-2 group">

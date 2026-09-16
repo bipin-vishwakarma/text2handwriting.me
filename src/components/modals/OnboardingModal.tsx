@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, 
@@ -158,6 +158,7 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
     const [currentIndex, setCurrentIndex] = useState(0);
     const [dontShowAgain, setDontShowAgain] = useState(false);
     const completeOnboarding = useStore(state => state.completeOnboarding);
+    const dialogRef = useRef<HTMLDivElement>(null);
 
     useScrollLock(isOpen);
 
@@ -175,20 +176,25 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
         }
     };
 
-    const handleFinish = useCallback(() => {
-        try {
-            localStorage.setItem('text2handwriting_onboarding_dismissed', 'true');
-        } catch {
-            // ignore
+    const handleFinish = useCallback((markComplete = false) => {
+        if (markComplete || dontShowAgain) {
+            try {
+                localStorage.setItem('text2handwriting_onboarding_dismissed', 'true');
+            } catch {
+                // Storage can be unavailable in privacy modes.
+            }
+            completeOnboarding();
         }
-        completeOnboarding();
         onClose();
         setCurrentIndex(0);
-    }, [completeOnboarding, onClose]);
+    }, [completeOnboarding, dontShowAgain, onClose]);
 
     // Keyboard navigation: Left/Right arrows, Escape
     useEffect(() => {
         if (!isOpen) return;
+
+        const previouslyFocused = document.activeElement as HTMLElement | null;
+        requestAnimationFrame(() => dialogRef.current?.querySelector<HTMLElement>('button')?.focus());
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'ArrowRight') {
@@ -203,11 +209,28 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
                 }
             } else if (e.key === 'Escape') {
                 handleFinish(false);
+            } else if (e.key === 'Tab') {
+                const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+                    'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+                );
+                if (!focusable?.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            previouslyFocused?.focus();
+        };
     }, [isOpen, currentIndex, handleFinish]);
 
     const slide = SLIDES[currentIndex];
@@ -225,12 +248,17 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
                     }}
                 >
                     <motion.div
+                        ref={dialogRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="onboarding-title"
+                        aria-describedby="onboarding-description"
                         onClick={(e) => e.stopPropagation()}
                         initial={{ opacity: 0, scale: 0.94, y: 15 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.94, y: 15 }}
                         transition={{ type: "spring", damping: 25, stiffness: 320 }}
-                        className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-lg w-full relative flex flex-col border border-neutral-200"
+                        className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-lg w-full max-h-[calc(100dvh-2rem)] relative flex flex-col border border-neutral-200"
                     >
                         {/* TOP HEADER */}
                         <div className="px-6 py-4 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/80">
@@ -255,7 +283,7 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
                         </div>
 
                         {/* SLIDE CONTENT */}
-                        <div className="p-6 sm:p-7 flex flex-col">
+                        <div className="p-5 sm:p-7 flex flex-col overflow-y-auto">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={slide.id}
@@ -277,7 +305,7 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
 
                                     {/* Title & Headline */}
                                     <div>
-                                        <h3 className="text-xl font-display font-extrabold text-neutral-900 leading-tight">
+                                        <h3 id="onboarding-title" className="text-xl font-display font-extrabold text-neutral-900 leading-tight">
                                             {slide.title}
                                         </h3>
                                         <p className="text-xs font-bold text-neutral-700 mt-1">
@@ -286,7 +314,7 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
                                     </div>
 
                                     {/* Description */}
-                                    <p className="text-xs text-neutral-600 leading-relaxed">
+                                    <p id="onboarding-description" className="text-xs text-neutral-600 leading-relaxed">
                                         {slide.description}
                                     </p>
 

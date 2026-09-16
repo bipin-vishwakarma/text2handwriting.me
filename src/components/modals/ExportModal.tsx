@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, FileText, ImageIcon, X, Loader2, ZoomIn, ZoomOut, Lock } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { CheckCircle2, Download, FileText, ImageIcon, X, Loader2, ZoomIn, ZoomOut, Lock } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { loadRazorpay } from '../../lib/razorpay';
@@ -35,6 +36,59 @@ interface PaperDefinition {
     lineHeight: number;
     hasRedMargin: boolean;
     style: React.CSSProperties;
+}
+
+const paymentIntentStorageKey = 'text2handwriting_payment_intent';
+const paymentRecoveryStorageKey = 'text2handwriting_payment_recovery_v1';
+const paymentRecoveryMaxAgeMs = 24 * 60 * 60 * 1000;
+const automaticVerificationDelaysMs = [0, 1500, 4000] as const;
+
+interface PendingPaymentIntent {
+    purchaseId: string;
+    pageCount: number;
+}
+
+interface PaymentRecovery {
+    userId: string;
+    purchaseId: string;
+    pageCount: number;
+    fileName: string;
+    format: 'pdf' | 'zip';
+    createdAt: number;
+    lastAttemptAt?: number;
+    checkout: {
+        razorpay_order_id: string;
+        razorpay_payment_id: string;
+        razorpay_signature: string;
+    };
+}
+
+function readPaymentRecovery(userId: string, pageCount: number): PaymentRecovery | null {
+    try {
+        const value = JSON.parse(localStorage.getItem(paymentRecoveryStorageKey) || 'null') as PaymentRecovery | null;
+        const valid = value?.userId === userId && value.pageCount === pageCount &&
+            typeof value.purchaseId === 'string' && typeof value.createdAt === 'number' &&
+            Date.now() - value.createdAt <= paymentRecoveryMaxAgeMs &&
+            typeof value.checkout?.razorpay_order_id === 'string' &&
+            typeof value.checkout?.razorpay_payment_id === 'string' &&
+            typeof value.checkout?.razorpay_signature === 'string';
+        if (valid) return value;
+        if (value && (value.userId === userId || Date.now() - Number(value.createdAt) > paymentRecoveryMaxAgeMs)) {
+            localStorage.removeItem(paymentRecoveryStorageKey);
+        }
+    } catch {
+        // Recovery remains unavailable when browser storage is blocked/corrupt.
+    }
+    return null;
+}
+
+function writePaymentRecovery(value: PaymentRecovery | null) {
+    try {
+        if (value) localStorage.setItem(paymentRecoveryStorageKey, JSON.stringify(value));
+        else localStorage.removeItem(paymentRecoveryStorageKey);
+    } catch {
+        // The immediate verification attempt still works without local storage.
+    }
 }
 
 interface ExportModalProps {
@@ -161,14 +215,40 @@ export default function ExportModal({
     wordCount = 0,
 }: ExportModalProps) {
     const [fileName, setFileName] = useState(initialFileName);
-    const { user, isAuthenticated, setAuthModalOpen } = useAuth();
+    const { user, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [pendingPaymentIntent, setPendingPaymentIntent] = useState<PendingPaymentIntent | null>(() => {
+        try {
+            const intent = JSON.parse(sessionStorage.getItem(paymentIntentStorageKey) || 'null');
+            return typeof intent?.purchaseId === 'string' && intent?.pageCount === pages.length
+                ? { purchaseId: intent.purchaseId, pageCount: intent.pageCount }
+                : null;
+        } catch {
+            return null;
+        }
+    });
+    const [paidPurchaseId, setPaidPurchaseId] = useState<string | null>(() => {
+        try {
+            const pending = JSON.parse(sessionStorage.getItem('text2handwriting_pending_export') || 'null');
+            return pending?.pageCount === pages.length ? pending.purchaseId || null : null;
+        } catch {
+            return null;
+        }
+    });
+    const [paidPurchaseVerified, setPaidPurchaseVerified] = useState(false);
+    const [purchaseCheckError, setPurchaseCheckError] = useState(false);
+    const [paymentRecovery, setPaymentRecovery] = useState<PaymentRecovery | null>(null);
+    const [recoveryError, setRecoveryError] = useState(false);
+    const recoveryRunRef = useRef<string | null>(null);
+    const onStartRef = useRef(onStart);
     
     const totalPrice = 10 + (pages.length * 2);
 
     const handleExportPaymentAndStart = async () => {
         if (!isAuthenticated || !user) {
-            setAuthModalOpen(true);
+            onClose();
+            navigate('/auth?redirect=%2Feditor');
             return;
         }
 
@@ -176,13 +256,29 @@ export default function ExportModal({
             setIsProcessingPayment(true);
             if (!supabase) throw new Error('Supabase is not configured.');
 
+            // Keep one UUID for this checkout attempt. The order function uses it
+            // as its idempotency/retry key, including after a Razorpay dismissal.
+            const intent = pendingPaymentIntent?.pageCount === pages.length
+                ? pendingPaymentIntent
+                : { purchaseId: crypto.randomUUID(), pageCount: pages.length };
+            if (intent !== pendingPaymentIntent) {
+                setPendingPaymentIntent(intent);
+                try {
+                    sessionStorage.setItem(paymentIntentStorageKey, JSON.stringify(intent));
+                } catch {
+                    // In-memory retry remains available if browser storage is blocked.
+                }
+            }
+
             const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
-                body: { pageCount: pages.length, currency: 'INR' }
+                body: { pageCount: pages.length, purchaseId: intent.purchaseId }
             });
             if (orderError || !orderData) throw new Error(orderError?.message || 'Failed to create order');
 
             const res = await loadRazorpay();
             if (!res) throw new Error('Razorpay SDK failed to load. Are you online?');
+
+            if (!import.meta.env.VITE_RAZORPAY_KEY_ID) throw new Error('Checkout is not configured yet. Please contact support before trying again.');
 
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, 
@@ -192,25 +288,25 @@ export default function ExportModal({
                 description: 'Export ' + pages.length + ' Pages',
                 order_id: orderData.id,
                 handler: async function (response: Record<string, string>) {
-                    try {
-                        const { data: verifyData, error: verifyError } = await supabase!.functions.invoke('verify-razorpay-payment', {
-                            body: {
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature,
-                            }
-                        });
-
-                        if (verifyError || !verifyData?.success) {
-                            alert('Payment verification failed.');
-                            setIsProcessingPayment(false);
-                        } else {
-                            onStart(fileName, activeFormat);
-                        }
-                    } catch {
-                        alert('Something went wrong during verification.');
-                        setIsProcessingPayment(false);
-                    }
+                    const recovery: PaymentRecovery = {
+                        userId: user.id,
+                        purchaseId: intent.purchaseId,
+                        pageCount: pages.length,
+                        fileName,
+                        format: activeFormat,
+                        createdAt: Date.now(),
+                        checkout: {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        },
+                    };
+                    // Persist the signed checkout result before the network call. It contains no
+                    // merchant/API secret and expires locally after 24 hours.
+                    writePaymentRecovery(recovery);
+                    setPaymentRecovery(recovery);
+                    setRecoveryError(false);
+                    setIsProcessingPayment(false);
                 },
                 prefill: { name: user.name, email: user.email },
                 theme: { color: '#000000' },
@@ -221,6 +317,14 @@ export default function ExportModal({
             const paymentObject = new (window as any).Razorpay(options);
             paymentObject.on('payment.failed', function (response: Record<string, Record<string, string>>) {
                 alert('Payment failed: ' + response.error.description);
+                // Razorpay reported a terminal failure, so a later checkout must
+                // reserve a fresh order rather than revive this failed attempt.
+                setPendingPaymentIntent(null);
+                try {
+                    sessionStorage.removeItem(paymentIntentStorageKey);
+                } catch {
+                    // Ignore storage restrictions.
+                }
                 setIsProcessingPayment(false);
             });
             paymentObject.open();
@@ -234,6 +338,128 @@ export default function ExportModal({
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useScrollLock(isOpen);
+
+    useEffect(() => {
+        onStartRef.current = onStart;
+    }, [onStart]);
+
+    useEffect(() => {
+        if (!isOpen || !isAuthenticated || !user) return;
+        const recovered = readPaymentRecovery(user.id, pages.length);
+        setPaymentRecovery(recovered);
+        if (!recovered) recoveryRunRef.current = null;
+    }, [isOpen, isAuthenticated, user, pages.length]);
+
+    useEffect(() => {
+        if (!isOpen || !isAuthenticated || !user || !paymentRecovery || !supabase) return;
+        const recoveryKey = `${paymentRecovery.checkout.razorpay_order_id}:${paymentRecovery.checkout.razorpay_payment_id}`;
+        if (recoveryRunRef.current === recoveryKey) return;
+        recoveryRunRef.current = recoveryKey;
+        const client = supabase;
+        let cancelled = false;
+
+        const verify = async () => {
+            setIsProcessingPayment(true);
+            setRecoveryError(false);
+            for (const delay of automaticVerificationDelaysMs) {
+                if (delay) await new Promise((resolve) => window.setTimeout(resolve, delay));
+                if (cancelled) return;
+                const attempted = { ...paymentRecovery, lastAttemptAt: Date.now() };
+                writePaymentRecovery(attempted);
+                const { data, error } = await client.functions.invoke('verify-razorpay-payment', {
+                    body: paymentRecovery.checkout,
+                });
+                if (!error && data?.success) {
+                    if (cancelled) return;
+                    const purchaseId = String(data.purchase_id || paymentRecovery.purchaseId);
+                    setPaidPurchaseId(purchaseId);
+                    setPaidPurchaseVerified(true);
+                    setPaymentRecovery(null);
+                    writePaymentRecovery(null);
+                    try {
+                        sessionStorage.setItem('text2handwriting_pending_export', JSON.stringify({
+                            purchaseId,
+                            pageCount: paymentRecovery.pageCount,
+                            fileName: paymentRecovery.fileName,
+                            format: paymentRecovery.format,
+                            paidAt: Date.now(),
+                        }));
+                    } catch {
+                        // The in-memory paid entitlement is still usable.
+                    }
+                    setFileName(paymentRecovery.fileName);
+                    setActiveFormat(paymentRecovery.format);
+                    setIsProcessingPayment(false);
+                    onStartRef.current(paymentRecovery.fileName, paymentRecovery.format);
+                    return;
+                }
+            }
+            if (!cancelled) {
+                setRecoveryError(true);
+                setIsProcessingPayment(false);
+            }
+        };
+        void verify();
+        return () => {
+            cancelled = true;
+            // Allows a fresh bounded cycle after a close/reopen and keeps the
+            // development StrictMode setup/cleanup replay from suppressing it.
+            if (recoveryRunRef.current === recoveryKey) recoveryRunRef.current = null;
+        };
+    }, [isOpen, isAuthenticated, user, paymentRecovery]);
+
+    useEffect(() => {
+        if (!isOpen || !isAuthenticated || !paidPurchaseId || paidPurchaseVerified || !supabase) return;
+        const client = supabase;
+        let cancelled = false;
+        const verifyPendingPurchase = async () => {
+            try {
+                const { data, error } = await client.functions.invoke('verify-razorpay-payment', { method: 'GET' });
+                if (cancelled) return;
+                if (error) throw error;
+                const matches = Array.isArray(data?.purchases) && data.purchases.some(
+                    (purchase: { purchase_id: string; page_count: number }) =>
+                        purchase.purchase_id === paidPurchaseId && purchase.page_count === pages.length
+                );
+                setPaidPurchaseVerified(matches);
+                if (!matches) {
+                    setPaidPurchaseId(null);
+                    sessionStorage.removeItem('text2handwriting_pending_export');
+                }
+            } catch {
+                if (!cancelled) setPurchaseCheckError(true);
+            }
+        };
+        void verifyPendingPurchase();
+        return () => { cancelled = true; };
+    }, [isOpen, isAuthenticated, paidPurchaseId, paidPurchaseVerified, pages.length]);
+
+    useEffect(() => {
+        if (status !== 'complete') return;
+        setPaidPurchaseId(null);
+        setPaidPurchaseVerified(false);
+        setPendingPaymentIntent(null);
+        try {
+            sessionStorage.removeItem('text2handwriting_pending_export');
+            sessionStorage.removeItem(paymentIntentStorageKey);
+        } catch {
+            // Ignore storage restrictions after a successful download.
+        }
+    }, [status]);
+
+    const handleRetryPaidExport = () => {
+        setIsProcessingPayment(false);
+        onStart(fileName, activeFormat);
+    };
+
+    const handleRetryPaymentVerification = () => {
+        if (!paymentRecovery || isProcessingPayment) return;
+        // A manual click starts one bounded three-attempt cycle; it never opens
+        // checkout again or creates another order.
+        recoveryRunRef.current = null;
+        setRecoveryError(false);
+        setPaymentRecovery({ ...paymentRecovery });
+    };
     const effectiveFontSize = getEffectiveFontSize(font, fontSize);
 
     const handleFormatSwitch = (newFormat: 'pdf' | 'zip') => {
@@ -254,7 +480,7 @@ export default function ExportModal({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-md">
+                <div className="fixed inset-0 z-100 flex items-center justify-center p-2 sm:p-6 bg-black/60 backdrop-blur-md">
                     {/* BACKDROP */}
                     <motion.div 
                         initial={{ opacity: 0 }}
@@ -270,19 +496,15 @@ export default function ExportModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.96, y: 15 }}
                         transition={{ type: "spring", damping: 26, stiffness: 320 }}
-                        className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-6xl h-[92vh] relative flex flex-col border border-neutral-200/80 z-10"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="export-preview-heading"
+                        className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl w-full max-w-6xl h-[min(94dvh,980px)] relative flex flex-col border border-neutral-200/80 z-10"
                     >
-                        {/* TOP BAR with macOS dots */}
-                        <div className="h-14 px-6 border-b border-neutral-100 flex items-center justify-between bg-white shrink-0">
+                        <div className="min-h-14 px-3 sm:px-6 border-b border-neutral-100 flex items-center justify-between gap-2 bg-white shrink-0">
                             <div className="flex items-center gap-3.5">
-                                <div className="flex gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-[#FF5F57] shadow-inner" />
-                                    <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner" />
-                                    <div className="w-3 h-3 rounded-full bg-[#28C840] shadow-inner" />
-                                </div>
-                                <div className="h-4 w-px bg-neutral-200" />
-                                <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
-                                    <span>Export Document Preview</span>
+                                <h2 id="export-preview-heading" className="text-xs sm:text-sm font-bold text-neutral-900 flex items-center gap-2">
+                                    <span>Review your export</span>
                                     <span className="text-[11px] font-semibold text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-full">
                                         {pages.length} {pages.length === 1 ? 'Page' : 'Pages'}
                                     </span>
@@ -321,6 +543,7 @@ export default function ExportModal({
                             {status !== 'processing' ? (
                                 <button 
                                     onClick={onClose}
+                                    aria-label="Close export preview"
                                     className="p-2 text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 rounded-full transition-all"
                                 >
                                     <X size={18} />
@@ -334,12 +557,12 @@ export default function ExportModal({
                         </div>
 
                         {/* MAIN SPLIT WORKSPACE */}
-                        <div className="flex-1 flex overflow-hidden">
+                        <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
                             
                             {/* 1. SCROLLABLE MULTI-PAGE PREVIEW GALLERY (Left / Center) */}
                             <div 
                                 ref={scrollContainerRef}
-                                className="flex-1 overflow-y-auto bg-[#F2F4F7] p-6 sm:p-8 flex flex-col items-center gap-8 relative custom-scrollbar"
+                                className="min-h-[220px] max-h-[42dvh] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto bg-[#F2F4F7] p-3 sm:p-8 flex flex-col items-center gap-8 relative custom-scrollbar"
                             >
                                 {/* Blueprint grid background */}
                                 <div className="absolute inset-0 bg-[radial-gradient(#d1d5db_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-60" />
@@ -796,7 +1019,7 @@ export default function ExportModal({
                             </div>
 
                             {/* 2. EXPORT CONTROLS SIDEBAR (Right) */}
-                            <div className="w-80 sm:w-92 bg-white border-l border-neutral-100 flex flex-col shrink-0 p-6 sm:p-7 justify-between overflow-y-auto">
+                            <div className="w-full lg:w-80 xl:w-92 bg-white border-t lg:border-t-0 lg:border-l border-neutral-100 flex flex-col shrink-0 p-4 sm:p-7 justify-between overflow-y-auto">
                                 <div className="space-y-6">
                                     
                                     {/* Format Selector Tabs */}
@@ -875,6 +1098,13 @@ export default function ExportModal({
                                         <div className="w-2 h-2 rounded-full bg-emerald-500" />
                                         <span>Full 2X Ultra-HD DPI Capture</span>
                                     </div>
+
+                                    <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 text-xs text-stone-700 space-y-2" aria-label="Export price breakdown">
+                                        <p className="font-black text-stone-950">Clear price, no subscription</p>
+                                        <div className="flex justify-between"><span>Document fee</span><span>₹10</span></div>
+                                        <div className="flex justify-between"><span>{pages.length} {pages.length === 1 ? 'page' : 'pages'} × ₹2</span><span>₹{pages.length * 2}</span></div>
+                                        <div className="flex justify-between border-t border-violet-200 pt-2 text-sm font-black text-stone-950"><span>Today’s total</span><span>₹{totalPrice}</span></div>
+                                    </div>
                                 </div>
 
                                 {/* BOTTOM ACTION AREA */}
@@ -905,16 +1135,43 @@ export default function ExportModal({
                                     )}
 
                                     {/* Button States */}
-                                    {status === 'idle' || status === 'error' ? (
+                                    {purchaseCheckError && paidPurchaseId && !paidPurchaseVerified && (
+                                        <p role="alert" className="text-xs text-amber-800">We could not confirm your earlier payment. Please contact support instead of paying again.</p>
+                                    )}
+                                    {paymentRecovery && recoveryError && (
+                                        <div className="space-y-2" role="alert">
+                                            <p className="text-xs text-amber-800">Your payment was received, but verification is temporarily unavailable. Do not pay again.</p>
+                                            <button
+                                                type="button"
+                                                onClick={handleRetryPaymentVerification}
+                                                disabled={isProcessingPayment}
+                                                className="w-full py-3 border border-amber-300 text-amber-900 rounded-xl text-sm font-bold hover:bg-amber-50 disabled:opacity-50"
+                                            >
+                                                Retry payment verification
+                                            </button>
+                                        </div>
+                                    )}
+                                    {(status === 'error' || status === 'idle') && paidPurchaseId && paidPurchaseVerified ? (
+                                        <button
+                                            onClick={handleRetryPaidExport}
+                                            className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl font-bold text-sm transition-colors flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+                                        >
+                                            <Download size={16} /><span>Retry paid export — no repayment</span>
+                                        </button>
+                                    ) : status === 'idle' || status === 'error' ? (
                                         <button
                                             onClick={handleExportPaymentAndStart}
-                                            disabled={isProcessingPayment}
+                                            disabled={isProcessingPayment || Boolean(paidPurchaseId) || Boolean(paymentRecovery)}
                                             className="w-full py-4 bg-neutral-900 hover:bg-black text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-neutral-900/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {isProcessingPayment ? (
+                                            {paymentRecovery ? (
+                                                <><Loader2 size={16} className={isProcessingPayment ? 'animate-spin' : ''} /><span>{isProcessingPayment ? 'Verifying previous payment...' : 'Payment verification required'}</span></>
+                                            ) : paidPurchaseId ? (
+                                                <><Loader2 size={16} className="animate-spin" /><span>Checking previous payment...</span></>
+                                            ) : isProcessingPayment ? (
                                                 <><Loader2 size={16} className="animate-spin" /><span>Processing Checkout...</span></>
                                             ) : (
-                                                <><Lock size={16} /><span>Pay ₹{totalPrice} & Download {activeFormat.toUpperCase()}</span></>
+                                                <><Lock size={16} /><span>{!isAuthenticated ? 'Sign in to export' : `Pay ₹${totalPrice} & Download ${activeFormat.toUpperCase()}`}</span></>
                                             )}
                                         </button>
                                     ) : status === 'complete' ? (

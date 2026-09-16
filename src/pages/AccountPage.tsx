@@ -180,7 +180,7 @@ export default function AccountPage() {
                     ))}
                 </motion.div>
 
-                {/* Upgrade / Payment — High-Converting Beta Launch Copy */}
+                {/* Product access and transparent export pricing */}
                 <motion.div
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -194,28 +194,28 @@ export default function AccountPage() {
                         <div className="flex flex-wrap items-center gap-2 mb-3">
                             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-400 text-yellow-950 text-xs font-black tracking-wide shadow-sm animate-pulse">
                                 <Sparkles size={13} className="text-yellow-900" />
-                                <span>100% FREE PUBLIC BETA</span>
+                                <span>FREE WORKSPACE PREVIEW</span>
                             </div>
                             <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white/90 text-xs font-semibold backdrop-blur-xs">
-                                Early Student Access
+                                No subscription
                             </span>
                         </div>
 
                         <h3 className="text-xl sm:text-2xl font-black mb-2 text-white">
-                            All Features Are 100% Free Right Now 🔥
+                            Design freely. Pay only when you export.
                         </h3>
                         <p className="text-white/85 text-sm sm:text-base leading-relaxed mb-5 max-w-xl">
-                            Text2Handwriting is currently in <b>active public beta</b>. Because we are testing and perfecting the platform, every single feature — unlimited 4K PDF exports, 3D metallic spirals, lab diagram canvases, and all 15+ student paper types — is <b>completely free for all students</b>. No credit card, no paywalls.
+                            Create and preview your document with the full studio before checkout. When it is ready, export pricing is calculated clearly as <b>₹10 per document plus ₹2 per generated page</b>.
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
                             {[
-                                'Unlimited 4K PDF exports (Zero watermark)',
+                                'Full-resolution PDF and image exports',
                                 'Interactive Lab Notebook & Diagram Canvas',
-                                'All 50+ Realistic Indian & International Fonts',
+                                'A curated library of handwriting styles',
                                 '3D Metallic Twin-Wire Coil Bindings',
                                 'Smart Margin Indexing & Comparison Columns',
-                                'Full Pro Access Included Free During Beta'
+                                'Exact total shown before secure checkout'
                             ].map(f => (
                                 <div key={f} className="flex items-center gap-2 text-xs sm:text-sm text-white/95">
                                     <div className="w-4 h-4 rounded-full bg-emerald-400/20 flex items-center justify-center shrink-0">
@@ -229,22 +229,19 @@ export default function AccountPage() {
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 border-t border-white/15">
                             <div className="flex-1">
                                 <p className="text-xs text-white/70">
-                                    Account status: <span className="text-emerald-300 font-bold">Free Beta Student Pass Active</span>
+                                    Account status: <span className="text-emerald-300 font-bold">Studio access active</span>
                                 </p>
                                 <p className="text-[11px] text-white/50">
-                                    Enjoy zero-cost exports and unlimited digital notebooks during this testing period.
+                                    Editing and previewing are free. You only pay when you choose to download an export.
                                 </p>
                             </div>
                             <button
                                 type="button"
-                                onClick={() => {
-                                    localStorage.setItem('text2handwriting_beta_claimed', 'true');
-                                    alert('🎉 Free Beta Pass confirmed! You have full unlimited access to all Text2Handwriting tools.');
-                                }}
+                                onClick={() => navigate('/editor')}
                                 className="px-5 py-3 bg-white text-violet-900 hover:bg-violet-50 rounded-xl font-bold text-sm shadow-md hover:scale-102 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 <Sparkles size={16} className="text-violet-700" />
-                                <span>Claim Free Beta Access</span>
+                                <span>Open the Studio</span>
                             </button>
                         </div>
                     </div>

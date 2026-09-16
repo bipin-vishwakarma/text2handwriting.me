@@ -1,12 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 
 export default function NotFoundPage() {
     const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-paper flex items-center justify-center p-4 relative overflow-hidden">
+             <Helmet>
+                 <title>Page not found | Text2Handwriting</title>
+                 <meta name="robots" content="noindex, nofollow" />
+                 <link rel="canonical" href={window.location.origin + window.location.pathname} />
+             </Helmet>
              {/* Background Pattern */}
              <div className="absolute inset-0 bg-[radial-gradient(#00000005_1px,transparent_1px)] bg-size-[20px_20px]" />
              

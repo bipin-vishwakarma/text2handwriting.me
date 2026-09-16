@@ -5,7 +5,7 @@ import {
     Sparkles, ArrowRight, BookOpen, Zap, 
     ChevronDown, Camera, Flame,
     FlaskConical, Eye, PenTool, ShieldCheck,
-    CheckCircle2, FileText, Layers
+    CheckCircle2, FileText, Layers, BadgeIndianRupee, LockKeyhole
 } from 'lucide-react';
 const NotebookHero3D = lazy(() => import('../components/landing/NotebookHero3D'));
 import { Loader2 } from 'lucide-react';
@@ -105,8 +105,8 @@ const FAQ_ITEMS = [
         a: "Text2Handwriting is engineered specifically to eliminate mechanical font uniformity. Every letter features natural stroke-width variations, micro-slant baseline jitter, realistic pen ink bleeding, and optional human scratch-outs. When printed on physical A4 paper or exported as a PDF, it produces authentic, natural handwriting."
     },
     {
-        q: "Is Text2Handwriting really 100% free during the public beta?",
-        a: "Yes! Every single feature — unlimited 4K PDF exports, metallic spiral coils, authentic student paper formats, and the interactive lab diagram canvas — is completely free. There are zero paywalls and zero credit card requirements."
+        q: "Can I try Text2Handwriting before paying?",
+        a: "Yes. You can compose, style, and preview your document in the studio before checkout. A downloadable export is priced transparently at ₹10 plus ₹2 per generated page, so you only pay when your document is ready."
     },
     {
         q: "How does the Lab Notebook / Mixed Page mode work?",
@@ -187,7 +187,7 @@ export default function LandingPage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#FAF8F5] text-stone-900 selection:bg-violet-200 selection:text-violet-900 font-sans relative">
+        <div className="min-h-screen overflow-x-clip bg-[#FAF8F5] text-stone-900 selection:bg-violet-200 selection:text-violet-900 font-sans relative">
 
             {/* Architectural Warm Paper Dot Grid */}
             <div 
@@ -209,14 +209,21 @@ export default function LandingPage() {
                 1. IMMERSIVE HERO STAGE (Open Dual-Page Spiral & Editorial)
             ========================================================= */}
             <section className="relative pt-32 sm:pt-36 lg:pt-40 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+                <div className="grid min-w-0 grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
                     
                     {/* Left Column: Dramatic Editorial Copy */}
                     <motion.div 
                         style={{ y: yHeroContent }}
-                        className="lg:col-span-5 text-left space-y-6 z-10"
+                        className="min-w-0 lg:col-span-5 text-left space-y-6 z-10"
                     >
-                        {/* Status Kicker Removed */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="inline-flex max-w-full items-center gap-2 rounded-full border border-violet-200 bg-white/85 px-3 py-1.5 text-[11px] font-bold text-violet-800 shadow-sm backdrop-blur"
+                        >
+                            <Sparkles size={13} aria-hidden="true" />
+                            <span className="truncate">DESIGN FREE · PAY ONLY TO EXPORT</span>
+                        </motion.div>
                         {/* Grand Display Headline */}
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
@@ -224,9 +231,9 @@ export default function LandingPage() {
                             transition={{ duration: 0.5, delay: 0.1 }}
                             className="text-4xl sm:text-5.5xl lg:text-6xl font-black tracking-tight leading-[1.08] text-stone-950 font-display"
                         >
-                            Turn typed assignments into{' '}
-                            <span className="bg-gradient-to-r from-violet-700 via-indigo-600 to-cyan-600 bg-clip-text text-transparent italic font-serif">
-                                real handwriting.
+                            Turn typed text into handwriting{' '}
+                            <span className="text-violet-700">
+                                that feels yours.
                             </span>
                         </motion.h1>
 
@@ -237,7 +244,7 @@ export default function LandingPage() {
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="text-base sm:text-lg text-stone-600 leading-relaxed max-w-xl font-normal"
                         >
-                            Stop wasting hours copying lab records, assignments, and practical notes by hand. Paste your text, choose authentic Indian student ruled registers, and download print-ready 4K PDFs in seconds.
+                            Build polished handwritten notes, practical records, and study material without repetitive copying. Paste your text, tune every detail, preview the result, then export only when it looks right.
                         </motion.p>
 
                         {/* Action Buttons */}
@@ -252,7 +259,7 @@ export default function LandingPage() {
                                 className="px-7 py-4 bg-stone-950 hover:bg-stone-800 text-white rounded-2xl font-bold text-sm sm:text-base shadow-xl shadow-stone-950/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
                             >
                                 <Sparkles size={18} className="text-amber-400 group-hover:rotate-12 transition-transform" />
-                                <span>Launch Studio — It's Free</span>
+                                <span>Design My Document</span>
                                 <ArrowRight size={18} className="text-white/80 group-hover:translate-x-1 transition-transform" />
                             </Link>
 
@@ -289,23 +296,24 @@ export default function LandingPage() {
                                         }`}
                                         style={{ backgroundColor: ink.color }}
                                         title={ink.name}
+                                        aria-label={`Use ${ink.name} ink`}
                                     />
                                 ))}
                             </div>
-                            <span className="text-[11px] text-emerald-700 font-mono ml-auto font-bold flex items-center gap-1">
+                            <span className="hidden min-[430px]:flex text-[11px] text-emerald-700 font-mono ml-auto font-bold items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                 Interactive Canvas Live
                             </span>
                         </motion.div>
 
                         {/* Verified Credibility Badges */}
-                        <div className="grid grid-cols-3 gap-3 pt-2 text-center">
+                        <div className="grid grid-cols-1 min-[360px]:grid-cols-3 gap-2.5 sm:gap-3 pt-2 text-center">
                             <div className="p-3.5 rounded-2xl bg-white/80 border border-stone-200/80 shadow-2xs">
-                                <p className="text-lg font-black text-stone-900">0%</p>
-                                <p className="text-[11px] text-stone-500 font-medium">AI Watermarks</p>
+                                <p className="text-lg font-black text-stone-900">Free</p>
+                                <p className="text-[11px] text-stone-500 font-medium">Live preview</p>
                             </div>
                             <div className="p-3.5 rounded-2xl bg-white/80 border border-stone-200/80 shadow-2xs">
-                                <p className="text-lg font-black text-violet-700">50+</p>
+                                <p className="text-lg font-black text-violet-700">30+</p>
                                 <p className="text-[11px] text-stone-500 font-medium">Handwriting Fonts</p>
                             </div>
                             <div className="p-3.5 rounded-2xl bg-white/80 border border-stone-200/80 shadow-2xs">
@@ -316,11 +324,11 @@ export default function LandingPage() {
                     </motion.div>
 
                     {/* Right Column: Uncaged Open Dual-Page Spiral Notebook */}
-                    <div className="lg:col-span-7 relative flex items-center justify-center">
+                    <div className="min-w-0 lg:col-span-7 relative flex items-center justify-center">
                         {/* Uncaged 3D Notebook Canvas (Free Floating, Interactive) */}
                         <motion.div 
                             style={{ y: yHeroNotebook }}
-                            className="w-full relative cursor-grab active:cursor-grabbing drop-shadow-[0_25px_35px_rgba(0,0,0,0.15)]"
+                            className="w-full min-w-0 max-w-[min(860px,115vw)] relative cursor-grab active:cursor-grabbing drop-shadow-[0_25px_35px_rgba(0,0,0,0.15)]"
                         >
                             <Suspense fallback={<NotebookLoader />}><NotebookHero3D activeInk={activeInk} /></Suspense>
                         </motion.div>
@@ -866,19 +874,19 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    {/* Card 6: Zero Paywalls & Privacy */}
+                    {/* Card 6: Privacy and transparent checkout */}
                     <div className="p-8 rounded-3xl bg-white border border-stone-200/90 shadow-xs hover:shadow-xl hover:border-rose-300 transition-all flex flex-col justify-between group">
                         <div>
                             <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-6 group-hover:scale-108 transition-transform">
                                 <ShieldCheck size={24} />
                             </div>
-                            <h3 className="text-xl font-black text-stone-900 mb-2">100% Client-Side Privacy & Free Beta</h3>
+                            <h3 className="text-xl font-black text-stone-900 mb-2">Private Workspace & Clear Pricing</h3>
                             <p className="text-sm text-stone-600 leading-relaxed">
-                                Everything runs locally inside your browser memory. Your assignments, notes, and records are never saved to external servers without consent. 100% free with unlimited 4K exports.
+                                Compose and render in your browser, preview before checkout, and see the exact export price before you pay. Your document content is not uploaded for handwriting generation.
                             </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-stone-100 text-xs font-mono text-rose-600 font-bold">
-                            No paywalls · No watermarks · Instant
+                            Free preview · Pay per export · No subscription
                         </div>
                     </div>
 
@@ -886,7 +894,59 @@ export default function LandingPage() {
             </section>
 
             {/* =========================================================
-                7. FREQUENTLY ASKED QUESTIONS (Accordion)
+                7. TRANSPARENT CONVERSION / PRICING
+            ========================================================= */}
+            <section id="pricing-preview" className="py-16 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24">
+                <div className="overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-xl shadow-stone-200/50">
+                    <div className="grid lg:grid-cols-[1.15fr_.85fr]">
+                        <div className="p-7 sm:p-10 lg:p-12">
+                            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+                                <BadgeIndianRupee size={14} aria-hidden="true" /> Simple pay-per-export pricing
+                            </span>
+                            <h2 className="mt-5 max-w-2xl text-3xl sm:text-5xl font-black tracking-tight text-stone-950 font-display">
+                                Perfect the preview first. Pay only when it is ready.
+                            </h2>
+                            <p className="mt-4 max-w-xl text-sm sm:text-base leading-relaxed text-stone-600">
+                                There is no subscription and no surprise charge. Use the complete editor, explore paper and ink styles, and review every page before opening secure checkout.
+                            </p>
+                            <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                                {[
+                                    ['01', 'Create', 'Paste or import your text'],
+                                    ['02', 'Preview', 'Tune every page visually'],
+                                    ['03', 'Export', 'Pay once and download'],
+                                ].map(([step, title, detail]) => (
+                                    <div key={step} className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                                        <span className="text-[10px] font-black tracking-widest text-violet-600">{step}</span>
+                                        <p className="mt-1 text-sm font-black text-stone-900">{title}</p>
+                                        <p className="mt-1 text-xs leading-relaxed text-stone-500">{detail}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex flex-col justify-between bg-stone-950 p-7 text-white sm:p-10 lg:p-12">
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">One export</p>
+                                <div className="mt-3 flex items-end gap-2">
+                                    <span className="text-5xl font-black tracking-tight">₹10</span>
+                                    <span className="pb-1.5 text-sm text-stone-300">base fee</span>
+                                </div>
+                                <p className="mt-2 text-sm text-stone-300">+ ₹2 for each generated page</p>
+                                <ul className="mt-7 space-y-3 text-sm text-stone-200">
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400" /> Full-resolution PDF or ZIP</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400" /> Price shown before checkout</li>
+                                    <li className="flex items-center gap-2"><LockKeyhole size={16} className="text-emerald-400" /> Secure Razorpay checkout</li>
+                                </ul>
+                            </div>
+                            <Link to="/editor" className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-4 text-sm font-black text-stone-950 transition hover:bg-violet-50 active:scale-[.98]">
+                                Start with a free preview <ArrowRight size={17} />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* =========================================================
+                8. FREQUENTLY ASKED QUESTIONS (Accordion)
             ========================================================= */}
             <section id="faq" className="py-16 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto scroll-mt-20">
                 <div className="text-center mb-12">
@@ -908,6 +968,8 @@ export default function LandingPage() {
                                 type="button"
                                 onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                                 className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-stone-900 text-base cursor-pointer hover:bg-stone-50/60"
+                                aria-expanded={openFaq === idx}
+                                aria-controls={`landing-faq-${idx}`}
                             >
                                 <span>{item.q}</span>
                                 <ChevronDown
@@ -918,6 +980,7 @@ export default function LandingPage() {
                             <AnimatePresence>
                                 {openFaq === idx && (
                                     <motion.div
+                                        id={`landing-faq-${idx}`}
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
@@ -936,7 +999,7 @@ export default function LandingPage() {
             </section>
 
             {/* =========================================================
-                8. CALL-TO-ACTION PORTAL
+                9. CALL-TO-ACTION PORTAL
             ========================================================= */}
             <section className="py-20 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto">
                 <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-stone-900 via-indigo-950 to-violet-950 border border-indigo-500/30 p-10 sm:p-16 text-center shadow-[0_0_40px_rgba(139,92,246,0.15)] text-white">
@@ -945,7 +1008,7 @@ export default function LandingPage() {
                     <div className="relative z-10 max-w-2xl mx-auto space-y-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs font-bold font-mono">
                             <Sparkles size={13} className="text-amber-400" />
-                            <span>ZERO COST · PUBLIC BETA</span>
+                            <span>FREE TO DESIGN · PAY ONLY TO EXPORT</span>
                         </div>
 
                         <h2 className="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-violet-400 tracking-tight font-display pb-1">
@@ -953,7 +1016,7 @@ export default function LandingPage() {
                         </h2>
 
                         <p className="text-stone-200 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-                            No download, no credit card. Join students and creators turning typed text into realistic handwritten notes in seconds.
+                            Open the studio without a subscription, shape every detail, and preview every page before deciding to export.
                         </p>
 
                         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -962,7 +1025,7 @@ export default function LandingPage() {
                                 className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-400 hover:to-fuchsia-400 rounded-2xl font-bold text-base shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] hover:-translate-y-0.5 active:translate-y-0 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 <Sparkles size={18} className="text-yellow-300" />
-                                <span>Open Studio Now — It's Free</span>
+                                <span>Create My Free Preview</span>
                                 <ArrowRight size={18} />
                             </Link>
                         </div>

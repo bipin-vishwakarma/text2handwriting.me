@@ -237,6 +237,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         persistUser(profile);
     }
 })();
+                } else if (!error) {
+                    // A cached display profile is not an authenticated payment
+                    // session. Clear it so checkout routes users through login
+                    // instead of allowing a request that will inevitably 401.
+                    persistUser(null);
                 }
                 setIsLoading(false);
             }).catch((err) => {
@@ -258,7 +263,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         persistUser(profile);
     }
 })();
-            } else if (event === 'SIGNED_OUT') {
+            } else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') {
                 persistUser(null);
             }
             setIsLoading(false);

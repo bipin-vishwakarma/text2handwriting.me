@@ -8,9 +8,10 @@ import {
     ZoomIn, ZoomOut, Palette,
     RotateCcw, Camera, Scissors, X, Dices,
     Maximize2, Minimize2, Clipboard, Sparkles, Trash2,
-    FileUp, Upload, Loader2, FlaskConical, Compass
+    FileUp, Upload, Loader2, FlaskConical, Compass, PanelLeft, Layers3
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 import { useStore } from '../lib/store';
 import { useToast } from '../hooks/useToast';
@@ -540,7 +541,6 @@ export default function EditorPage() {
         labDiagramPaper, setLabDiagramPaper,
         pageMaterialOverrides, setPageMaterialOverride,
         pageDiagrams, setPageDiagram, clearAllDiagrams,
-        hasSeenOnboarding,
         history: storeHistory, addToHistory,
         resetStyles, reset,
         resetFormatting, resetPaperSettings,
@@ -941,7 +941,7 @@ export default function EditorPage() {
 
     // Navigation & Tab States
     const [activeSidebarTab, setActiveSidebarTab] = useState<'write' | 'pen' | 'paper' | 'realism' | 'effects'>('write');
-    const [mobileTab] = useState<'write' | 'canvas' | 'settings'>('canvas');
+    const [mobileTab, setMobileTab] = useState<'write' | 'canvas' | 'settings'>('canvas');
 
     // Dynamic Zoom & Fit Engine
     const [zoomMode, setZoomMode] = useState<'fit-width' | 'fit-page' | 'manual'>('fit-width');
@@ -954,8 +954,8 @@ export default function EditorPage() {
         if (clientWidth === 0 || clientHeight === 0) return;
 
         if (zoomMode === 'fit-width') {
-            const availableWidth = clientWidth - 56;
-            const newScale = Math.max(0.35, Math.min(1.4, availableWidth / 800));
+            const availableWidth = clientWidth - (clientWidth < 640 ? 32 : 56);
+            const newScale = Math.max(0.28, Math.min(1.4, availableWidth / 800));
             setScale(newScale);
         } else if (zoomMode === 'fit-page') {
             const availableHeight = clientHeight - 64;
@@ -1130,16 +1130,8 @@ export default function EditorPage() {
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isExploreMenuOpen, setIsExploreMenuOpen] = useState(false);
 
-    useEffect(() => {
-        try {
-            const hasSeen = localStorage.getItem('text2handwriting_onboarding_dismissed');
-            if (!hasSeen && !hasSeenOnboarding) {
-                setIsOnboardingOpen(true);
-            }
-        } catch {
-            // ignore
-        }
-    }, [hasSeenOnboarding]);
+    // The first-use cue is inline in Write; the full tour is opt-in so it
+    // never interrupts a pasted document or a returning guest.
 
     // --- PIPELINE EXECUTION: PRE-TOKENIZATION & PAGE PAGINATION ---
     const pages = useMemo(() => {
@@ -1323,24 +1315,19 @@ export default function EditorPage() {
     };
 
     return (
-        <div className="w-screen h-screen overflow-hidden flex flex-col bg-white text-stone-900 font-sans select-none">
+        <div className="w-full h-dvh overflow-hidden flex flex-col bg-white text-stone-900 font-sans select-none">
+            <Helmet>
+                <title>Handwriting Editor | Text2Handwriting</title>
+                <meta name="description" content="Create and preview a handwritten document locally in your browser." />
+                <meta name="robots" content="noindex, nofollow" />
+                <link rel="canonical" href="https://text2handwriting.me/editor" />
+            </Helmet>
             
-            {/* ==================== TOP BAR (Apple/Linear Aesthetic) ==================== */}
-            <header className="h-14 bg-white/70 backdrop-blur-2xl border-b border-stone-200/80 px-4 sm:px-6 flex items-center justify-between shrink-0 z-30">
-                {/* Left: macOS Dots, Brand Badge & Editable Document Title */}
-                <div className="flex items-center gap-4 min-w-0">
-                    <div className="flex items-center gap-3 shrink-0">
-                        {/* macOS Colored Window Control Dots */}
-                        <div className="flex gap-2">
-                            <div className="w-3 h-3 rounded-full bg-[#FF5F57] shadow-inner" />
-                            <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner" />
-                            <div className="w-3 h-3 rounded-full bg-[#28C840] shadow-inner" />
-                        </div>
-                        <div className="h-4 w-px bg-stone-200" />
-                        <div className="flex items-center gap-1.5">
-                            <span className="font-display font-extrabold text-sm tracking-tight text-stone-900">Text2Handwriting</span>
-                        </div>
-                    </div>
+            {/* Product-first workspace: document, canvas, and one clear action. */}
+            <header className="min-h-16 bg-white border-b border-stone-200 px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 z-30">
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <Link to="/" aria-label="Back to Text2Handwriting home" className="hidden sm:flex items-center shrink-0 font-display font-extrabold text-sm tracking-tight text-stone-900 hover:text-violet-700 transition-colors">Text2Handwriting</Link>
+                    <span className="hidden sm:block h-4 w-px bg-stone-200 shrink-0" />
 
                     <div className="h-4 w-px bg-stone-200 hidden sm:block shrink-0" />
 
@@ -1349,8 +1336,9 @@ export default function EditorPage() {
                         type="text" 
                         value={headerText}
                         onChange={(e) => setPageOptions({ headerText: e.target.value })}
-                        placeholder="Untitled Assignment"
-                        className="bg-stone-50 hover:bg-stone-100/80 focus:bg-white text-xs font-semibold text-stone-800 placeholder:text-stone-400 border border-stone-200/60 focus:border-stone-900 px-2.5 py-1 rounded-lg outline-none transition-all max-w-[140px] sm:max-w-[200px] truncate"
+                        placeholder="Untitled document"
+                        aria-label="Document title"
+                        className="min-w-0 w-[clamp(110px,18vw,220px)] bg-stone-50 hover:bg-stone-100 focus:bg-white text-xs font-semibold text-stone-800 placeholder:text-stone-400 border border-stone-200 focus:border-violet-600 focus-visible:ring-2 focus-visible:ring-violet-300 px-3 py-2 rounded-xl outline-none transition-all truncate"
                     />
 
                     {/* Stats Pill */}
@@ -1409,7 +1397,7 @@ export default function EditorPage() {
                 </div>
 
                 {/* Right: Randomize, Reset, Creator, History, Export Preview */}
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                     {/* Realism Randomizer Dice Button */}
                     <button 
                         onClick={() => {
@@ -1418,7 +1406,7 @@ export default function EditorPage() {
                             addToast('🎲 Rolled organic human realism variations!', 'success');
                         }}
                         title="Roll random organic handwriting flaws, slant & lighting"
-                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition-all active:scale-95 border border-amber-200/80 shadow-2xs"
+                        className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition-all active:scale-95 border border-amber-200/80 shadow-2xs"
                     >
                         <Dices size={13} className="text-amber-600" />
                         <span className="hidden sm:inline">Randomize</span>
@@ -1429,14 +1417,14 @@ export default function EditorPage() {
                         type="button"
                         onClick={() => setIsOnboardingOpen(true)}
                         title="Open Interactive Student Tour & Features Guide"
-                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-amber-50 hover:text-amber-700 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60 cursor-pointer"
+                        className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-amber-50 hover:text-amber-700 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60 cursor-pointer"
                     >
                         <Sparkles size={13} className="text-amber-500" />
                         <span className="hidden md:inline">Tour</span>
                     </button>
 
                     {/* Explore Site Pages Dropdown */}
-                    <div className="relative">
+                    <div className="relative hidden xl:block">
                         <button 
                             type="button"
                             onClick={() => setIsExploreMenuOpen(!isExploreMenuOpen)}
@@ -1467,7 +1455,7 @@ export default function EditorPage() {
                     <button 
                         onClick={() => setShowResetModal(true)}
                         title="Reset document styles or clear page"
-                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-rose-50 hover:text-rose-600 text-stone-600 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60"
+                        className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-rose-50 hover:text-rose-600 text-stone-600 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60"
                     >
                         <RotateCcw size={13} />
                         <span className="hidden sm:inline">Reset</span>
@@ -1477,7 +1465,7 @@ export default function EditorPage() {
                     <button 
                         onClick={() => setShowCreatorModal(true)}
                         title="Created with passion by Bipin Vishwakarma — View Profile & Socials"
-                        className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200/70 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60"
+                        className="hidden xl:flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200/70 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60"
                     >
                         <div className="relative flex items-center justify-center">
                             <img 
@@ -1496,7 +1484,7 @@ export default function EditorPage() {
                     <button 
                         onClick={() => setIsHistoryOpen(true)}
                         title="Version History"
-                        className="p-2 hover:bg-stone-100 rounded-xl text-stone-600 hover:text-stone-900 transition-colors"
+                        className="hidden md:flex p-2 hover:bg-stone-100 rounded-xl text-stone-600 hover:text-stone-900 transition-colors"
                     >
                         <Clock size={16} />
                     </button>
@@ -1505,15 +1493,15 @@ export default function EditorPage() {
                     <UserMenu />
 
                     {/* Primary Export Preview Button */}
-                    <button onClick={() => handleStartExport('pdf')} className="relative overflow-hidden group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-400 hover:to-fuchsia-400 text-white rounded-xl text-xs font-bold shadow-lg shadow-violet-500/30 transition-all active:scale-95"><div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" /><span className="relative z-10 flex items-center gap-2"><Download size={14} /><span>Export Preview</span></span></button>
+                    <button onClick={() => handleStartExport('pdf')} aria-label="Review pages and export" className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-violet-700 hover:bg-violet-800 text-white rounded-xl text-xs sm:text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Download size={16} aria-hidden="true" /><span className="hidden min-[360px]:inline">Review & Export</span></button>
                 </div>
             </header>
 
             {/* ==================== WORKSTATION BODY ==================== */}
-            <div className="flex-1 flex overflow-hidden relative bg-[#FAF8F5]"><div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(124,58,237,0.06),rgba(255,255,255,0))] pointer-events-none" />
+            <div className="flex-1 min-h-0 flex overflow-hidden relative bg-[#F7F5F1]">
                 
                 {/* 1. LEFT SIDEBAR CONTROLS */}
-                <div className={`w-full lg:w-[400px] bg-white/70 backdrop-blur-2xl border-r border-stone-200/80 flex flex-col shrink-0 overflow-hidden z-20 ${mobileTab === 'canvas' ? 'hidden lg:flex' : 'flex'}`}>
+                <aside aria-label="Document controls" className={`w-full lg:w-[min(340px,31vw)] bg-white border-r border-stone-200 flex-col shrink-0 overflow-hidden z-20 ${mobileTab === 'canvas' ? 'hidden lg:flex' : 'flex'}`}>
                     
                     {/* Navigation Tabs (Apple/Linear Segmented Style) */}
                     <div className="grid grid-cols-5 bg-stone-100/90 p-1.5 shrink-0 border-b border-stone-200/80 gap-1">
@@ -1527,7 +1515,9 @@ export default function EditorPage() {
                             <button
                                 key={t.id}
                                 onClick={() => setActiveSidebarTab(t.id)}
-                                className={`py-1.5 px-1 rounded-xl text-[11px] font-bold flex flex-col sm:flex-row items-center justify-center gap-1 transition-all ${
+                                aria-label={`${t.label} controls`}
+                                aria-pressed={activeSidebarTab === t.id}
+                                className={`min-h-12 py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col sm:flex-row items-center justify-center gap-1 transition-all focus-visible:outline-2 focus-visible:outline-violet-600 ${
                                     activeSidebarTab === t.id
                                         ? 'bg-stone-900 text-white shadow-xs'
                                         : 'text-stone-500 hover:text-stone-900 hover:bg-stone-200/60'
@@ -1540,11 +1530,14 @@ export default function EditorPage() {
                     </div>
 
                     {/* Tab Panels Content */}
-                    <div className={`flex-1 ${activeSidebarTab === 'write' ? 'flex flex-col min-h-0' : 'overflow-y-auto custom-scrollbar space-y-6'} p-5 text-sm bg-white`}>
+                    <div className={`flex-1 ${activeSidebarTab === 'write' ? 'flex flex-col min-h-0' : 'overflow-y-auto custom-scrollbar space-y-6'} p-4 sm:p-5 text-sm bg-white`}>
                         
                         {/* TAB 1: WRITE */}
                         {activeSidebarTab === 'write' && (
                             <div className="flex-1 flex flex-col min-h-0 space-y-3.5">
+                                <div className="shrink-0 rounded-xl border border-violet-100 bg-violet-50/70 px-3 py-2.5 text-xs text-violet-950">
+                                    <span className="font-bold">Your workspace</span><span className="text-violet-800"> · Write → style → review → export.</span>
+                                </div>
                                 {/* Heading Option */}
                                 <div className="shrink-0 bg-stone-50/90 p-3.5 rounded-2xl border border-stone-200/80 space-y-2.5 shadow-2xs">
                                     <div className="flex items-center justify-between">
@@ -2334,15 +2327,24 @@ export default function EditorPage() {
                         )}
 
                     </div>
-                </div>
+                </aside>
 
                 {/* 2. RIGHT DIGITAL CANVAS WORKSTATION (Edge-to-Edge Drafting Desk) */}
                 <main 
                     ref={canvasContainerRef}
-                    className={`flex-1 h-full overflow-auto custom-scrollbar flex flex-col items-center bg-[#F1F3F6] relative p-4 sm:p-8 pr-14 sm:pr-20 pb-16 select-text ${mobileTab !== 'canvas' ? 'hidden lg:flex' : 'flex'}`}
+                    aria-label="Live document preview"
+                    className={`flex-1 min-w-0 h-full overflow-auto custom-scrollbar flex-col items-center bg-[#F1F3F6] relative p-4 sm:p-8 pb-24 sm:pb-16 select-text ${mobileTab !== 'canvas' ? 'hidden lg:flex' : 'flex'}`}
                 >
                     {/* Drafting Desk Dot Pattern */}
                     <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-60" />
+
+                    <div className="lg:hidden sticky top-0 z-30 flex w-full items-center justify-between gap-2 rounded-xl border border-stone-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur">
+                        <span className="text-xs font-bold text-stone-700">Page {activePageIndex + 1} of {pages.length}</span>
+                        <div className="flex items-center gap-2">
+                            <button type="button" onClick={() => handleJumpToPage(Math.max(0, activePageIndex - 1))} disabled={activePageIndex === 0} className="min-h-9 rounded-lg px-2 text-xs font-semibold text-violet-700 disabled:text-stone-400 focus-visible:outline-2 focus-visible:outline-violet-700">Previous</button>
+                            <button type="button" onClick={() => handleJumpToPage(Math.min(pages.length - 1, activePageIndex + 1))} disabled={activePageIndex === pages.length - 1} className="min-h-9 rounded-lg px-2 text-xs font-semibold text-violet-700 disabled:text-stone-400 focus-visible:outline-2 focus-visible:outline-violet-700">Next</button>
+                        </div>
+                    </div>
 
                     {/* Pages Container */}
                     <div className="flex flex-col items-center gap-10 sm:gap-14 py-6 relative z-10 w-full">
@@ -3014,16 +3016,33 @@ export default function EditorPage() {
                     </div>
 
                     {/* Floating Multi-Page Thumbnail Navigation Dock */}
-                    <ThumbnailBar
-                        totalPages={pages.length}
-                        activePageIndex={activePageIndex}
-                        onSelectPage={handleJumpToPage}
-                        paperId={paperMaterial}
-                        diagramPages={diagramPagesMap}
-                        pageMaterials={pageMaterialsMap}
-                    />
+                    <div className="hidden lg:block">
+                        <ThumbnailBar
+                            totalPages={pages.length}
+                            activePageIndex={activePageIndex}
+                            onSelectPage={handleJumpToPage}
+                            paperId={paperMaterial}
+                            diagramPages={diagramPagesMap}
+                            pageMaterials={pageMaterialsMap}
+                        />
+                    </div>
                 </main>
             </div>
+
+            {/* Mobile workspace navigation: canvas remains the primary view. */}
+            <nav aria-label="Mobile editor views" className="lg:hidden shrink-0 grid grid-cols-3 gap-1 border-t border-stone-200 bg-white px-3 pt-2 pb-[max(.5rem,env(safe-area-inset-bottom))]">
+                {[
+                    { id: 'write' as const, label: 'Write', icon: FileText },
+                    { id: 'canvas' as const, label: 'Preview', icon: Layers3 },
+                    { id: 'settings' as const, label: 'Style', icon: PanelLeft },
+                ].map(view => (
+                    <button key={view.id} type="button" aria-current={mobileTab === view.id ? 'page' : undefined}
+                        onClick={() => { setMobileTab(view.id); if (view.id === 'write') setActiveSidebarTab('write'); if (view.id === 'settings' && activeSidebarTab === 'write') setActiveSidebarTab('pen'); }}
+                        className={`min-h-11 rounded-xl flex items-center justify-center gap-2 text-xs font-bold focus-visible:outline-2 focus-visible:outline-violet-700 ${mobileTab === view.id ? 'bg-violet-50 text-violet-800' : 'text-stone-600 hover:bg-stone-50'}`}>
+                        <view.icon size={16} aria-hidden="true" />{view.label}
+                    </button>
+                ))}
+            </nav>
 
             {/* ==================== RESET CONFIRMATION MODAL ==================== */}
             {showResetModal && (

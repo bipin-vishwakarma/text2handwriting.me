@@ -166,5 +166,8 @@ function triggerDownload(blob: Blob, filename: string) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
+    // Revoking synchronously can invalidate the blob before a slower browser
+    // starts its download. Keep it briefly, then release the memory.
+    const objectUrl = link.href;
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
 }

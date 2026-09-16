@@ -14,37 +14,44 @@ export default function PrivacyPolicy() {
                 By accessing or using our services, you signify that you have read, understood, and agree to our collection, storage, use, and disclosure of your personal information as described in this Privacy Policy.
             </p>
 
-            <h3>2. Data Collection (Local Storage)</h3>
+            <h3>2. Information We Process</h3>
             <p>
-                <strong>Important:</strong> Text2Handwriting is designed with a "Local-First" architecture. 
+                <strong>Important:</strong> document text and generated files use a local-first architecture.
             </p>
             <ul>
-                <li><strong>No Cloud Storage:</strong> We do not store your documents, text, or exported files on our servers. All processing happens locally in your browser.</li>
-                <li><strong>Local Storage:</strong> Your preferences (theme, font choice, etc.) and history are stored in your device's <code>localStorage</code> or <code>IndexedDB</code>. This data never leaves your device unless you explicitly export it.</li>
+                <li><strong>Document content:</strong> We do not upload or store your document text or generated PDF/ZIP files. Rendering occurs in your browser.</li>
+                <li><strong>Device data:</strong> Draft state, preferences, and recovery information may be stored in <code>localStorage</code>, <code>sessionStorage</code>, or <code>IndexedDB</code> on your device.</li>
+                <li><strong>Account data:</strong> Supabase processes authentication identifiers, email address, profile fields, session data, and security logs needed to operate your account.</li>
+                <li><strong>Payment data:</strong> Razorpay processes checkout and payment-instrument information. We and Supabase retain limited order and entitlement records such as user ID, order/payment identifiers, page count, amount, currency, status, and timestamps. We do not receive or store full card or UPI credentials.</li>
             </ul>
 
-            <h3>3. Artificial Intelligence Features</h3>
+            <h3>3. How We Use Information</h3>
             <p>
-                When you use our "AI Humanizer" feature, the text you submit is sent to a third-party LLM provider (OpenRouter/OpenAI) for processing. 
-            </p>
-            <ul>
-                <li>The data sent is ephemeral and is only used to generate the response.</li>
-                <li>We do not store logs of your text content on our servers.</li>
-                <li>Please review OpenRouter's privacy policy for details on how they handle API requests.</li>
-            </ul>
-
-            <h3>4. Cookies and Tracking</h3>
-            <p>
-                We use minimal cookies strictly necessary for the operation of the website (e.g., to remember your settings). We may use third-party analytics tools (like Google Analytics) to understand website traffic, which may use cookies. You can disable cookies through your browser settings.
+                We use this information to authenticate users, create and verify payment orders, provide and recover paid-export entitlements, prevent abuse, troubleshoot failures, and comply with legal or accounting obligations.
             </p>
 
-            <h3>5. Contact Us</h3>
+            <h3>4. Service Providers and Retention</h3>
+            <p>
+                Cloudflare provides website delivery and security, Supabase provides authentication and payment-ledger infrastructure, and Razorpay provides payment processing. Each provider processes data under its own terms and privacy policy. Account and payment records are retained only as long as reasonably needed for service operation, fraud prevention, dispute handling, and applicable tax, accounting, or legal requirements.
+            </p>
+
+            <h3>5. Cookies, Local Storage, and Analytics</h3>
+            <p>
+                We use browser storage and authentication cookies that are necessary for login, preferences, checkout recovery, and security. We do not currently claim to run behavioral advertising or analytics tracking. If analytics is introduced, this policy and any consent controls will be updated before use.
+            </p>
+
+            <h3>6. Your Choices</h3>
+            <p>
+                You can clear local drafts and preferences through your browser, sign out to clear the active session, and request assistance with account data or a payment record through the Support Center. Some payment records may need to be retained where required by law. Never post card details, authentication codes, or full payment identifiers in a public issue.
+            </p>
+
+            <h3>7. Contact Us</h3>
             <p>
                 If you have questions about this policy, please open a discussion on our <a href="https://github.com/bipin-vishwakarma/text2handwriting" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
             </p>
 
             <p className="text-sm text-neutral-400 mt-8">
-                Last updated: January 29, 2026
+                Last updated: September 16, 2026
             </p>
         </PageLayout>
     );

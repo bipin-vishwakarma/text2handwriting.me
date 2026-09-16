@@ -542,13 +542,11 @@ export default function NotebookHero3D({
                             }
 
                             // Draw active partial line & calculate pen cursor coordinates
-                            let penCanvasX = 170;
                             const penCanvasY = lineBaseY + currentLine * lineSpacing;
 
                             if (currentLine < INSCRIBE_NOTES.length) {
                                 const lineStr = INSCRIBE_NOTES[currentLine].slice(0, currentChar);
                                 rCtx.fillText(lineStr, 170, penCanvasY);
-                                penCanvasX = 170 + rCtx.measureText(lineStr).width;
                             }
 
                             // If page finished, draw Verified Badge
@@ -566,10 +564,6 @@ export default function NotebookHero3D({
                             rightTexture.needsUpdate = true;
 
                             
-                            const target3DZ = arch + cornerCurl + (isTransitioning ? 0.08 : 0.025);
-
-                            // Pen micro-bob cadence while writing
-                            const penBob = Math.sin(elapsedTime * 28) * 0.004;
 
                             
                         }

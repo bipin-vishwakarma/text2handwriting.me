@@ -1,62 +1,61 @@
 import PageLayout from '../components/layout/PageLayout';
 
+const faqItems = [
+    {
+        question: 'How much does Text2Handwriting cost?',
+        answer: 'You can create, customize, and preview your document without paying. A finished export costs ₹10 plus ₹2 per page. There is no monthly subscription or recurring charge.',
+    },
+    {
+        question: 'How do natural handwriting variations work?',
+        answer: 'The editor can vary letter spacing, baseline alignment, and other layout details so the result feels less mechanically repeated. These are visual formatting controls, not a guarantee against plagiarism or AI-detection systems.',
+    },
+    {
+        question: 'Is my data secure and private?',
+        answer: 'Core handwriting rendering and file export happen in your browser, and we do not store your document files on our servers. If you choose an optional AI-assisted feature, the text you submit may be sent to the third-party model provider described in our Privacy Policy.',
+    },
+    {
+        question: 'Can I use my own handwriting font?',
+        answer: 'Text2Handwriting supports custom font uploads (.ttf/.otf/.woff) directly in the Editor. Upload your own handwriting font for a more personal result, or choose from the included handwriting fonts.',
+    },
+    {
+        question: 'What file formats are supported for export?',
+        answer: 'Text2Handwriting supports high-definition PDF exports for multi-page documents formatted for A4 or Letter sizes. You can also export a ZIP file containing individual PNG images for digital sharing.',
+    },
+];
+
+const faqStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map(({ question, answer }) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: {
+            '@type': 'Answer',
+            text: answer,
+        },
+    })),
+};
+
 export default function FAQPage() {
     return (
-        <PageLayout 
-            title="Help Center" 
+        <PageLayout
+            title="Help Center"
             subtitle="Frequently asked questions about Text2Handwriting."
+            seoTitle="Text2Handwriting FAQ | Pricing, Privacy & Exports"
+            description="Answers about Text2Handwriting pricing, browser-based document processing, custom fonts, responsible use, and PDF export."
+            structuredData={faqStructuredData}
         >
-                <section className="space-y-10">
-                    <div>
-                        <h4 className="text-xl font-bold text-neutral-900 mb-3 flex items-center gap-2">
-                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                             Is Text2Handwriting really free?
-                        </h4>
-                        <p className="text-neutral-600 leading-relaxed">
-                            Yes, the core text-to-handwriting features of Text2Handwriting are completely free to use. We believe in providing accessible creative tools. While we may introduce premium templates or advanced AI features in the future, the essential conversion tools will always remain free.
-                        </p>
+            <section className="space-y-10" aria-label="Frequently asked questions">
+                {faqItems.map(({ question, answer }) => (
+                    <div key={question}>
+                        <h2 className="text-xl font-bold text-neutral-900 mb-3 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
+                            {question}
+                        </h2>
+                        <p className="text-neutral-600 leading-relaxed">{answer}</p>
                     </div>
-
-                    <div>
-                        <h4 className="text-xl font-bold text-neutral-900 mb-3 flex items-center gap-2">
-                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                             How does the AI Humanizer work?
-                        </h4>
-                        <p className="text-neutral-600 leading-relaxed">
-                            Our proprietary simulation engine goes beyond simple font replacement. It analyzes the context of your text and applies natural variations in letter spacing (kerning), baseline alignment (jitter), and stroke pressure. This mimicry of human biological imperfection is what gives the output its realistic, organic feel.
-                        </p>
-                    </div>
-
-                    <div>
-                        <h4 className="text-xl font-bold text-neutral-900 mb-3 flex items-center gap-2">
-                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                             Is my data secure and private?
-                        </h4>
-                        <p className="text-neutral-600 leading-relaxed">
-                            Absolutely. Privacy is built into our "Local-First" architecture. All text-to-handwriting processing and file exports happen directly within your browser's execution environment. We do not store, view, or transmit your personal notes or exported documents to any external servers.
-                        </p>
-                    </div>
-
-                    <div>
-                        <h4 className="text-xl font-bold text-neutral-900 mb-3 flex items-center gap-2">
-                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                             Can I use my own handwriting font?
-                        </h4>
-                        <p className="text-neutral-600 leading-relaxed">
-                            Text2Handwriting supports custom font uploads (.ttf/.otf/.woff) directly in the Editor. Upload your own handwriting font for a truly personalized result, or choose from our curated selection of optimized handwriting fonts.
-                        </p>
-                    </div>
-
-                    <div>
-                        <h4 className="text-xl font-bold text-neutral-900 mb-3 flex items-center gap-2">
-                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                             What file formats are supported for export?
-                        </h4>
-                        <p className="text-neutral-600 leading-relaxed">
-                            Text2Handwriting supports high-definition PDF exports for multi-page documents, perfectly formatted for printing on A4 or Letter sizes. Additionally, you can export your work as a ZIP file containing individual high-quality PNG images for easy digital sharing.
-                        </p>
-                    </div>
-                </section>
+                ))}
+            </section>
         </PageLayout>
     );
 }
