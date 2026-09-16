@@ -84,7 +84,7 @@ function loadGoogleIdentity(): Promise<GoogleIdentityApi> {
     if (window.google?.accounts?.id) return Promise.resolve(window.google.accounts.id);
     if (googleIdentityScriptPromise) return googleIdentityScriptPromise;
 
-    googleIdentityScriptPromise = new Promise((resolve, reject) => {
+    const scriptPromise = new Promise<GoogleIdentityApi>((resolve, reject) => {
         const existing = document.querySelector<HTMLScriptElement>('script[data-google-identity]');
         const script = existing || document.createElement('script');
         const onLoad = () => {
@@ -108,7 +108,8 @@ function loadGoogleIdentity(): Promise<GoogleIdentityApi> {
         throw error;
     });
 
-    return googleIdentityScriptPromise;
+    googleIdentityScriptPromise = scriptPromise;
+    return scriptPromise;
 }
 
 /**
