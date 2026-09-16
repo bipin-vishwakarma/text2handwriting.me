@@ -77,6 +77,24 @@ const publicRoutes = {
     heading: 'Realistic handwriting generator',
     intro: 'Create natural-looking handwritten pages from your own text with adjustable styles, paper, ink, spacing and print-ready export.',
   },
+  'typed-text-to-handwritten-notes': {
+    title: 'How to turn typed text into handwritten notes | text2handwriting.me',
+    description: 'A practical guide to turning your own typed text into clear handwritten notes with page layout, spacing and PDF export controls.',
+    heading: 'How to turn typed text into handwritten notes',
+    intro: 'Paste your own notes into the editor, choose a readable handwriting style, then adjust margins, line spacing and paper before exporting a PDF. Preview every page and proofread the result so diagrams, headings and citations remain accurate.',
+  },
+  'practical-record-formatting-guide': {
+    title: 'Practical and lab record formatting guide | text2handwriting.me',
+    description: 'Learn a clear structure for practical and lab records, then format your own draft as readable handwritten pages for review and printing.',
+    heading: 'Practical and lab record formatting guide',
+    intro: 'A strong practical record is easiest to review when each experiment follows the same structure: objective, materials, method, observations, calculations, result and precautions. Draft the content yourself, use consistent headings, and preview the handwritten layout before printing.',
+  },
+  'print-ready-handwritten-pdf-guide': {
+    title: 'Print-ready handwritten PDF export guide | text2handwriting.me',
+    description: 'Prepare handwritten pages for reliable printing with a quick checklist for margins, page breaks, contrast, paper size and PDF preview.',
+    heading: 'Print-ready handwritten PDF export guide',
+    intro: 'Before exporting, select the paper size your printer uses, keep safe margins, check page breaks and choose enough ink contrast for scanning. Open the PDF on both desktop and mobile, verify every page, and print one test sheet before a full batch.',
+  },
 };
 
 const appRoutes = ['auth', 'onboarding', 'account', 'editor'];
