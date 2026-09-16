@@ -97,8 +97,11 @@ would require server-rendering plus a persisted export identifier and atomic
 consumption. This tradeoff avoids uploading private document text and does
 not claim stronger enforcement than exists.
 
-Deployment status (2026-09-16): the payment ledger migrations and both Edge
-Functions are deployed to the linked Supabase project. A Razorpay Test Mode
+Deployment status (2026-09-16): the payment ledger migrations and all three
+Edge Functions (`create-razorpay-order`, `verify-razorpay-payment`, and
+`razorpay-webhook`) are deployed to the linked Supabase project. The webhook
+remains inactive until `RAZORPAY_WEBHOOK_SECRET` is set in Supabase and the
+matching endpoint, secret, and events are saved in Razorpay. A Razorpay Test Mode
 checkout was captured successfully and produced the requested browser export;
 the failed international-card path was also rejected as expected. Keep the
 frontend and server in Test Mode until the recovery/webhook changes are deployed,
