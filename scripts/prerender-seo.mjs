@@ -29,6 +29,36 @@ const publicRoutes = {
     heading: 'Support for text2handwriting.me',
     intro: 'Get help with the editor, imports, handwriting styles, PDF exports, payments and account access.',
   },
+  privacy: {
+    title: 'Privacy Policy | text2handwriting.me',
+    description: 'Read how text2handwriting.me handles account, document, payment and privacy data.',
+    heading: 'Privacy Policy',
+    intro: 'Learn what information text2handwriting.me processes, what stays in your browser, and how payment and account records are handled.',
+  },
+  terms: {
+    title: 'Terms of Service | text2handwriting.me',
+    description: 'Review the terms for using text2handwriting.me, including exports, payments, permitted use and account responsibilities.',
+    heading: 'Terms of Service',
+    intro: 'Review the terms that apply when you use the editor, create exports, sign in, or purchase an export entitlement.',
+  },
+  disclaimer: {
+    title: 'Disclaimer and academic guidelines | text2handwriting.me',
+    description: 'Understand the educational purpose, responsible use and academic-integrity guidelines for text2handwriting.me.',
+    heading: 'Disclaimer and academic guidelines',
+    intro: 'text2handwriting.me is a formatting and productivity tool. Review the responsible-use guidance before creating or sharing documents.',
+  },
+  cookies: {
+    title: 'Cookie Policy | text2handwriting.me',
+    description: 'Learn how text2handwriting.me uses browser storage and optional cookies to support the site and sign-in experience.',
+    heading: 'Cookie Policy',
+    intro: 'Learn how browser storage and optional cookies support authentication, preferences, security and a reliable editor experience.',
+  },
+  changelog: {
+    title: 'Changelog | text2handwriting.me',
+    description: 'See product updates, accessibility improvements, editor changes and payment reliability work in text2handwriting.me.',
+    heading: 'Changelog',
+    intro: 'Follow updates to the editor, accessibility, performance, exports, payments and privacy-focused product experience.',
+  },
   'text-to-cursive': {
     title: 'Text to cursive converter | text2handwriting.me',
     description: 'Turn your own typed text into natural-looking cursive pages with adjustable spacing, paper, ink and printable PDF export.',
