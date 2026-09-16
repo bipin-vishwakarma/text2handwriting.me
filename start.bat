@@ -4,11 +4,11 @@ setlocal enabledelayedexpansion
 :: Ensure Node.js is on PATH for Windows GUI explorer launches
 set "PATH=C:\Program Files\nodejs;C:\Program Files (x86)\nodejs;%APPDATA%\npm;%LOCALAPPDATA%\Programs\node;%PATH%"
 
-title InkTrail - Text to Handwriting Studio
+title text2handwriting.me - Text to Handwriting Studio
 cd /d "%~dp0"
 
 echo ==============================================================
-echo      InkTrail - Hyper-Realistic Handwriting Studio
+echo      text2handwriting.me - Hyper-Realistic Handwriting Studio
 echo ==============================================================
 echo.
 
@@ -37,7 +37,7 @@ if not exist "node_modules\" (
     echo.
 )
 
-echo [*] Starting InkTrail development server...
+echo [*] Starting text2handwriting.me development server...
 echo [*] Opening http://localhost:5173 in your browser...
 echo.
 

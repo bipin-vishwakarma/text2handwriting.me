@@ -83,7 +83,7 @@ function InnerApp() {
           } />
           <Route path="realistic-handwriting-generator" element={
             <SeoLandingPage 
-              seoTitle="Realistic Handwriting Generator | Text2Handwriting"
+              seoTitle="Realistic Handwriting Generator | text2handwriting.me"
               seoDescription="Generate ultra-realistic handwriting from text. Includes natural ink smudges, varied pressure, and 3D notebook physics."
               h1="Realistic Handwriting Generator"
               subtitle="Create natural-looking handwritten pages with adjustable ink, paper, spacing, and realistic variation."

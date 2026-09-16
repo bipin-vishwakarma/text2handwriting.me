@@ -6,7 +6,7 @@ export default function SupportPage() {
     return (
         <PageLayout 
             title="Support Center" 
-            subtitle="Get support, submit issues, or contribute to Text2Handwriting."
+            subtitle="Get support, submit issues, or contribute to text2handwriting.me."
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 <div className="p-8 bg-white border border-black/5 rounded-3xl hover:shadow-xl hover:shadow-neutral-900/5 transition-all">
@@ -18,7 +18,7 @@ export default function SupportPage() {
                         Found a rendering glitch or have a request? Open an issue directly on the repository.
                     </p>
                     <a 
-                        href="https://github.com/bipin-vishwakarma/text2handwriting/issues" 
+                        href="https://github.com/bipin-vishwakarma/text2handwriting.me/issues"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center font-bold text-neutral-900 hover:gap-2 transition-all"
@@ -33,7 +33,7 @@ export default function SupportPage() {
                     </div>
                     <h3 className="mt-0">Community & Developer</h3>
                     <p className="text-neutral-500 mb-6">
-                        Connect with Bipin Vishwakarma and explore the Text2Handwriting codebase.
+                        Connect with Bipin Vishwakarma and explore the text2handwriting.me codebase.
                     </p>
                     <a 
                         href="https://github.com/bipin-vishwakarma" 
@@ -73,9 +73,9 @@ export default function SupportPage() {
             <section className="mt-16 p-8 border border-neutral-200 border-dashed rounded-3xl text-center">
                 <h3 className="mt-0">Need a feature?</h3>
                 <p className="text-neutral-500 max-w-lg mx-auto mb-6">
-                    We're always looking to improve. If you have an idea for a feature that would make Text2Handwriting better for you, let us know!
+                    We're always looking to improve. If you have an idea for a feature that would make text2handwriting.me better for you, let us know!
                 </p>
-                <a href="https://github.com/bipin-vishwakarma/text2handwriting/issues/new?labels=enhancement&template=feature_request.md" target="_blank" rel="noopener noreferrer" className="text-neutral-900 font-bold underline underline-offset-4 hover:text-neutral-600">Request a Feature →</a>
+                <a href="https://github.com/bipin-vishwakarma/text2handwriting.me/issues/new?labels=enhancement&template=feature_request.md" target="_blank" rel="noopener noreferrer" className="text-neutral-900 font-bold underline underline-offset-4 hover:text-neutral-600">Request a Feature →</a>
             </section>
         </PageLayout>
     );

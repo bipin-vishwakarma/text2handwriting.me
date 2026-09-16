@@ -10,7 +10,7 @@ export default function PricingPage() {
             maxWidth="max-w-5xl"
             title="Fair pricing for students." 
             subtitle="Stop paying for expensive monthly subscriptions you only use once a semester. Our editor is 100% free to use—you only pay when you export the final PDF."
-            seoTitle="Simple Pay-Per-Export Pricing | Text2Handwriting"
+            seoTitle="Simple Pay-Per-Export Pricing | text2handwriting.me"
             description="Create and preview for free, then export for ₹10 plus ₹2 per page. No subscription or recurring charge."
         >
             <div className="relative max-w-4xl mx-auto mt-8">

@@ -6,7 +6,7 @@ import {
     Edit2, Check, X, GraduationCap, Mail, Loader2, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import Text2HandwritingLogo from '../components/common/Text2HandwritingLogo';
+import SiteLogo from '../components/common/SiteLogo';
 
 const PROVIDER_ICONS: Record<string, React.ReactNode> = {
     google: (
@@ -43,7 +43,7 @@ export default function AccountPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF8F5] selection:bg-violet-200 selection:text-violet-900 gap-4">
-                <Text2HandwritingLogo size={44} className="animate-pulse" />
+                <SiteLogo size={44} className="animate-pulse" />
                 <div className="flex items-center gap-2 text-xs font-bold text-stone-500">
                     <div className="w-2 h-2 rounded-full bg-violet-600 animate-ping" />
                     <span>Loading student account...</span>

@@ -6,7 +6,7 @@ import {
     BookOpen, PenTool, Sparkles, CheckCircle2, AlertCircle, KeyRound, Home, Github, ShieldCheck, User
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import Text2HandwritingLogo from '../components/common/Text2HandwritingLogo';
+import SiteLogo from '../components/common/SiteLogo';
 
 type AuthStep = 'choose' | 'email-password';
 
@@ -125,7 +125,7 @@ export default function AuthPage() {
             <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 gap-6">
                 <div className="relative">
                     <div className="absolute inset-0 bg-violet-500 blur-xl opacity-20 animate-pulse rounded-full" />
-                    <Text2HandwritingLogo size={56} className="relative z-10 animate-pulse" />
+                    <SiteLogo size={56} className="relative z-10 animate-pulse" />
                 </div>
                 <div className="flex items-center gap-3 px-5 py-2.5 bg-white shadow-sm border border-neutral-100 rounded-full text-sm font-semibold text-neutral-600">
                     <Loader2 className="w-4 h-4 text-violet-600 animate-spin" />
@@ -155,9 +155,9 @@ export default function AuthPage() {
                 <div className="relative z-10 p-8 lg:p-12">
                     <div className="flex items-center gap-3 mb-10">
                         <div className="bg-white/10 p-2 rounded-xl backdrop-blur-md border border-white/10">
-                            <Text2HandwritingLogo size={32} className="text-white" />
+                            <SiteLogo size={32} className="text-white" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-white">Text2Handwriting</span>
+                        <span className="text-xl font-bold tracking-tight text-white">text2handwriting.me</span>
                     </div>
 
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6">
@@ -227,9 +227,9 @@ export default function AuthPage() {
                         {/* Mobile logo */}
                         <div className="flex lg:hidden items-center gap-3 mb-10 justify-center">
                             <div className="bg-violet-600 p-2.5 rounded-xl shadow-lg shadow-violet-600/20">
-                                <Text2HandwritingLogo size={28} className="text-white" />
+                                <SiteLogo size={28} className="text-white" />
                             </div>
-                            <span className="text-2xl font-bold tracking-tight text-neutral-900">Text2Handwriting</span>
+                            <span className="text-2xl font-bold tracking-tight text-neutral-900">text2handwriting.me</span>
                         </div>
 
                         {errorMessage && (

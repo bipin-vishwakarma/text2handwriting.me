@@ -13,6 +13,6 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-We take the security of InkTrail seriously. If you believe you have found a security vulnerability in InkTrail, please report it via [GitHub Security Advisories](https://github.com/bipin-vishwakarma/inktrail/security/advisories).
+We take the security of text2handwriting.me seriously. If you believe you have found a security vulnerability in text2handwriting.me, please report it via [GitHub Security Advisories](https://github.com/bipin-vishwakarma/text2handwriting.me/security/advisories).
 
 You should expect to receive a response within 24 hours.

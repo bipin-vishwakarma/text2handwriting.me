@@ -80,7 +80,7 @@ Format: `<type>(<scope>): <subject>`
 Got questions? Want to discuss a feature before building it? Reach out!
 
 - **GitHub**: [@bipin-vishwakarma](https://github.com/bipin-vishwakarma)
-- **Repository**: [bipin-vishwakarma/inktrail](https://github.com/bipin-vishwakarma/inktrail)
+- **Repository**: [bipin-vishwakarma/text2handwriting.me](https://github.com/bipin-vishwakarma/text2handwriting.me)
 
 ---
 

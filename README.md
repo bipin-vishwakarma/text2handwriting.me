@@ -1,13 +1,13 @@
 <div align="center">
 
-# 🖋️ InkTrail
+# 🖋️ text2handwriting.me
 
-<img src="public/images/logo.png" alt="InkTrail Logo" width="140" />
+<img src="public/images/logo.png" alt="text2handwriting.me Logo" width="140" />
 
 ### Next-Gen Hyper-Realistic Text-to-Handwriting Studio with 3D Camera Physics, Smart Margin Indexing, Multi-Format Document Import, and Organic Human Flaws
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://inktrail-omega.vercel.app)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/bipin-vishwakarma/inktrail)
+[![Live Site](https://img.shields.io/badge/Live-text2handwriting.me-F38020?style=for-the-badge&logo=cloudflare)](https://text2handwriting.me)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/bipin-vishwakarma/text2handwriting.me)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
@@ -15,17 +15,17 @@
 [![TypeScript 5.9](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.1-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 
-**[Key Features](#-key-features)** • **[Document Importer](#-1-multi-format-document-importer--drag-and-drop)** • **[Markup Cheat Sheet](#-markup--syntax-cheat-sheet)** • **[Camera & Physics](#-6-3d-camera-physics--photo-effects)** • **[Quick Start](#-quick-start)** • **[Deployment](#-deployment-to-vercel)**
+**[Key Features](#-key-features)** • **[Document Importer](#-1-multi-format-document-importer--drag-and-drop)** • **[Markup Cheat Sheet](#-markup--syntax-cheat-sheet)** • **[Camera & Physics](#-6-3d-camera-physics--photo-effects)** • **[Quick Start](#-quick-start)** • **[Deployment](#-deployment-to-cloudflare-pages)**
 
 </div>
 
 ---
 
-## 🌟 What is InkTrail?
+## 🌟 What is text2handwriting.me?
 
-**InkTrail** is a privacy-first, zero-friction web application that transforms standard typed text, assignments, and study notes into **indistinguishable physical handwriting photos**.
+**text2handwriting.me** is a privacy-first, zero-friction web application that transforms standard typed text, assignments, and study notes into **indistinguishable physical handwriting photos**.
 
-Unlike traditional handwriting generators that simply render flat digital fonts in a rigid grid, InkTrail reproduces the subtle physical flaws, optical dynamics, and analog paper textures of real-world notes:
+Unlike traditional handwriting generators that simply render flat digital fonts in a rigid grid, text2handwriting.me reproduces the subtle physical flaws, optical dynamics, and analog paper textures of real-world notes:
 - **Hand Dynamics**: Letter micro-jitter, pen pressure variance, baseline wobble, and progressive wrist fatigue.
 - **Academic Notebook Elements**: Iconic pre-printed **Date & Page No.** header box, heading double-underlines, and wobbly hand-drawn formula boxes.
 - **Smart Academic Layout**: Automated detection of question numbers, answers, roman numerals, and bullets positioned outside the red margin line.
@@ -183,8 +183,8 @@ Loaded locally & via Google Fonts for instant, zero-latency rendering:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/bipin-vishwakarma/inktrail.git
-cd inktrail
+git clone https://github.com/bipin-vishwakarma/text2handwriting.me.git
+cd text2handwriting.me
 ```
 
 ### 2. Install Dependencies
@@ -205,22 +205,17 @@ npm run build
 
 ---
 
-## ☁️ Deployment to Vercel
+## ☁️ Deployment to Cloudflare Pages
 
-InkTrail is pre-configured with SPA routing and client-side rewrites in `vercel.json`.
+The production site is hosted on Cloudflare Pages at
+[`text2handwriting.me`](https://text2handwriting.me). Build and deploy with:
 
-### Option A: Using Vercel CLI
 ```bash
-npx vercel --prod
+npm run build
+npx wrangler pages deploy dist --project-name text2handwriting
 ```
 
-### Option B: Deploy via GitHub
-1. Push this repository to GitHub.
-2. Go to [Vercel Dashboard](https://vercel.com/new).
-3. Import your repository and click **Deploy**.
-   - **Framework Preset**: Vite
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
+The `public/_headers` file supplies production security and caching headers.
 
 ---
 
@@ -246,12 +241,12 @@ npx vercel --prod
 ## 📁 Project Structure
 
 ```
-inktrail/
+text2handwriting.me/
 ├── public/
 │   ├── fonts/           # 20+ locally loaded authentic handwriting fonts
 │   ├── images/          # Assets, paper textures, and logos
-│   ├── favicon.ico      # InkTrail fountain-pen favicon
-│   └── favicon.png      # InkTrail high-res brand icon
+│   ├── favicon.ico      # text2handwriting.me fountain-pen favicon
+│   └── favicon.png      # text2handwriting.me high-res brand icon
 ├── src/
 │   ├── components/
 │   │   ├── HandwrittenWord.tsx     # Strikes, carets, double underlines, formula boxes
@@ -264,7 +259,7 @@ inktrail/
 │   ├── lib/                        # Zustand store & global state
 │   ├── pages/                      # EditorPage studio, landing, and legal pages
 │   └── utils/                      # Document import, tokenization, font metrics, shadows
-├── vercel.json          # SPA rewrite rules for zero-404 Vercel deployments
+├── vercel.json          # Legacy compatibility configuration
 └── package.json
 ```
 
@@ -276,7 +271,7 @@ inktrail/
   <img src="https://avatars.githubusercontent.com/u/151464007?v=4" alt="Bipin Vishwakarma" width="90" style="border-radius: 50%; border: 3px solid #3b82f6;" />
   <br />
   <h3>Bipin Vishwakarma</h3>
-  <p><strong>Creator & Developer • InkTrail</strong><br />
+  <p><strong>Creator & Developer • text2handwriting.me</strong><br />
   Biomedical Engineering Student at <strong>UPES Dehradun</strong> with a minor in <strong>Artificial Intelligence</strong>. Passionate about creative tech, analog document realism, and building free, privacy-first tools for students and creators.</p>
 
   <a href="https://github.com/bipin-vishwakarma"><img src="https://img.shields.io/badge/GitHub-Profile-181717?style=for-the-badge&logo=github" alt="GitHub" /></a>

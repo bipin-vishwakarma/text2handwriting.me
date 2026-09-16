@@ -29,7 +29,7 @@ export default function PageLayout({
     const { pathname } = useLocation();
     const normalizedPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
     const canonicalUrl = `${SITE_URL}${normalizedPath}`;
-    const documentTitle = seoTitle ?? `${title} | Text2Handwriting`;
+    const documentTitle = seoTitle ?? `${title} | text2handwriting.me`;
     const metaDescription = description ?? subtitle ?? 'Create and format print-ready handwritten-style documents from your own text.';
 
     return (
@@ -39,7 +39,7 @@ export default function PageLayout({
                 <meta name="description" content={metaDescription} />
                 <link rel="canonical" href={canonicalUrl} />
                 <meta property="og:type" content="website" />
-                <meta property="og:site_name" content="Text2Handwriting" />
+                <meta property="og:site_name" content="text2handwriting.me" />
                 <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={documentTitle} />
                 <meta property="og:description" content={metaDescription} />
@@ -47,12 +47,12 @@ export default function PageLayout({
                 <meta property="og:image:type" content="image/jpeg" />
                 <meta property="og:image:width" content="1024" />
                 <meta property="og:image:height" content="1024" />
-                <meta property="og:image:alt" content="Text2Handwriting editor preview on ruled paper" />
+                <meta property="og:image:alt" content="text2handwriting.me editor preview on ruled paper" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={documentTitle} />
                 <meta name="twitter:description" content={metaDescription} />
                 <meta name="twitter:image" content={SOCIAL_IMAGE_URL} />
-                <meta name="twitter:image:alt" content="Text2Handwriting editor preview on ruled paper" />
+                <meta name="twitter:image:alt" content="text2handwriting.me editor preview on ruled paper" />
                 {structuredData && <script type="application/ld+json">{JSON.stringify(structuredData)}</script>}
             </Helmet>
             <div className="min-h-screen pt-28 sm:pt-32 pb-16 sm:pb-20 relative overflow-hidden bg-[#FAF8F5] text-stone-900 selection:bg-violet-200 selection:text-violet-900">

@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
         >
             <h3>1. Introduction</h3>
             <p>
-                Welcome to Text2Handwriting ("we", "our", or "us"), created by Bipin Vishwakarma. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclosure, and safeguard your information when you use our website.
+                Welcome to text2handwriting.me ("we", "our", or "us"), created by Bipin Vishwakarma. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclosure, and safeguard your information when you use our website.
             </p>
             <p>
                 By accessing or using our services, you signify that you have read, understood, and agree to our collection, storage, use, and disclosure of your personal information as described in this Privacy Policy.
@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
 
             <h3>7. Contact Us</h3>
             <p>
-                If you have questions about this policy, please open a discussion on our <a href="https://github.com/bipin-vishwakarma/text2handwriting" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
+                If you have questions about this policy, please open a discussion on our <a href="https://github.com/bipin-vishwakarma/text2handwriting.me" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
             </p>
 
             <p className="text-sm text-neutral-400 mt-8">

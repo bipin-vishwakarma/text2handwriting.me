@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useScrollLock } from '../../hooks/useScrollLock';
-import Text2HandwritingLogo from '../common/Text2HandwritingLogo';
+import SiteLogo from '../common/SiteLogo';
 
 export default function AuthModal() {
     const { 
@@ -119,10 +119,10 @@ export default function AuthModal() {
                         transition={{ type: "spring", damping: 26, stiffness: 320 }}
                         className="bg-white/95 backdrop-blur-xl rounded-3xl overflow-hidden isolate shadow-2xl max-w-md w-full relative flex flex-col border border-white/60 ring-1 ring-neutral-900/10"
                     >
-                        {/* HEADER with Text2Handwriting Logo & Status */}
+                        {/* HEADER with text2handwriting.me Logo & Status */}
                         <div className="px-6 py-4.5 border-b border-neutral-100 flex items-center justify-between bg-gradient-to-r from-neutral-50/90 via-white to-neutral-50/90 shrink-0">
                             <div className="flex items-center gap-3">
-                                <Text2HandwritingLogo size={32} />
+                                <SiteLogo size={32} />
                                 <div>
                                     <h2 className="text-sm font-extrabold text-neutral-900 leading-tight flex items-center gap-1.5">
                                         <span>Student Cloud Vault</span>
@@ -258,9 +258,9 @@ export default function AuthModal() {
                                 <div className="space-y-3.5">
                                     <div className="text-center mb-4">
                                         <div className="w-12 h-12 mx-auto mb-2 bg-linear-to-br from-indigo-50 to-blue-50 rounded-2xl flex items-center justify-center shadow-xs border border-indigo-100/60">
-                                            <Text2HandwritingLogo size={32} />
+                                            <SiteLogo size={32} />
                                         </div>
-                                        <h3 className="text-sm font-extrabold text-neutral-900">Sign in to Text2Handwriting</h3>
+                                        <h3 className="text-sm font-extrabold text-neutral-900">Sign in to text2handwriting.me</h3>
                                         <p className="text-xs text-neutral-500 mt-0.5">
                                             Sync notebooks, realistic styles & lab diagrams across devices.
                                         </p>

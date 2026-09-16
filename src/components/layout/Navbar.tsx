@@ -2,7 +2,7 @@ import { useState, useEffect, useId } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Sparkles, ExternalLink } from 'lucide-react';
-import Text2HandwritingLogo from '../common/Text2HandwritingLogo';
+import SiteLogo from '../common/SiteLogo';
 import { useStore } from '../../lib/store';
 import UserMenu from '../UserMenu';
 
@@ -102,9 +102,9 @@ export default function Navbar() {
             >
                 <div className="w-full max-w-5xl glass rounded-full px-4 sm:px-6 py-2 sm:py-2.5 flex justify-between items-center pointer-events-auto ring-1 ring-black/5 shadow-lg shadow-black/5">
                     {/* Brand Logo */}
-                    <Link to="/" onClick={() => setMobileMenuOpen(false)} aria-label="Text2Handwriting home" className="flex min-w-0 items-center gap-2 sm:gap-2.5 group relative shrink">
-                        <Text2HandwritingLogo size={32} />
-                        <span className="hidden min-[430px]:block truncate text-base sm:text-xl font-display font-black text-neutral-900 tracking-tight">Text2Handwriting.</span>
+                    <Link to="/" onClick={() => setMobileMenuOpen(false)} aria-label="text2handwriting.me home" className="flex min-w-0 items-center gap-2 sm:gap-2.5 group relative shrink">
+                        <SiteLogo size={32} />
+                        <span className="hidden min-[430px]:block truncate text-base sm:text-xl font-display font-black text-neutral-900 tracking-tight">text2handwriting.me</span>
                     </Link>
 
                     {/* Desktop Navigation Links */}
@@ -263,7 +263,7 @@ export default function Navbar() {
                                 Terms
                             </Link>
                             <a
-                                href="https://github.com/bipin-vishwakarma/text2handwriting"
+                                href="https://github.com/bipin-vishwakarma/text2handwriting.me"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 hover:text-neutral-900"

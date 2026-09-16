@@ -2,7 +2,7 @@ import PageLayout from '../components/layout/PageLayout';
 
 const faqItems = [
     {
-        question: 'How much does Text2Handwriting cost?',
+        question: 'How much does text2handwriting.me cost?',
         answer: 'You can create, customize, and preview your document without paying. A finished export costs ₹10 plus ₹2 per page. There is no monthly subscription or recurring charge.',
     },
     {
@@ -15,11 +15,11 @@ const faqItems = [
     },
     {
         question: 'Can I use my own handwriting font?',
-        answer: 'Text2Handwriting supports custom font uploads (.ttf/.otf/.woff) directly in the Editor. Upload your own handwriting font for a more personal result, or choose from the included handwriting fonts.',
+        answer: 'text2handwriting.me supports custom font uploads (.ttf/.otf/.woff) directly in the Editor. Upload your own handwriting font for a more personal result, or choose from the included handwriting fonts.',
     },
     {
         question: 'What file formats are supported for export?',
-        answer: 'Text2Handwriting supports high-definition PDF exports for multi-page documents formatted for A4 or Letter sizes. You can also export a ZIP file containing individual PNG images for digital sharing.',
+        answer: 'text2handwriting.me supports high-definition PDF exports for multi-page documents formatted for A4 or Letter sizes. You can also export a ZIP file containing individual PNG images for digital sharing.',
     },
 ];
 
@@ -40,9 +40,9 @@ export default function FAQPage() {
     return (
         <PageLayout
             title="Help Center"
-            subtitle="Frequently asked questions about Text2Handwriting."
-            seoTitle="Text2Handwriting FAQ | Pricing, Privacy & Exports"
-            description="Answers about Text2Handwriting pricing, browser-based document processing, custom fonts, responsible use, and PDF export."
+            subtitle="Frequently asked questions about text2handwriting.me."
+            seoTitle="text2handwriting.me FAQ | Pricing, Privacy & Exports"
+            description="Answers about text2handwriting.me pricing, browser-based document processing, custom fonts, responsible use, and PDF export."
             structuredData={faqStructuredData}
         >
             <section className="space-y-10" aria-label="Frequently asked questions">

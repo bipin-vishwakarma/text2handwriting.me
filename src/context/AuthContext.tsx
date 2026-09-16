@@ -61,7 +61,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function mapSupabaseUserToProfile(su: SupabaseUser): UserProfile {
     const meta = su.user_metadata || {};
-    const fullName = meta.full_name || meta.name || meta.user_name || su.email?.split('@')[0] || 'Text2Handwriting Scholar';
+    const fullName = meta.full_name || meta.name || meta.user_name || su.email?.split('@')[0] || 'text2handwriting.me Scholar';
     const parts = fullName.trim().split(' ');
     const given = parts[0] || 'Scholar';
     const rest = parts.slice(1).join(' ');

@@ -1,5 +1,5 @@
 /**
- * Intelligent AI Text Cleaner & Formatter for Text2Handwriting
+ * Intelligent AI Text Cleaner & Formatter for text2handwriting.me
  * 
  * Automatically cleans text copied from ChatGPT, Claude, Gemini, DeepSeek, etc.:
  * 1. Strips conversational AI preamble (e.g. "Yes bro — I checked...", "Sure, here is your assignment...")

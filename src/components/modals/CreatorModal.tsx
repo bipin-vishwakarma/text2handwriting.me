@@ -68,7 +68,7 @@ export const CreatorModal: React.FC<CreatorModalProps> = ({ isOpen, onClose }) =
                             Bipin Vishwakarma
                         </h2>
                         <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-4 flex items-center gap-1.5">
-                            <Code2 size={13} /> Creator & Developer · Text2Handwriting
+                            <Code2 size={13} /> Creator & Developer · text2handwriting.me
                         </p>
 
                         <p className="text-sm text-neutral-600 max-w-md leading-relaxed mb-6 font-medium">
@@ -126,7 +126,7 @@ export const CreatorModal: React.FC<CreatorModalProps> = ({ isOpen, onClose }) =
                                 Crafted with <Heart size={12} className="text-rose-500 fill-current" /> in India
                             </span>
                             <a
-                                href="https://github.com/bipin-vishwakarma/text2handwriting"
+                                href="https://github.com/bipin-vishwakarma/text2handwriting.me"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-bold text-neutral-800 hover:text-indigo-600 transition-colors flex items-center gap-1"

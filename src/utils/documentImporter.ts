@@ -1,5 +1,5 @@
 /**
- * Intelligent Document Importer for Text2Handwriting
+ * Intelligent Document Importer for text2handwriting.me
  * 
  * Extracts and normalizes text from various file formats:
  * - .docx (Microsoft Word documents via mammoth)

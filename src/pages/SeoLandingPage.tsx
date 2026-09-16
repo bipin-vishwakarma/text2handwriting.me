@@ -36,7 +36,7 @@ const pageContent: Record<string, LandingContent> = {
             { title: 'Set the document layout', description: 'Select paper, margins, handwriting style, and other presentation controls for the intended format.' },
             { title: 'Confirm requirements', description: 'Review the pages and your institution or instructor requirements before exporting.' },
         ],
-        note: 'Text2Handwriting does not make work original or guarantee compliance with academic policies. You are responsible for the content and for following your institution’s rules.',
+        note: 'text2handwriting.me does not make work original or guarantee compliance with academic policies. You are responsible for the content and for following your institution’s rules.',
     },
     '/realistic-handwriting-generator': {
         overview: 'The editor combines handwriting fonts with controls for spacing, baseline position, ink, and paper so you can create a handwritten-style presentation from your own text. The preview lets you inspect those choices before an export.',
@@ -72,7 +72,7 @@ export default function SeoLandingPage({ seoTitle, seoDescription, h1, subtitle,
         url: canonicalUrl,
         isPartOf: {
             '@type': 'WebSite',
-            name: 'Text2Handwriting',
+            name: 'text2handwriting.me',
             url: `${SITE_URL}/`,
         },
     };
@@ -84,7 +84,7 @@ export default function SeoLandingPage({ seoTitle, seoDescription, h1, subtitle,
                 <meta name="description" content={seoDescription} />
                 <link rel="canonical" href={canonicalUrl} />
                 <meta property="og:type" content="website" />
-                <meta property="og:site_name" content="Text2Handwriting" />
+                <meta property="og:site_name" content="text2handwriting.me" />
                 <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
@@ -92,12 +92,12 @@ export default function SeoLandingPage({ seoTitle, seoDescription, h1, subtitle,
                 <meta property="og:image:type" content="image/jpeg" />
                 <meta property="og:image:width" content="1024" />
                 <meta property="og:image:height" content="1024" />
-                <meta property="og:image:alt" content="Text2Handwriting editor preview on ruled paper" />
+                <meta property="og:image:alt" content="text2handwriting.me editor preview on ruled paper" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={seoTitle} />
                 <meta name="twitter:description" content={seoDescription} />
                 <meta name="twitter:image" content={SOCIAL_IMAGE_URL} />
-                <meta name="twitter:image:alt" content="Text2Handwriting editor preview on ruled paper" />
+                <meta name="twitter:image:alt" content="text2handwriting.me editor preview on ruled paper" />
                 <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
             </Helmet>
             <main className="flex-1 px-4 py-20 sm:px-6 lg:px-8 text-center bg-white relative overflow-hidden">

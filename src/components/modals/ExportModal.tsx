@@ -284,7 +284,7 @@ export default function ExportModal({
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, 
                 amount: orderData.amount,
                 currency: orderData.currency,
-                name: 'InkTrail Export',
+                name: 'text2handwriting.me Export',
                 description: 'Export ' + pages.length + ' Pages',
                 order_id: orderData.id,
                 handler: async function (response: Record<string, string>) {

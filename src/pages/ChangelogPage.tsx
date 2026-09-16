@@ -62,7 +62,7 @@ export default function ChangelogPage() {
     return (
         <PageLayout 
             title="What's New" 
-            subtitle="Updates, improvements, and everything new in Text2Handwriting."
+            subtitle="Updates, improvements, and everything new in text2handwriting.me."
         >
             <div className="relative border-l-2 border-neutral-100 ml-4 pl-8 space-y-12 py-4">
                 {updates.map((update, index) => (
@@ -96,7 +96,7 @@ export default function ChangelogPage() {
 
             <div className="mt-16 text-center">
                 <p className="text-neutral-400 text-sm font-medium">
-                    Want to stay updated? Star and watch the project on <a href="https://github.com/bipin-vishwakarma/text2handwriting" className="text-neutral-900 font-bold hover:underline">GitHub</a>.
+                    Want to stay updated? Star and watch the project on <a href="https://github.com/bipin-vishwakarma/text2handwriting.me" className="text-neutral-900 font-bold hover:underline">GitHub</a>.
                 </p>
             </div>
         </PageLayout>

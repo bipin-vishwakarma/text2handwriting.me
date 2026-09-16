@@ -8,8 +8,8 @@ export default function AboutPage() {
     return (
         <div className="min-h-screen pt-32 pb-20 relative overflow-hidden bg-[#FAF8F5] text-stone-900 selection:bg-violet-200 selection:text-violet-900">
             <Helmet>
-                <title>About Us | Text2Handwriting</title>
-                <meta name="description" content="The story behind Text2Handwriting. Built for students, by a student, to bring organic realism back to digital documents." />
+                <title>About Us | text2handwriting.me</title>
+                <meta name="description" content="The story behind text2handwriting.me. Built for students, by a student, to bring organic realism back to digital documents." />
                 <link rel="canonical" href="https://text2handwriting.me/about" />
             </Helmet>
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
                                 Digital tools are efficient, but they often lose the warmth and character of handwritten work. We saw an opportunity to make study notes, drafts, and permitted document layouts easier to prepare.
                             </p>
                             <p>
-                                <strong>Text2Handwriting</strong> was created by <strong>Bipin Vishwakarma</strong> to bridge analog aesthetics and digital speed. Its controls reproduce variations in spacing, margins, and ink presentation while keeping the author responsible for the content and its permitted use.
+                                <strong>text2handwriting.me</strong> was created by <strong>Bipin Vishwakarma</strong> to bridge analog aesthetics and digital speed. Its controls reproduce variations in spacing, margins, and ink presentation while keeping the author responsible for the content and its permitted use.
                             </p>
                         </div>
                     </motion.div>

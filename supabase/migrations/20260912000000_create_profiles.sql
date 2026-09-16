@@ -1,4 +1,4 @@
--- InkTrail Student Profiles Table
+-- text2handwriting.me Student Profiles Table
 create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   username text,

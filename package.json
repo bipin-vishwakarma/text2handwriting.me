@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/schema/package.json",
-  "name": "text2handwriting-web",
+  "name": "text2handwriting.me",
   "private": true,
   "version": "2.1.0",
   "type": "module",

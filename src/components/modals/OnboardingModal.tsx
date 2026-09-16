@@ -22,7 +22,7 @@ const SLIDES = [
         icon: FileText,
         color: 'from-blue-500/10 to-indigo-500/10 text-blue-600',
         headline: 'Question numbers automatically pin to the red margin',
-        description: 'Type "Q1.", "Ans:", "(a)", or "(i)" anywhere in your text. Text2Handwriting automatically isolates the question index and stamps it into the authentic left red rule — just like real Indian student notebooks.',
+        description: 'Type "Q1.", "Ans:", "(a)", or "(i)" anywhere in your text. text2handwriting.me automatically isolates the question index and stamps it into the authentic left red rule — just like real Indian student notebooks.',
         demo: (
             <div className="w-full bg-white rounded-xl border border-neutral-200/90 p-3 shadow-inner relative overflow-hidden text-left font-mono text-xs">
                 <div className="absolute top-0 bottom-0 left-16 w-[1.5px] bg-rose-400/80" />
@@ -50,7 +50,7 @@ const SLIDES = [
         icon: FlaskConical,
         color: 'from-purple-500/10 to-pink-500/10 text-purple-600',
         headline: 'Blank left page for diagrams, ruled right page for theory',
-        description: 'Engineering and science practical records require blank/plain facing sheets for circuit schematics, ray diagrams, or graphs, paired with ruled sheets for written observations. Text2Handwriting handles alternating pages and diagram uploads seamlessly!',
+        description: 'Engineering and science practical records require blank/plain facing sheets for circuit schematics, ray diagrams, or graphs, paired with ruled sheets for written observations. text2handwriting.me handles alternating pages and diagram uploads seamlessly!',
         demo: (
             <div className="w-full grid grid-cols-2 gap-2 text-left">
                 {/* Left Page (Blank Diagram) */}
@@ -79,7 +79,7 @@ const SLIDES = [
         icon: Camera,
         color: 'from-amber-500/10 to-orange-500/10 text-amber-600',
         headline: 'Authentic smartphone shadows, desk lamps & natural mistakes',
-        description: 'Text2Handwriting goes far beyond simple fonts: it simulates human hand fatigue (writing gets slightly looser down the page), realistic ballpoint jitter, wavy pen strikethroughs, desk lamp warmth, and 3D smartphone cast shadows.',
+        description: 'text2handwriting.me goes far beyond simple fonts: it simulates human hand fatigue (writing gets slightly looser down the page), realistic ballpoint jitter, wavy pen strikethroughs, desk lamp warmth, and 3D smartphone cast shadows.',
         demo: (
             <div className="w-full bg-linear-to-r from-amber-50/70 to-orange-50/50 rounded-xl border border-amber-200/80 p-3 text-left space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-bold text-neutral-800">
@@ -268,7 +268,7 @@ export default function OnboardingModal({ isOpen: propIsOpen, onClose: propOnClo
                                 </span>
                                 <span className="text-neutral-300">•</span>
                                 <span className="text-xs font-bold text-neutral-800">
-                                    Text2Handwriting Student Tour
+                                    text2handwriting.me Student Tour
                                 </span>
                             </div>
 

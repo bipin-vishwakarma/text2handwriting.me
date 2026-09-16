@@ -1317,7 +1317,7 @@ export default function EditorPage() {
     return (
         <div className="w-full h-dvh overflow-hidden flex flex-col bg-white text-stone-900 font-sans select-none">
             <Helmet>
-                <title>Handwriting Editor | Text2Handwriting</title>
+                <title>Handwriting Editor | text2handwriting.me</title>
                 <meta name="description" content="Create and preview a handwritten document locally in your browser." />
                 <meta name="robots" content="noindex, nofollow" />
                 <link rel="canonical" href="https://text2handwriting.me/editor" />
@@ -1326,7 +1326,7 @@ export default function EditorPage() {
             {/* Product-first workspace: document, canvas, and one clear action. */}
             <header className="min-h-16 bg-white border-b border-stone-200 px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 z-30">
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                    <Link to="/" aria-label="Back to Text2Handwriting home" className="hidden sm:flex items-center shrink-0 font-display font-extrabold text-sm tracking-tight text-stone-900 hover:text-violet-700 transition-colors">Text2Handwriting</Link>
+                    <Link to="/" aria-label="Back to text2handwriting.me home" className="hidden sm:flex items-center shrink-0 font-display font-extrabold text-sm tracking-tight text-stone-900 hover:text-violet-700 transition-colors">text2handwriting.me</Link>
                     <span className="hidden sm:block h-4 w-px bg-stone-200 shrink-0" />
 
                     <div className="h-4 w-px bg-stone-200 hidden sm:block shrink-0" />
@@ -1428,7 +1428,7 @@ export default function EditorPage() {
                         <button 
                             type="button"
                             onClick={() => setIsExploreMenuOpen(!isExploreMenuOpen)}
-                            title="Explore Text2Handwriting Site Pages"
+                            title="Explore text2handwriting.me Site Pages"
                             className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-stone-200/70 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60 cursor-pointer"
                         >
                             <Compass size={13} className="text-indigo-600" />
@@ -1437,7 +1437,7 @@ export default function EditorPage() {
                         {isExploreMenuOpen && (
                             <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-stone-200 py-1.5 z-50 text-left text-xs font-bold">
                                 <div className="px-3 py-1.5 text-[10px] text-stone-400 font-mono uppercase tracking-wider border-b border-stone-100">
-                                    Text2Handwriting Site Pages
+                                    text2handwriting.me Site Pages
                                 </div>
                                 <Link to="/features" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900">Features & Tools</Link>
                                 <Link to="/how-it-works" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900">How It Works Guide</Link>

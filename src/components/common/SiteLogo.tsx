@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface Text2HandwritingLogoProps {
+interface SiteLogoProps {
     size?: number;
     className?: string;
     variant?: 'icon' | 'full';
@@ -8,7 +8,7 @@ interface Text2HandwritingLogoProps {
     animated?: boolean;
 }
 
-export const Text2HandwritingLogo: React.FC<Text2HandwritingLogoProps> = ({
+export const SiteLogo: React.FC<SiteLogoProps> = ({
     size = 36,
     className = '',
     variant = 'icon',
@@ -28,7 +28,7 @@ export const Text2HandwritingLogo: React.FC<Text2HandwritingLogoProps> = ({
             className={`shrink-0 overflow-visible transition-transform duration-300 ${
                 animated ? 'hover:scale-110 active:scale-95' : ''
             }`}
-            aria-label="Text2Handwriting Logo"
+            aria-label="text2handwriting.me Logo"
         >
             <style>{`
                 @keyframes inkFlow_${id} {
@@ -58,7 +58,7 @@ export const Text2HandwritingLogo: React.FC<Text2HandwritingLogoProps> = ({
             `}</style>
 
             <defs>
-                {/* Vibrant Gradient for Fluid Ink Trail */}
+                {/* Vibrant gradient for a fluid pen stroke */}
                 <linearGradient id={`trailGrad-${id}`} x1="14" y1="84" x2="88" y2="18" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stopColor="#06b6d4" />
                     <stop offset="35%" stopColor="#3b82f6" />
@@ -164,4 +164,4 @@ export const Text2HandwritingLogo: React.FC<Text2HandwritingLogoProps> = ({
     );
 };
 
-export default Text2HandwritingLogo;
+export default SiteLogo;

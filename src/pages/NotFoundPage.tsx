@@ -9,7 +9,7 @@ export default function NotFoundPage() {
     return (
         <div className="min-h-screen bg-paper flex items-center justify-center p-4 relative overflow-hidden">
              <Helmet>
-                 <title>Page not found | Text2Handwriting</title>
+                 <title>Page not found | text2handwriting.me</title>
                  <meta name="robots" content="noindex, nofollow" />
                  <link rel="canonical" href={window.location.origin + window.location.pathname} />
              </Helmet>

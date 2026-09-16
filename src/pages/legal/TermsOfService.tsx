@@ -8,12 +8,12 @@ export default function TermsOfService() {
         >
             <h3>1. Acceptance of Terms</h3>
             <p>
-                By accessing and using Text2Handwriting (the "Service"), developed by Bipin Vishwakarma, you accept and agree to be bound by the terms and provisions of this agreement.
+                By accessing and using text2handwriting.me (the "Service"), developed by Bipin Vishwakarma, you accept and agree to be bound by the terms and provisions of this agreement.
             </p>
 
             <h3>2. Use License</h3>
             <p>
-                Permission is granted to use Text2Handwriting for lawful personal, academic, and document-creation purposes, subject to any rights that others may hold in the source content:
+                Permission is granted to use text2handwriting.me for lawful personal, academic, and document-creation purposes, subject to any rights that others may hold in the source content:
             </p>
             <ul>
                 <li>Modify or copy the open-source code in accordance with the project repository license.</li>
@@ -24,17 +24,17 @@ export default function TermsOfService() {
 
             <h3>3. Disclaimer</h3>
             <p>
-                The materials on Text2Handwriting's website are provided on an 'as is' basis. Text2Handwriting makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
+                The materials on text2handwriting.me's website are provided on an 'as is' basis. text2handwriting.me makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
             </p>
 
             <h3>4. Limitations</h3>
             <p>
-                In no event shall Text2Handwriting or its contributors be liable for any damages arising out of the use or inability to use the platform.
+                In no event shall text2handwriting.me or its contributors be liable for any damages arising out of the use or inability to use the platform.
             </p>
 
             <h3>5. Revisions & Updates</h3>
             <p>
-                Text2Handwriting is continuously developed to provide students with the highest-fidelity handwriting simulations and lab tools. Features may be updated or refined over time.
+                text2handwriting.me is continuously developed to provide students with the highest-fidelity handwriting simulations and lab tools. Features may be updated or refined over time.
             </p>
 
             <h3>6. Pricing</h3>
