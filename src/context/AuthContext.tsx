@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { 
     supabase, 
     isSupabaseConfigured, 
+    signInWithGoogleIdToken,
     signInWithGoogleOAuth, 
     signInWithGithubOAuth, 
     signInWithMagicLink, 
@@ -302,6 +303,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (isSupabaseConfigured && supabase) {
             try {
+                if (import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+                    await signInWithGoogleIdToken();
+                    setIsLoading(false);
+                    setAuthModalOpen(false);
+                    return { success: true, redirected: false };
+                }
+
                 const dest = redirectTo || `${window.location.origin}/account`;
                 await signInWithGoogleOAuth(dest);
                 return { success: true, redirected: true };

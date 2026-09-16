@@ -6,6 +6,34 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 // migration, but prefer the publishable key in production.
 const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
     import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+
+type GoogleCredentialResponse = { credential?: string };
+type GooglePromptNotification = {
+    isNotDisplayed: () => boolean;
+    isSkippedMoment: () => boolean;
+    isDismissedMoment: () => boolean;
+    getNotDisplayedReason?: () => string;
+    getSkippedReason?: () => string;
+    getDismissedReason?: () => string;
+};
+type GoogleIdentityApi = {
+    initialize: (options: {
+        client_id: string;
+        callback: (response: GoogleCredentialResponse) => void;
+        auto_select?: boolean;
+        cancel_on_tap_outside?: boolean;
+        context?: 'signin' | 'signup' | 'use';
+        use_fedcm_for_prompt?: boolean;
+    }) => void;
+    prompt: (callback?: (notification: GooglePromptNotification) => void) => void;
+};
+
+declare global {
+    interface Window {
+        google?: { accounts?: { id?: GoogleIdentityApi } };
+    }
+}
 
 export const isSupabaseConfigured = Boolean(
     supabaseUrl && 
@@ -48,6 +76,102 @@ export async function signInWithGoogleOAuth(redirectTo?: string) {
     });
     if (error) throw error;
     return data;
+}
+
+let googleIdentityScriptPromise: Promise<GoogleIdentityApi> | null = null;
+
+function loadGoogleIdentity(): Promise<GoogleIdentityApi> {
+    if (window.google?.accounts?.id) return Promise.resolve(window.google.accounts.id);
+    if (googleIdentityScriptPromise) return googleIdentityScriptPromise;
+
+    googleIdentityScriptPromise = new Promise((resolve, reject) => {
+        const existing = document.querySelector<HTMLScriptElement>('script[data-google-identity]');
+        const script = existing || document.createElement('script');
+        const onLoad = () => {
+            const api = window.google?.accounts?.id;
+            if (api) resolve(api);
+            else reject(new Error('Google Identity Services did not initialize.'));
+        };
+        const onError = () => reject(new Error('Google Identity Services could not be loaded.'));
+
+        script.addEventListener('load', onLoad, { once: true });
+        script.addEventListener('error', onError, { once: true });
+        if (!existing) {
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.async = true;
+            script.defer = true;
+            script.dataset.googleIdentity = 'true';
+            document.head.appendChild(script);
+        }
+    }).catch((error) => {
+        googleIdentityScriptPromise = null;
+        throw error;
+    });
+
+    return googleIdentityScriptPromise;
+}
+
+/**
+ * Uses Google Identity Services on the site's own origin, then exchanges the
+ * returned ID token for a Supabase session. This avoids exposing the Supabase
+ * project hostname in Google's account chooser.
+ */
+export async function signInWithGoogleIdToken() {
+    if (!supabase) {
+        throw new Error('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+    }
+    if (!googleClientId) {
+        throw new Error('Google direct sign-in is not configured. Add VITE_GOOGLE_CLIENT_ID.');
+    }
+
+    const googleIdentity = await loadGoogleIdentity();
+    return new Promise((resolve, reject) => {
+        let settled = false;
+        const finish = (callback: () => void) => {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timeoutId);
+            callback();
+        };
+        const timeoutId = window.setTimeout(() => {
+            finish(() => reject(new Error('Google sign-in timed out. Please try again.')));
+        }, 90_000);
+
+        googleIdentity.initialize({
+            client_id: googleClientId,
+            auto_select: false,
+            cancel_on_tap_outside: false,
+            context: 'signin',
+            use_fedcm_for_prompt: true,
+            callback: async ({ credential }) => {
+                if (!credential) {
+                    finish(() => reject(new Error('Google did not return an identity token.')));
+                    return;
+                }
+                try {
+                    const { data, error } = await supabase.auth.signInWithIdToken({
+                        provider: 'google',
+                        token: credential,
+                    });
+                    if (error) throw error;
+                    finish(() => resolve(data));
+                } catch (error) {
+                    finish(() => reject(error));
+                }
+            },
+        });
+
+        googleIdentity.prompt((notification) => {
+            if (!notification.isNotDisplayed() && !notification.isSkippedMoment() && !notification.isDismissedMoment()) {
+                return;
+            }
+            const reason = notification.getNotDisplayedReason?.()
+                || notification.getSkippedReason?.()
+                || notification.getDismissedReason?.()
+                || 'cancelled';
+            finish(() => reject(new Error(`Google sign-in was not completed (${reason}).`)));
+        });
+    });
 }
 
 /**
