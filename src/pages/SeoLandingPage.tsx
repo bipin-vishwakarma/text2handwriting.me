@@ -20,6 +20,33 @@ interface LandingContent {
 }
 
 const pageContent: Record<string, LandingContent> = {
+    '/typed-text-to-handwritten-notes': {
+        overview: 'Turn your own typed notes into a readable handwritten-style layout. Choose a style, adjust spacing and margins, preview every page, and export only after checking the result.',
+        steps: [
+            { title: 'Paste your notes', description: 'Start with notes and wording you created or are permitted to format.' },
+            { title: 'Tune the page', description: 'Choose a handwriting style, paper, margins, and line spacing for readability.' },
+            { title: 'Review and export', description: 'Check page breaks and headings before creating a print-ready PDF.' },
+        ],
+        note: 'Formatting changes presentation, not authorship. Review the content yourself and follow any applicable submission rules.',
+    },
+    '/practical-record-formatting-guide': {
+        overview: 'Prepare a consistent practical or lab record layout from your own draft, with clear sections for objectives, method, observations, calculations, results, and precautions.',
+        steps: [
+            { title: 'Structure the draft', description: 'Organize each experiment with consistent headings and content you created.' },
+            { title: 'Set the layout', description: 'Choose paper, handwriting style, margins, and spacing that leave room for review.' },
+            { title: 'Proofread pages', description: 'Verify calculations, labels, page order, and instructor requirements before export.' },
+        ],
+        note: 'Use this as a formatting aid only. You remain responsible for accurate work and your institution’s academic-integrity rules.',
+    },
+    '/print-ready-handwritten-pdf-guide': {
+        overview: 'Create a reliable print-ready PDF by checking paper size, safe margins, contrast, page breaks, and the final preview before printing.',
+        steps: [
+            { title: 'Match paper settings', description: 'Select the paper size and orientation used by your printer.' },
+            { title: 'Check readability', description: 'Use safe margins and enough ink contrast for printing or scanning.' },
+            { title: 'Test one page', description: 'Open the PDF on another device and print a test sheet before a full batch.' },
+        ],
+        note: 'Always inspect the exported PDF; browser previews and physical printers can render spacing differently.',
+    },
     '/text-to-cursive': {
         overview: 'Use the editor when you want to see how your own wording reads in a cursive style before you print or share it. You control the text, typeface, size, ink, margins, and paper layout rather than accepting a one-click result.',
         steps: [

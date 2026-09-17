@@ -90,6 +90,9 @@ function InnerApp() {
               keyword="Handwriting Generator"
             />
           } />
+          <Route path="typed-text-to-handwritten-notes" element={<SeoLandingPage seoTitle="How to turn typed text into handwritten notes | text2handwriting.me" seoDescription="A practical guide to turning your own typed text into clear handwritten notes with page layout, spacing and PDF export controls." h1="How to turn typed text into handwritten notes" subtitle="Format your own notes as readable handwritten-style pages and review them before exporting." keyword="Typed text to handwritten notes" />} />
+          <Route path="practical-record-formatting-guide" element={<SeoLandingPage seoTitle="Practical and lab record formatting guide | text2handwriting.me" seoDescription="Learn a clear structure for practical and lab records, then format your own draft as readable handwritten pages for review and printing." h1="Practical and lab record formatting guide" subtitle="Organize your own practical draft into a consistent, reviewable handwritten layout." keyword="Practical record formatting" />} />
+          <Route path="print-ready-handwritten-pdf-guide" element={<SeoLandingPage seoTitle="Print-ready handwritten PDF export guide | text2handwriting.me" seoDescription="Prepare handwritten pages for reliable printing with a checklist for margins, page breaks, contrast, paper size and PDF preview." h1="Print-ready handwritten PDF export guide" subtitle="Use a simple preflight checklist before printing your handwritten-style PDF." keyword="Print-ready handwritten PDF" />} />
 
           {/* Redirects for deleted pages */}
           <Route path="features" element={<Navigate to="/#features" replace />} />
