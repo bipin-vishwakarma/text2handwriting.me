@@ -106,13 +106,13 @@ function jsonLd(route, page) {
     '@type': 'WebPage',
     name: page.title,
     description: page.description,
-    url: `${siteUrl}/${route}`,
+    url: `${siteUrl}/${route}/`,
     isPartOf: { '@type': 'WebSite', name: 'text2handwriting.me', url: `${siteUrl}/` },
   });
 }
 
 function render(route, page, robots) {
-  const canonical = `${siteUrl}/${route}`;
+  const canonical = `${siteUrl}/${route}/`;
   const body = page
     ? `<main id="seo-prerender"><h1>${page.heading}</h1><p>${page.intro}</p><p><a href="${siteUrl}/editor">Open the editor</a> or review <a href="${siteUrl}/pricing">pricing</a> before exporting.</p></main>`
     : '';

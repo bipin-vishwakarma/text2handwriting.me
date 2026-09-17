@@ -89,7 +89,7 @@ const defaultContent: LandingContent = {
 export default function SeoLandingPage({ seoTitle, seoDescription, h1, subtitle, keyword }: SeoLandingPageProps) {
     const { pathname } = useLocation();
     const normalizedPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
-    const canonicalUrl = `${SITE_URL}${normalizedPath}`;
+    const canonicalUrl = normalizedPath === '/' ? `${SITE_URL}/` : `${SITE_URL}${normalizedPath}/`;
     const content = pageContent[normalizedPath] ?? defaultContent;
     const structuredData = {
         '@context': 'https://schema.org',
