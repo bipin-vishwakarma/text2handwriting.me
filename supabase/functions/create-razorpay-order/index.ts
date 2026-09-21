@@ -53,7 +53,12 @@ export default {
             purchase_id: purchaseId,
           });
         }
-        return json(req, { error: "Payment order already exists or is in progress", purchase_id: purchaseId }, 409);
+        // A previous provider request may have failed after reserving the row.
+        // Retry the same idempotent purchase instead of trapping the browser in
+        // a permanent 409 loop with a stale sessionStorage purchaseId.
+        if (existing.data.status !== "pending" || existing.data.razorpay_order_id) {
+          return json(req, { error: "Payment order already exists or is in progress", purchase_id: purchaseId }, 409);
+        }
       }
 
       const response = await fetch("https://api.razorpay.com/v1/orders", {
