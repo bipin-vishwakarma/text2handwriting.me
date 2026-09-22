@@ -1,22 +1,29 @@
 import PageLayout from '../components/layout/PageLayout';
-import { Github, MessageSquare, HelpCircle, FileText, Shield } from 'lucide-react';
+import { Github, MessageSquare, HelpCircle, FileText, Shield, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function SupportPage() {
+    const supportEmail = 'rv261457@gmail.com';
     return (
         <PageLayout 
             title="Support Center" 
             subtitle="Get support, submit issues, or contribute to text2handwriting.me."
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div className="p-8 bg-white border border-black/5 rounded-3xl hover:shadow-xl hover:shadow-neutral-900/5 transition-all">
+                    <div className="w-12 h-12 bg-violet-600 text-white rounded-2xl flex items-center justify-center mb-6">
+                        <Mail size={24} />
+                    </div>
+                    <h3 className="mt-0">Email Support</h3>
+                    <p className="text-neutral-500 mb-6">Need help with an account, export, payment, duplicate charge, or refund request?</p>
+                    <a href={`mailto:${supportEmail}?subject=text2handwriting.me%20support`} className="inline-flex items-center font-bold text-neutral-900 hover:gap-2 transition-all">{supportEmail} →</a>
+                </div>
                 <div className="p-8 bg-white border border-black/5 rounded-3xl hover:shadow-xl hover:shadow-neutral-900/5 transition-all">
                     <div className="w-12 h-12 bg-neutral-900 text-white rounded-2xl flex items-center justify-center mb-6">
                         <Github size={24} />
                     </div>
                     <h3 className="mt-0">GitHub Issues</h3>
-                    <p className="text-neutral-500 mb-6">
-                        Found a rendering glitch or have a request? Open an issue directly on the repository.
-                    </p>
+                    <p className="text-neutral-500 mb-6">Found a rendering glitch or have a feature request? Open a public issue on the repository.</p>
                     <a 
                         href="https://github.com/bipin-vishwakarma/text2handwriting.me/issues"
                         target="_blank"

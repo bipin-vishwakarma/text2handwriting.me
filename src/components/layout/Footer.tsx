@@ -73,6 +73,7 @@ export default function Footer() {
                         <ul className="space-y-3">
                             <li><Link to="/privacy" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Privacy Policy</Link></li>
                             <li><Link to="/terms" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Terms of Service</Link></li>
+                            <li><Link to="/refund" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Refund & Cancellation</Link></li>
                             <li><Link to="/disclaimer" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Disclaimer</Link></li>
                             <li><Link to="/cookies" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Cookie Policy</Link></li>
                         </ul>

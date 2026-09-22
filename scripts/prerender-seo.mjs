@@ -41,6 +41,12 @@ const publicRoutes = {
     heading: 'Terms of Service',
     intro: 'Review the terms that apply when you use the editor, create exports, sign in, or purchase an export entitlement.',
   },
+  refund: {
+    title: 'Refund and Cancellation Policy | text2handwriting.me',
+    description: 'Read the policy for paid digital exports, cancellations, duplicate charges and payment support.',
+    heading: 'Refund and cancellation policy',
+    intro: 'Review how paid digital exports, cancellations, duplicate charges and payment-support requests are handled.',
+  },
   disclaimer: {
     title: 'Disclaimer and academic guidelines | text2handwriting.me',
     description: 'Understand the educational purpose, responsible use and academic-integrity guidelines for text2handwriting.me.',

@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
 
             <h3>7. Contact Us</h3>
             <p>
-                If you have questions about this policy, please open a discussion on our <a href="https://github.com/bipin-vishwakarma/text2handwriting.me" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
+                For privacy, account, or payment questions, email <a href="mailto:rv261457@gmail.com?subject=text2handwriting.me%20privacy%20support">rv261457@gmail.com</a>. For public product discussions, you can also use the <a href="https://github.com/bipin-vishwakarma/text2handwriting.me" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
             </p>
 
             <p className="text-sm text-neutral-400 mt-8">

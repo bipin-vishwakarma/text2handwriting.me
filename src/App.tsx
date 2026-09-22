@@ -18,6 +18,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 // Legal & Support Pages
 const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/legal/TermsOfService'));
+const RefundPolicy = lazy(() => import('./pages/legal/RefundPolicy'));
 const Disclaimer = lazy(() => import('./pages/legal/Disclaimer'));
 const CookiePolicy = lazy(() => import('./pages/legal/CookiePolicy'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
@@ -51,6 +52,7 @@ function InnerApp() {
           {/* Legal Pages */}
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<TermsOfService />} />
+          <Route path="refund" element={<RefundPolicy />} />
           <Route path="disclaimer" element={<Disclaimer />} />
           <Route path="cookies" element={<CookiePolicy />} />
 
@@ -74,11 +76,11 @@ function InnerApp() {
           } />
           <Route path="assignment-maker-online" element={
             <SeoLandingPage 
-              seoTitle="Assignment Maker Online | Text to Handwriting Converter"
-              seoDescription="The #1 assignment maker online. Type your text and instantly generate realistic handwritten notebook pages for your college or school assignments."
-              h1="Assignment Maker Online"
-              subtitle="Save hours of writing. Type your assignment and let our engine convert it into realistic handwriting on lined paper."
-              keyword="Assignment Maker"
+              seoTitle="Assignment Draft Formatting Tool | text2handwriting.me"
+              seoDescription="Format your own assignment drafts as clear handwritten-style pages with paper, margins, spacing and export controls."
+              h1="Assignment draft formatting tool"
+              subtitle="Format and proofread your own assignment draft with readable paper, margin, spacing, and export controls."
+              keyword="Assignment draft formatting"
             />
           } />
           <Route path="realistic-handwriting-generator" element={

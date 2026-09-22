@@ -47,7 +47,7 @@ export default function TermsOfService() {
                 Checkout occurs before the browser starts the paid export. A successful payment grants an export entitlement for the displayed page count; the file is then generated on your device. You may cancel before completing payment. Once a digital export has been successfully delivered, the purchase is generally non-refundable except where required by law.
             </p>
             <p>
-                If you are charged but the entitlement or download is not delivered, or if you believe a duplicate charge occurred, contact us promptly through the Support Center. We will verify the Razorpay and entitlement records and, where appropriate, retry delivery or issue a refund to the original payment method. Bank or payment-provider processing times may apply. Do not publish card details, OTPs, or full payment identifiers in a public issue.
+                If you are charged but the entitlement or download is not delivered, or if you believe a duplicate charge occurred, use the <a href="/refund">Refund &amp; Cancellation Policy</a> or contact us promptly through the Support Center. We will verify the Razorpay and entitlement records and, where appropriate, retry delivery or issue a refund to the original payment method. Bank or payment-provider processing times may apply. Do not publish card details, OTPs, or full payment identifiers in a public issue.
             </p>
 
             <h3>8. Account and Service Availability</h3>
