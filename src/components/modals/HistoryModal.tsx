@@ -136,7 +136,7 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                                 <Search size={16} className="text-neutral-400" />
                                 <input 
                                     type="text" 
-                                    placeholder="Search your library..." 
+                                    placeholder="Search exports..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="bg-transparent border-none outline-none text-sm w-full font-medium placeholder:text-neutral-400 text-neutral-900" 
@@ -201,7 +201,7 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                         <div className="p-4 sm:p-5 bg-white border-t border-neutral-100 shrink-0 text-center relative z-10">
                             <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] font-black text-neutral-300 uppercase tracking-widest leading-none">
                                 <ShieldCheck size={12} className="text-emerald-500" />
-                                <span>Encrypted Local Storage</span>
+                                <span>Stored locally in this browser</span>
                             </div>
                         </div>
                     </motion.div>

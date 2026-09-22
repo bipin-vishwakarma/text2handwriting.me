@@ -9,7 +9,7 @@ export default function PricingPage() {
         <PageLayout
             maxWidth="max-w-5xl"
             title="Fair pricing for students." 
-            subtitle="Stop paying for expensive monthly subscriptions you only use once a semester. Our editor is 100% free to use—you only pay when you export the final PDF."
+            subtitle="Create and preview without charge. Pay once when you export a PDF or ZIP—no subscription or recurring fee."
             seoTitle="Simple Pay-Per-Export Pricing | text2handwriting.me"
             description="Create and preview for free, then export for ₹10 plus ₹2 per page. No subscription or recurring charge."
         >
@@ -40,7 +40,7 @@ export default function PricingPage() {
                                 'Natural spacing and baseline variation controls',
                                 'Custom ink colors and paper templates',
                                 'Live preview before you export',
-                                'High-resolution PDF document export'
+                                'PDF documents or ZIPs of page images'
                             ].map((feature, i) => (
                                 <motion.li 
                                     initial={{ opacity: 0, x: -10 }}

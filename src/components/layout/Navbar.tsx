@@ -100,11 +100,11 @@ export default function Navbar() {
                 }}
                 className="fixed top-3 sm:top-6 left-0 right-0 z-50 px-3 sm:px-6 flex justify-center pointer-events-none"
             >
-                <div className="w-full max-w-5xl glass rounded-full px-4 sm:px-6 py-2 sm:py-2.5 flex justify-between items-center pointer-events-auto ring-1 ring-black/5 shadow-lg shadow-black/5">
+                <div className="w-full max-w-7xl glass rounded-full px-4 sm:px-6 py-2 sm:py-2.5 flex justify-between items-center pointer-events-auto ring-1 ring-black/5 shadow-lg shadow-black/5">
                     {/* Brand Logo */}
-                    <Link to="/" onClick={() => setMobileMenuOpen(false)} aria-label="text2handwriting.me home" className="flex min-w-0 items-center gap-2 sm:gap-2.5 group relative shrink">
+                    <Link to="/" onClick={() => setMobileMenuOpen(false)} aria-label="text2handwriting.me home" className="flex shrink-0 items-center gap-2 sm:gap-2.5 group relative">
                         <SiteLogo size={32} />
-                        <span className="hidden min-[430px]:block truncate text-base sm:text-xl font-display font-black text-neutral-900 tracking-tight">text2handwriting.me</span>
+                        <span className="hidden min-[430px]:block whitespace-nowrap text-base sm:text-xl font-display font-black text-neutral-900 tracking-tight">text2handwriting.me</span>
                     </Link>
 
                     {/* Desktop Navigation Links */}

@@ -11,6 +11,7 @@ const NotebookHero3D = lazy(() => import('../components/landing/NotebookHero3D')
 import { Loader2 } from 'lucide-react';
 import BeforeAfterSlider from '../components/landing/BeforeAfterSlider';
 import TiltCard from '../components/landing/TiltCard';
+import InteractiveStudioShowcase from '../components/landing/InteractiveStudioShowcase';
 import { useStore } from '../lib/store';
 import type { PaperMaterial } from '../types';
 
@@ -101,8 +102,8 @@ const PAPER_SHOWCASE: {
 // Frequently Asked Questions
 const FAQ_ITEMS = [
     {
-        q: "How realistic does the handwriting look when printed or exported?",
-        a: "text2handwriting.me is engineered specifically to eliminate mechanical font uniformity. Every letter features natural stroke-width variations, micro-slant baseline jitter, realistic pen ink bleeding, and optional human scratch-outs. When printed on physical A4 paper or exported as a PDF, it produces authentic, natural handwriting."
+        q: "What does the handwriting preview represent?",
+        a: "The preview applies the selected handwriting-style font and available layout or variation effects. Results depend on the chosen font, settings, and paper; it is a styled digital rendering, not a guarantee of human-authored handwriting or a substitute for your own work."
     },
     {
         q: "Can I try text2handwriting.me before paying?",
@@ -114,11 +115,11 @@ const FAQ_ITEMS = [
     },
     {
         q: "Are my assignments and private notes stored on external servers?",
-        a: "By default, text2handwriting.me processes all text-to-handwriting generation and PDF exports 100% locally in your browser memory. Your text never leaves your device unless you opt into Supabase Cloud Sync."
+        a: "Document text is rendered in your browser for preview and export. Drafts and export history may be saved in this browser's local storage or IndexedDB, depending on the feature, and can be removed by clearing browser data. Sign-in and checkout use external services; avoid entering sensitive information. See our Privacy page for details."
     },
     {
         q: "Can I use custom fonts or add my own handwriting?",
-        a: "Yes! text2handwriting.me comes preloaded with over 30 authentic Indian and international student handwriting styles (from neat cursive to rushed ballpoint scribble), and supports uploading custom TTF/WOFF font files."
+        a: "Yes. The editor includes more than 30 handwriting-style fonts and supports uploading custom TTF or WOFF font files. Available options may vary by browser and device."
     }
 ];
 
@@ -175,7 +176,8 @@ export default function LandingPage() {
                 const targetElem = document.getElementById(targetId);
                 if (targetElem) {
                     setTimeout(() => {
-                        targetElem.scrollIntoView({ behavior: 'smooth' });
+                        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                        targetElem.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
                     }, 80);
                 }
             }
@@ -291,12 +293,13 @@ export default function LandingPage() {
                                         key={ink.name}
                                         type="button"
                                         onClick={() => setActiveInk(ink.color)}
-                                        className={`w-5 h-5 rounded-full border border-stone-300 transition-all hover:scale-125 focus:outline-none cursor-pointer ${
+                                        className={`w-8 h-8 min-w-8 min-h-8 rounded-full border border-stone-300 transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 cursor-pointer ${
                                             activeInk === ink.color ? 'ring-2 ring-violet-500 ring-offset-2 scale-110' : ''
                                         }`}
                                         style={{ backgroundColor: ink.color }}
                                         title={ink.name}
                                         aria-label={`Use ${ink.name} ink`}
+                                        aria-pressed={activeInk === ink.color}
                                     />
                                 ))}
                             </div>
@@ -317,8 +320,8 @@ export default function LandingPage() {
                                 <p className="text-[11px] text-stone-500 font-medium">Handwriting Fonts</p>
                             </div>
                             <div className="p-3.5 rounded-2xl bg-white/80 border border-stone-200/80 shadow-2xs">
-                                <p className="text-lg font-black text-emerald-600">100%</p>
-                                <p className="text-[11px] text-stone-500 font-medium">Local & Private</p>
+                                <p className="text-lg font-black text-emerald-600">Local</p>
+                                <p className="text-[11px] text-stone-500 font-medium">Browser-rendered documents</p>
                             </div>
                         </div>
                     </motion.div>
@@ -337,6 +340,8 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            <InteractiveStudioShowcase />
+
             {/* =========================================================
                 2. BEFORE/AFTER COMPARISON SECTION
             ========================================================= */}
@@ -350,7 +355,7 @@ export default function LandingPage() {
                         Mechanical Type vs. Organic Ink
                     </h2>
                     <p className="text-stone-600 text-sm sm:text-base mt-2">
-                        Drag the center slider horizontally to compare rigid computer fonts against text2handwriting.me's authentic ink absorption, motor jitter, and margin layout.
+                        Drag the center slider horizontally to compare a computer-font sample with a handwriting-style preview and page layout.
                     </p>
                 </div>
 
@@ -377,7 +382,7 @@ export default function LandingPage() {
                         How text2handwriting.me Works
                     </h2>
                     <p className="text-stone-600 text-sm sm:text-base mt-2.5 leading-relaxed">
-                        Four straightforward steps to turn digital text into authentic student lab records, registers, and handwritten assignments.
+                        Four straightforward steps to turn digital text into styled study notes, lab records, and assignment layouts.
                     </p>
                 </div>
 
@@ -432,7 +437,7 @@ export default function LandingPage() {
                                 Pick Paper & Ink Tone
                             </h3>
                             <p className="text-xs text-stone-600 leading-relaxed">
-                                Select Classmate 30-Line Ruled registers, millimeter engineering graph paper, or parchment. Choose authentic student ink colors: Royal Blue, Ballpoint Black, Gel Cyan, or Emerald Green with true capillary absorption.
+                                Select Classmate 30-Line Ruled registers, millimeter engineering graph paper, or parchment. Choose an ink color and preview it with your selected handwriting-style font.
                             </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-1.5 text-[11px] font-mono text-indigo-700 font-bold">
@@ -458,10 +463,10 @@ export default function LandingPage() {
                                 </span>
                             </div>
                             <h3 className="text-lg font-black text-stone-900 mb-2">
-                                Realism & Human Flaws
+                                Handwriting-Style Variation
                             </h3>
                             <p className="text-xs text-stone-600 leading-relaxed">
-                                Eliminate mechanical perfection. text2handwriting.me adds organic motor jitter, subtle line-drift waves, slight character width variations, realistic pen pressure, and deliberate human scratch-outs with wavy ink strokes.
+                                Optional rendering effects can add small variations to line placement and character width. These are visual styling controls; they do not reproduce an individual's handwriting or establish human authorship.
                             </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-1.5 text-[11px] font-mono text-cyan-700 font-bold">
@@ -522,7 +527,7 @@ export default function LandingPage() {
                                 Test Your Own Text Right Here
                             </h3>
                             <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                                Type or pick an assignment preset below to watch text2handwriting.me render authentic handwriting in real time.
+                                Type or pick a preset to preview your text with a handwriting-style font and adjustable variation.
                             </p>
                         </div>
 
@@ -533,11 +538,12 @@ export default function LandingPage() {
                                     key={preset.title}
                                     type="button"
                                     onClick={() => handleLoadPreset(idx)}
-                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                    className={`px-3.5 py-2.5 min-h-10 rounded-xl text-xs font-bold transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${
                                         selectedPreset === idx
                                             ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
                                             : 'bg-stone-100 text-stone-700 hover:bg-stone-200/70 border border-stone-200/80'
                                     }`}
+                                    aria-pressed={selectedPreset === idx}
                                 >
                                     {preset.subject}
                                 </button>
@@ -551,14 +557,15 @@ export default function LandingPage() {
                         {/* Left: Input Textarea & Controls */}
                         <div className="lg:col-span-5 space-y-4">
                             <div>
-                                <label className="text-xs font-bold text-stone-700 uppercase tracking-wider block mb-2 font-mono">
+                                <label htmlFor="landing-sandbox-text" className="text-xs font-bold text-stone-700 uppercase tracking-wider block mb-2 font-mono">
                                     Input Text (Type or Paste)
                                 </label>
                                 <textarea
+                                    id="landing-sandbox-text"
                                     value={sandboxText}
                                     onChange={(e) => setSandboxText(e.target.value)}
                                     rows={8}
-                                    className="w-full p-4 rounded-2xl bg-stone-50/80 border border-stone-200/90 focus:border-violet-500 focus:bg-white focus:outline-none text-stone-900 text-xs font-mono leading-relaxed resize-none shadow-inner"
+                                    className="w-full p-4 rounded-2xl bg-stone-50/80 border border-stone-200/90 focus:border-violet-500 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-700 focus-visible:ring-offset-2 text-stone-900 text-xs font-mono leading-relaxed resize-none shadow-inner"
                                     placeholder="Type anything here..."
                                 />
                             </div>
@@ -568,11 +575,12 @@ export default function LandingPage() {
                                 <button
                                     type="button"
                                     onClick={() => setActiveJitter(!activeJitter)}
-                                    className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between border transition-all cursor-pointer ${
+                                    className={`p-2.5 min-h-11 rounded-xl text-xs font-bold flex items-center justify-between border transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${
                                         activeJitter 
                                             ? 'bg-violet-50 border-violet-300 text-violet-800' 
                                             : 'bg-stone-100 border-stone-200 text-stone-500'
                                     }`}
+                                    aria-pressed={activeJitter}
                                 >
                                     <span>Motor Jitter</span>
                                     <span className={`w-2 h-2 rounded-full ${activeJitter ? 'bg-violet-600' : 'bg-stone-400'}`} />
@@ -581,11 +589,12 @@ export default function LandingPage() {
                                 <button
                                     type="button"
                                     onClick={() => setActiveMargin(!activeMargin)}
-                                    className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between border transition-all cursor-pointer ${
+                                    className={`p-2.5 min-h-11 rounded-xl text-xs font-bold flex items-center justify-between border transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${
                                         activeMargin 
                                             ? 'bg-cyan-50 border-cyan-300 text-cyan-800' 
                                             : 'bg-stone-100 border-stone-200 text-stone-500'
                                     }`}
+                                    aria-pressed={activeMargin}
                                 >
                                     <span>Margin Rules</span>
                                     <span className={`w-2 h-2 rounded-full ${activeMargin ? 'bg-cyan-600' : 'bg-stone-400'}`} />
@@ -668,7 +677,7 @@ export default function LandingPage() {
                         <span>The Paper Vault</span>
                     </span>
                     <h2 className="text-3xl sm:text-5xl font-black text-stone-950 tracking-tight font-display">
-                        Authentic Student Registers & Formats
+                        Student Registers & Formats
                     </h2>
                     <p className="text-stone-600 text-sm sm:text-base mt-2">
                         From standard Indian university ruled sheets to dual-page lab records and millimeter engineering graph papers.
@@ -776,7 +785,7 @@ export default function LandingPage() {
             </section>
 
             {/* =========================================================
-                6. AUTHENTICITY FEATURES BENTO GRID
+                6. STYLE & LAYOUT FEATURES BENTO GRID
             ========================================================= */}
             <section id="features" className="py-16 sm:py-20 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-20">
                 <div className="text-center max-w-2xl mx-auto mb-14">
@@ -785,10 +794,10 @@ export default function LandingPage() {
                         <span>Core Capabilities</span>
                     </span>
                     <h2 className="text-3xl sm:text-5xl font-black text-stone-950 tracking-tight font-display">
-                        Crafted for Real Paper Authenticity
+                        Handwriting-Style Previews, Made Flexible
                     </h2>
                     <p className="text-stone-600 text-sm sm:text-base mt-2">
-                        Every small detail of physical pens and paper, recreated with care.
+                        Tune paper, ink, spacing, and presentation details for a clear document preview.
                     </p>
                 </div>
 
@@ -802,7 +811,7 @@ export default function LandingPage() {
                             </div>
                             <h3 className="text-xl font-black text-stone-900 mb-2">Smartphone Perspective & Cast Shadows</h3>
                             <p className="text-sm text-stone-600 leading-relaxed">
-                                Simulates taking a photo with a mobile phone. Adds subtle corner tilt, lens depth, and authentic phone silhouette cast shadows to look like real student submissions.
+                                Adds a camera-style perspective treatment with corner tilt, depth, and shadows for a photo-like page presentation.
                             </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-stone-100 text-xs font-mono text-indigo-600 font-bold">
@@ -826,19 +835,19 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    {/* Card 3: Natural Human Inconsistency */}
+                    {/* Card 3: Handwriting-style variation */}
                     <div className="p-8 rounded-3xl bg-white border border-stone-200/90 shadow-xs hover:shadow-xl hover:border-purple-300 transition-all flex flex-col justify-between group">
                         <div>
                             <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 mb-6 group-hover:scale-108 transition-transform">
                                 <Flame size={24} />
                             </div>
-                            <h3 className="text-xl font-black text-stone-900 mb-2">Human Imperfections & Scratch-Outs</h3>
+                            <h3 className="text-xl font-black text-stone-900 mb-2">Optional Layout Variation</h3>
                             <p className="text-sm text-stone-600 leading-relaxed">
-                                Real handwriting has character. text2handwriting.me adds realistic baseline drift, pen pressure variations, and realistic human typos with authentic wavy strikethroughs.
+                                Adjust available line and character variation effects to change the appearance of a styled digital preview. Review the result and make sure your work follows your institution's rules.
                             </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-stone-100 text-xs font-mono text-purple-600 font-bold">
-                            Organic pen flow & ink absorption
+                            Optional line and ink variation
                         </div>
                     </div>
 
@@ -870,7 +879,7 @@ export default function LandingPage() {
                             </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-stone-100 text-xs font-mono text-emerald-600 font-bold">
-                            Authentic stationery physics
+                            Notebook-style binding details
                         </div>
                     </div>
 
@@ -907,7 +916,7 @@ export default function LandingPage() {
                                 Perfect the preview first. Pay only when it is ready.
                             </h2>
                             <p className="mt-4 max-w-xl text-sm sm:text-base leading-relaxed text-stone-600">
-                                There is no subscription and no surprise charge. Use the complete editor, explore paper and ink styles, and review every page before opening secure checkout.
+                                There is no subscription and no surprise charge. Use the complete editor, explore paper and ink styles, and review every page before opening Razorpay checkout.
                             </p>
                             <div className="mt-7 grid gap-3 sm:grid-cols-3">
                                 {[
@@ -934,7 +943,7 @@ export default function LandingPage() {
                                 <ul className="mt-7 space-y-3 text-sm text-stone-200">
                                     <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400" /> Full-resolution PDF or ZIP</li>
                                     <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400" /> Price shown before checkout</li>
-                                    <li className="flex items-center gap-2"><LockKeyhole size={16} className="text-emerald-400" /> Secure Razorpay checkout</li>
+                                    <li className="flex items-center gap-2"><LockKeyhole size={16} className="text-emerald-400" /> Razorpay checkout</li>
                                 </ul>
                             </div>
                             <Link to="/editor" className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-4 text-sm font-black text-stone-950 transition hover:bg-violet-50 active:scale-[.98]">
@@ -954,7 +963,7 @@ export default function LandingPage() {
                         Frequently Asked Questions
                     </h2>
                     <p className="text-stone-600 text-sm mt-2">
-                        Everything you need to know about text2handwriting.me, authenticity, and student export rights.
+                        Everything you need to know about text2handwriting.me, formats, exports, and student use.
                     </p>
                 </div>
 

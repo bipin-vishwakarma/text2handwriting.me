@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
         >
             <h3>1. Introduction</h3>
             <p>
-                Welcome to text2handwriting.me ("we", "our", or "us"), created by Bipin Vishwakarma. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclosure, and safeguard your information when you use our website.
+                Welcome to text2handwriting.me ("we", "our", or "us"), created by Bipin Vishwakarma. This Privacy Policy explains what information is processed when you use the website, how it is used, and the choices available to you.
             </p>
             <p>
                 By accessing or using our services, you signify that you have read, understood, and agree to our collection, storage, use, and disclosure of your personal information as described in this Privacy Policy.
@@ -16,10 +16,10 @@ export default function PrivacyPolicy() {
 
             <h3>2. Information We Process</h3>
             <p>
-                <strong>Important:</strong> document text and generated files use a local-first architecture.
+                <strong>Important:</strong> document editing and rendering are designed to be local-first; account and payment features require network services.
             </p>
             <ul>
-                <li><strong>Document content:</strong> We do not upload or store your document text or generated PDF/ZIP files. Rendering occurs in your browser.</li>
+                <li><strong>Document content:</strong> Core rendering and file generation occur in your browser. Draft settings and export history may be stored locally in that browser; clearing browser data may remove them. Content you explicitly submit to a network-backed feature may be processed by the relevant provider.</li>
                 <li><strong>Device data:</strong> Draft state, preferences, and recovery information may be stored in <code>localStorage</code>, <code>sessionStorage</code>, or <code>IndexedDB</code> on your device.</li>
                 <li><strong>Account data:</strong> Supabase processes authentication identifiers, email address, profile fields, session data, and security logs needed to operate your account.</li>
                 <li><strong>Payment data:</strong> Razorpay processes checkout and payment-instrument information. We and Supabase retain limited order and entitlement records such as user ID, order/payment identifiers, page count, amount, currency, status, and timestamps. We do not receive or store full card or UPI credentials.</li>

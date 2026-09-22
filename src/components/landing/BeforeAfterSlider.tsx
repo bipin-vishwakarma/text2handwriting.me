@@ -10,13 +10,13 @@ Aim: To determine resistance per unit length of a given wire by plotting V vs I.
 Formula: V = I × R (where R is the slope of the characteristic curve in Ohms Ω).
 Observation: Current scales linearly with applied voltage across all 5 trial steps.
 Calculations: Mean measured resistance R = 4.82 Ω with < 0.8% standard deviation.
-Result: Authenticated by Lab Instructor. Grade: A+ (10/10).`,
+Result: Record your observations and conclusions for review.`,
         afterText: `EXPERIMENT 04: VERIFICATION OF OHM'S LAW
 Aim: To determine resistance per unit length of a given wire by plotting V vs I.
 Formula: V = I × R (where R is the slope of the characteristic curve in Ohms Ω).
 Observation: Current scales linearly with applied voltage across all 5 trial steps.
 Calculations: Mean measured resistance R = 4.82 Ω with < 0.8% standard deviation.
-Result: Authenticated by Lab Instructor. Grade: A+ (10/10).`,
+Result: Record your observations and conclusions for review.`,
         handwritingFont: 'Caveat, cursive',
         inkColor: '#1e3a8a', // Royal Blue
     },
@@ -121,7 +121,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
                             Mechanical Type vs. text2handwriting.me Handwriting
                         </h3>
                         <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-                            Drag the center slider to inspect authentic baseline jitter, pen ink bleeding, and margin lines.
+                            Drag the center slider to compare the typed layout with handwriting-style variation, ink, and margin treatments.
                         </p>
                     </div>
 
@@ -132,7 +132,8 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
                                 key={p.id}
                                 type="button"
                                 onClick={() => setSelectedPreset(idx)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                                aria-pressed={selectedPreset === idx}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 ${
                                     selectedPreset === idx
                                         ? 'bg-white text-neutral-950 shadow-xs border border-black/5'
                                         : 'text-neutral-600 hover:text-neutral-900'
@@ -154,7 +155,8 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
                                 key={p.id}
                                 type="button"
                                 onClick={() => setSelectedPreset(idx)}
-                                className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                                aria-pressed={selectedPreset === idx}
+                                className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 ${
                                     selectedPreset === idx
                                         ? 'bg-white text-stone-950 shadow-xs font-extrabold'
                                         : 'text-stone-600 hover:text-stone-900'
@@ -178,6 +180,29 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
                 onTouchStart={(e) => {
                     if (e.touches[0]) updatePosition(e.touches[0].clientX);
                     setIsDragging(true);
+                }}
+                role="slider"
+                tabIndex={0}
+                aria-label="Comparison position"
+                aria-valuemin={5}
+                aria-valuemax={95}
+                aria-valuenow={Math.round(sliderPos)}
+                aria-valuetext={`${Math.round(sliderPos)}% handwriting-style preview visible`}
+                onKeyDown={(e) => {
+                    const next = (value: number) => setSliderPos(Math.max(5, Math.min(95, value)));
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        next(sliderPos - 5);
+                    } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        next(sliderPos + 5);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        next(5);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        next(95);
+                    }
                 }}
             >
                 {/* 1. RIGHT SIDE / BACKGROUND: REALISTIC HANDWRITTEN NOTEBOOK */}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStore } from '../lib/store';
 import type { LightingMode, PaperCrease } from '../types';
-import { Camera, Smartphone, Maximize2, RotateCcw, Dices, Coffee, Copy } from 'lucide-react';
+import { Camera, Smartphone, Maximize2, RotateCcw, Dices, Copy } from 'lucide-react';
 
 export const CameraPhysicsControls: React.FC = () => {
     const {
@@ -17,7 +17,6 @@ export const CameraPhysicsControls: React.FC = () => {
         paperCrease, setPaperCrease,
         sensorNoise, setSensorNoise,
         randomTilt, setRandomTilt,
-        coffeeStain, setCoffeeStain,
         spiralBinding, setSpiralBinding,
         inkBleedThrough, setInkBleedThrough,
         inkBleedIntensity, setInkBleedIntensity,
@@ -34,9 +33,6 @@ export const CameraPhysicsControls: React.FC = () => {
     const effectiveCrease = effectScope === 'current' && currentPageOverrides.paperCrease !== undefined
         ? currentPageOverrides.paperCrease
         : paperCrease;
-    const effectiveCoffeeStain = effectScope === 'current' && currentPageOverrides.coffeeStain !== undefined
-        ? currentPageOverrides.coffeeStain
-        : coffeeStain;
     const effectivePhoneShadow = effectScope === 'current' && currentPageOverrides.phoneShadow !== undefined
         ? currentPageOverrides.phoneShadow
         : phoneShadow;
@@ -52,14 +48,6 @@ export const CameraPhysicsControls: React.FC = () => {
             setPageEffectOverride(activePageIndex, { paperCrease: crease });
         } else {
             setPaperCrease(crease);
-        }
-    };
-
-    const handleSetCoffeeStain = (enabled: boolean) => {
-        if (effectScope === 'current') {
-            setPageEffectOverride(activePageIndex, { coffeeStain: enabled });
-        } else {
-            setCoffeeStain(enabled);
         }
     };
 
@@ -370,25 +358,6 @@ export const CameraPhysicsControls: React.FC = () => {
                         </button>
                     ))}
                 </div>
-            </div>
-
-            {/* 5. Realistic Coffee Mug Ring Stain Toggle */}
-            <div className="bg-amber-50/60 border border-amber-200/50 p-3 rounded-2xl">
-                <label className="flex items-center justify-between cursor-pointer">
-                    <div className="flex items-center gap-2">
-                        <Coffee size={14} className="text-amber-700" />
-                        <div>
-                            <span className="text-[11px] font-bold text-amber-950 block">Coffee Cup Ring Stain</span>
-                            <span className="text-[9px] text-amber-800/70 block">Authentic dried capillary edges & splash drops</span>
-                        </div>
-                    </div>
-                    <input
-                        type="checkbox"
-                        checked={effectiveCoffeeStain}
-                        onChange={(e) => handleSetCoffeeStain(e.target.checked)}
-                        className="w-4 h-4 rounded border-amber-300 text-amber-800 focus:ring-0 cursor-pointer"
-                    />
-                </label>
             </div>
 
             {/* 5.1. 3D Twin-Wire Spiral Binding Toggle */}

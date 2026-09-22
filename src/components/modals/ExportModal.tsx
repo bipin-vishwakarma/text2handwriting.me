@@ -42,6 +42,14 @@ const paymentIntentStorageKey = 'text2handwriting_payment_intent';
 const paymentRecoveryStorageKey = 'text2handwriting_payment_recovery_v1';
 const paymentRecoveryMaxAgeMs = 24 * 60 * 60 * 1000;
 const automaticVerificationDelaysMs = [0, 1500, 4000] as const;
+const checkoutRequestTimeoutMs = 12_000;
+
+function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
+    return Promise.race([
+        promise,
+        new Promise<T>((_, reject) => window.setTimeout(() => reject(new Error(message)), checkoutRequestTimeoutMs)),
+    ]);
+}
 
 interface PendingPaymentIntent {
     purchaseId: string;
@@ -135,11 +143,7 @@ interface ExportModalProps {
     tiltY?: number;
     randomTilt?: boolean;
     smartMarginIndexing?: boolean;
-    coffeeStain?: boolean;
     pageEffectOverrides?: Record<number, PageEffectOverrides>;
-    showCoffeeStain?: boolean;
-    showStickyNote?: boolean;
-    stickyNoteText?: string;
     lowInkFade?: boolean;
     lowInkStart?: number;
     lowInkIntensity?: number;
@@ -199,11 +203,7 @@ export default function ExportModal({
     tiltY = 0,
     randomTilt = false,
     smartMarginIndexing = true,
-    coffeeStain = false,
     pageEffectOverrides = {},
-    showCoffeeStain = false,
-    showStickyNote = false,
-    stickyNoteText = '',
     showNotebookHeaderBox = false,
     notebookDate = '',
     spiralBinding = false,
@@ -218,6 +218,7 @@ export default function ExportModal({
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [checkoutStage, setCheckoutStage] = useState<'idle' | 'creating' | 'opening' | 'verifying'>('idle');
     const [pendingPaymentIntent, setPendingPaymentIntent] = useState<PendingPaymentIntent | null>(() => {
         try {
             const intent = JSON.parse(sessionStorage.getItem(paymentIntentStorageKey) || 'null');
@@ -238,22 +239,31 @@ export default function ExportModal({
     });
     const [paidPurchaseVerified, setPaidPurchaseVerified] = useState(false);
     const [purchaseCheckError, setPurchaseCheckError] = useState(false);
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
     const [paymentRecovery, setPaymentRecovery] = useState<PaymentRecovery | null>(null);
     const [recoveryError, setRecoveryError] = useState(false);
     const recoveryRunRef = useRef<string | null>(null);
+    const checkoutAttemptRef = useRef(0);
     const onStartRef = useRef(onStart);
     
     const totalPrice = 10 + (pages.length * 2);
 
     const handleExportPaymentAndStart = async () => {
         if (!isAuthenticated || !user) {
+            // Preserve only the local UI intent, never document content, so the
+            // user returns to the exact review step after secure sign-in.
+            sessionStorage.setItem('text2handwriting_resume_export', JSON.stringify({ format }));
             onClose();
             navigate('/auth?redirect=%2Feditor');
             return;
         }
 
+        const checkoutAttempt = ++checkoutAttemptRef.current;
+        const isCurrentAttempt = () => checkoutAttempt === checkoutAttemptRef.current;
         try {
             setIsProcessingPayment(true);
+            setCheckoutStage('creating');
+            setCheckoutError(null);
             if (!supabase) throw new Error('Supabase is not configured.');
 
             // Keep one UUID for this checkout attempt. The order function uses it
@@ -270,12 +280,18 @@ export default function ExportModal({
                 }
             }
 
-            const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
-                body: { pageCount: pages.length, purchaseId: intent.purchaseId }
-            });
+            const { data: orderData, error: orderError } = await withTimeout(
+                supabase.functions.invoke('create-razorpay-order', {
+                    body: { pageCount: pages.length, purchaseId: intent.purchaseId },
+                }),
+                'Checkout took too long to start. Check your connection and try again.'
+            );
+            if (!isCurrentAttempt()) return;
             if (orderError || !orderData) throw new Error(orderError?.message || 'Failed to create order');
 
-            const res = await loadRazorpay();
+            setCheckoutStage('opening');
+            const res = await withTimeout(loadRazorpay(), 'The payment window did not load. Disable ad blockers and try again.');
+            if (!isCurrentAttempt()) return;
             if (!res) throw new Error('Razorpay SDK failed to load. Are you online?');
 
             if (!import.meta.env.VITE_RAZORPAY_KEY_ID) throw new Error('Checkout is not configured yet. Please contact support before trying again.');
@@ -306,11 +322,12 @@ export default function ExportModal({
                     writePaymentRecovery(recovery);
                     setPaymentRecovery(recovery);
                     setRecoveryError(false);
-                    setIsProcessingPayment(false);
+                    setCheckoutStage('verifying');
+                    setIsProcessingPayment(true);
                 },
                 prefill: { name: user.name, email: user.email },
                 theme: { color: '#000000' },
-                modal: { ondismiss: () => setIsProcessingPayment(false) }
+                modal: { ondismiss: () => { setCheckoutStage('idle'); setIsProcessingPayment(false); } }
             };
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -325,13 +342,22 @@ export default function ExportModal({
                 } catch {
                     // Ignore storage restrictions.
                 }
+                setCheckoutStage('idle');
                 setIsProcessingPayment(false);
             });
             paymentObject.open();
         } catch (err: unknown) {
-            alert(err instanceof Error ? err.message : 'An unknown error occurred');
+            if (!isCurrentAttempt()) return;
+            setCheckoutError(err instanceof Error ? err.message : 'Checkout could not start. Please try again.');
+            setCheckoutStage('idle');
             setIsProcessingPayment(false);
         }
+    };
+    const cancelCheckout = () => {
+        checkoutAttemptRef.current += 1;
+        setCheckoutStage('idle');
+        setIsProcessingPayment(false);
+        setCheckoutError(null);
     };
     const [activeFormat, setActiveFormat] = useState<'pdf' | 'zip'>(format);
     const [previewScale, setPreviewScale] = useState(0.62);
@@ -360,6 +386,7 @@ export default function ExportModal({
 
         const verify = async () => {
             setIsProcessingPayment(true);
+            setCheckoutStage('verifying');
             setRecoveryError(false);
             for (const delay of automaticVerificationDelaysMs) {
                 if (delay) await new Promise((resolve) => window.setTimeout(resolve, delay));
@@ -389,6 +416,7 @@ export default function ExportModal({
                     }
                     setFileName(paymentRecovery.fileName);
                     setActiveFormat(paymentRecovery.format);
+                    setCheckoutStage('idle');
                     setIsProcessingPayment(false);
                     onStartRef.current(paymentRecovery.fileName, paymentRecovery.format);
                     return;
@@ -396,6 +424,7 @@ export default function ExportModal({
             }
             if (!cancelled) {
                 setRecoveryError(true);
+                setCheckoutStage('idle');
                 setIsProcessingPayment(false);
             }
         };
@@ -499,7 +528,7 @@ export default function ExportModal({
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="export-preview-heading"
-                        className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl w-full max-w-6xl h-[min(94dvh,980px)] relative flex flex-col border border-neutral-200/80 z-10"
+                        className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl w-full max-w-[88rem] h-[min(96dvh,1040px)] relative flex flex-col border border-neutral-200/80 z-10"
                     >
                         <div className="min-h-14 px-3 sm:px-6 border-b border-neutral-100 flex items-center justify-between gap-2 bg-white shrink-0">
                             <div className="flex items-center gap-3.5">
@@ -569,7 +598,6 @@ export default function ExportModal({
 
                                 {pages.map((page, pIdx) => {
                                     const pageOverrides = pageEffectOverrides[pIdx] || {};
-                                    const effectiveCoffeeStain = pageOverrides.coffeeStain !== undefined ? pageOverrides.coffeeStain : (coffeeStain || showCoffeeStain);
                                     const effectiveCrease = pageOverrides.paperCrease !== undefined ? pageOverrides.paperCrease : paperCrease;
                                     const effectivePerspective = pageOverrides.perspectiveWarp !== undefined ? pageOverrides.perspectiveWarp : perspectiveWarp;
                                     const baseTiltX = pageOverrides.tiltX !== undefined ? pageOverrides.tiltX : tiltX;
@@ -595,8 +623,8 @@ export default function ExportModal({
 
                                     const isSpiralActive = Boolean(spiralBinding);
                                     const isLeftSpiral = isSpiralActive; // always left
-                                    const redMarginLeft = isLeftSpiral ? 104 : 65;
-                                    const effectivePageMarginLeft = isLeftSpiral ? Math.max(marginLeft, 118) : marginLeft;
+                                    const redMarginLeft = isLeftSpiral ? 104 : 78;
+                                    const effectivePageMarginLeft = Math.max(marginLeft, isLeftSpiral ? 118 : paper.hasRedMargin ? 100 : 20);
                                     const effectivePageMarginRight = marginRight;
                                     const effectivePageMarginTop = (paper.hasRedMargin || paper.id === 'youva-spiral' || showNotebookHeaderBox)
                                         ? Math.max(marginTop, 80)
@@ -654,15 +682,7 @@ export default function ExportModal({
                                                     </div>
                                                 )}
 
-                                                {/* Sticky Note */}
-                                                {showStickyNote && pIdx === 0 && (
-                                                    <div 
-                                                        className="absolute top-6 right-6 w-36 h-36 bg-amber-200 text-amber-950 p-4 shadow-xl rotate-3 z-30 font-sans text-xs font-semibold leading-snug rounded-xs border border-amber-300 pointer-events-none"
-                                                    >
-                                                        <div className="w-12 h-3 bg-amber-300/60 -top-1.5 left-1/2 -translate-x-1/2 absolute rounded-xs" />
-                                                        {stickyNoteText}
-                                                    </div>
-                                                )}
+
 
                                                 {/* Standardized Student Notebook Date & Page No. Box (Matching Real Youva/Classmate) */}
                                                 {showNotebookHeaderBox && (
@@ -787,7 +807,7 @@ export default function ExportModal({
                                                             )}
                                                             {notebookBrand === 'SUNDARAM' && (
                                                                 <div className="flex flex-col items-center justify-center w-full px-0.5 select-none">
-                                                                    {/* Authentic Sundaram Seal Emblem */}
+                                                                    {/* Decorative notebook-style seal emblem */}
                                                                     <div className="flex items-center justify-center gap-1 mb-0.5">
                                                                         <svg className="w-3.5 h-3.5 text-rose-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                                                             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" fill="rgba(244, 63, 94, 0.08)" />
@@ -1005,7 +1025,6 @@ export default function ExportModal({
                                                     lightingWarmth={effectiveWarmth}
                                                     paperCrease={effectiveCrease}
                                                     sensorNoise={effectiveNoise}
-                                                    coffeeStain={effectiveCoffeeStain}
                                                     pageIndex={pIdx}
                                                     spiralBinding={spiralBinding}
                                                     inkBleedThrough={inkBleedThrough}
@@ -1019,8 +1038,8 @@ export default function ExportModal({
                             </div>
 
                             {/* 2. EXPORT CONTROLS SIDEBAR (Right) */}
-                            <div className="w-full lg:w-80 xl:w-92 bg-white border-t lg:border-t-0 lg:border-l border-neutral-100 flex flex-col shrink-0 p-4 sm:p-7 justify-between overflow-y-auto">
-                                <div className="space-y-6">
+                            <div className="w-full lg:w-[22rem] xl:w-[24rem] min-h-0 bg-white border-t lg:border-t-0 lg:border-l border-neutral-100 flex flex-col shrink-0 p-4 sm:p-5 lg:p-5 gap-4 overflow-y-auto lg:overflow-y-hidden">
+                                <div className="space-y-4 lg:space-y-3.5 lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:pr-1 lg:-mr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                     
                                     {/* Format Selector Tabs */}
                                     <div>
@@ -1073,7 +1092,7 @@ export default function ExportModal({
                                     </div>
 
                                     {/* Document Summary Card */}
-                                    <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200/70 space-y-3">
+                                    <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-200/70 space-y-2.5">
                                         <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 block">
                                             Document Stats
                                         </span>
@@ -1096,25 +1115,53 @@ export default function ExportModal({
                                     {/* Export Quality Tag */}
                                     <div className="flex items-center gap-2 text-[11px] font-semibold text-neutral-500 bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/60">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                        <span>Full 2X Ultra-HD DPI Capture</span>
+                                        <span>High-resolution page image capture</span>
                                     </div>
 
-                                    <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 text-xs text-stone-700 space-y-2" aria-label="Export price breakdown">
-                                        <p className="font-black text-stone-950">Clear price, no subscription</p>
-                                        <div className="flex justify-between"><span>Document fee</span><span>₹10</span></div>
-                                        <div className="flex justify-between"><span>{pages.length} {pages.length === 1 ? 'page' : 'pages'} × ₹2</span><span>₹{pages.length * 2}</span></div>
-                                        <div className="flex justify-between border-t border-violet-200 pt-2 text-sm font-black text-stone-950"><span>Today’s total</span><span>₹{totalPrice}</span></div>
+                                    <div className="rounded-2xl border border-stone-200/90 bg-stone-50/80 p-3.5 text-xs text-stone-600 space-y-2" aria-label="Export price breakdown">
+                                        <div className="flex items-center justify-between border-b border-stone-200/80 pb-2">
+                                            <p className="font-black text-stone-950">Order summary</p>
+                                            <span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-stone-500 ring-1 ring-stone-200">Pay once</span>
+                                        </div>
+                                        <div className="flex justify-between"><span>Document fee</span><span className="font-mono text-stone-800">₹10</span></div>
+                                        <div className="flex justify-between"><span>{pages.length} {pages.length === 1 ? 'page' : 'pages'} × ₹2</span><span className="font-mono text-stone-800">₹{pages.length * 2}</span></div>
+                                        <div className="flex justify-between border-t border-stone-200 pt-2.5 text-sm font-black text-stone-950"><span>Total</span><span className="font-mono text-violet-700">₹{totalPrice}</span></div>
                                     </div>
                                 </div>
 
                                 {/* BOTTOM ACTION AREA */}
-                                <div className="space-y-3 pt-6 border-t border-neutral-100">
+                                <div className="space-y-2.5 pt-4 border-t border-neutral-100 shrink-0">
                                     {/* Status Message */}
+                                    {!isProcessingPayment && (
                                     <div className="text-center">
                                         <p className="text-xs font-medium text-neutral-500">
                                             {getStatusMessage()}
                                         </p>
                                     </div>
+                                    )}
+
+                                    {isProcessingPayment && status !== 'processing' && (
+                                        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-violet-200/90 bg-[linear-gradient(135deg,rgba(245,243,255,.94),rgba(255,255,255,.92))] p-4 shadow-[inset_0_1px_0_white,0_8px_24px_rgba(91,33,182,.08)]" role="status" aria-live="polite">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-md shadow-violet-600/20"><Loader2 size={17} className="animate-spin" /></div>
+                                                <div className="min-w-0 flex-1"><p className="text-sm font-black text-neutral-900">{checkoutStage === 'creating' ? 'Preparing checkout…' : checkoutStage === 'opening' ? 'Opening Razorpay…' : 'Confirming payment…'}</p><p className="mt-0.5 text-xs text-neutral-600">{checkoutStage === 'verifying' ? 'Keep this window open; export follows automatically.' : 'Checking your export details before payment.'}</p></div>
+                                                {checkoutStage !== 'verifying' && <button type="button" onClick={cancelCheckout} className="shrink-0 rounded-lg px-2 py-1 text-[11px] font-bold text-stone-500 transition hover:bg-white hover:text-stone-900 focus-visible:outline-2 focus-visible:outline-violet-700">Cancel</button>}
+                                            </div>
+                                            <div className="mt-4 grid grid-cols-3 gap-1.5 text-[10px] font-bold">
+                                                {[
+                                                    { id: 'creating', label: '1 · Setup' },
+                                                    { id: 'opening', label: '2 · Pay' },
+                                                    { id: 'verifying', label: '3 · Export' },
+                                                ].map((step) => {
+                                                    const active = checkoutStage === step.id;
+                                                    const complete = (step.id === 'creating' && checkoutStage !== 'creating') || (step.id === 'opening' && checkoutStage === 'verifying');
+                                                    return <span key={step.id} className={`rounded-md px-2 py-1.5 text-center ${active ? 'bg-violet-600 text-white shadow-sm' : complete ? 'bg-emerald-100 text-emerald-800' : 'bg-white/70 text-stone-400 ring-1 ring-stone-200/80'}`}>{step.label}</span>;
+                                                })}
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {checkoutError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-medium leading-relaxed text-rose-800">{checkoutError}</p>}
 
                                     {/* Animated Progress Bar when Processing */}
                                     {status === 'processing' && (

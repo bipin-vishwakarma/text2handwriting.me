@@ -1,296 +1,149 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    User, LogOut, FileText, Shield, Star, ChevronRight,
-    Edit2, Check, X, GraduationCap, Mail, Loader2, Sparkles
+    ArrowLeft, BookOpen, Check, ChevronRight, Edit2, FileText, HardDrive,
+    Loader2, LogOut, Mail, Save, ShieldCheck, Sparkles, X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useStore } from '../lib/store';
+import { getAllExportedFiles } from '../lib/fileStorage';
 import SiteLogo from '../components/common/SiteLogo';
 
-const PROVIDER_ICONS: Record<string, React.ReactNode> = {
-    google: (
-        <svg viewBox="0 0 24 24" className="w-4 h-4">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-        </svg>
-    ),
-    github: (
-        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-stone-800">
-            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" />
-        </svg>
-    ),
-    student: <GraduationCap size={16} className="text-violet-600" />,
-    email: <Mail size={16} className="text-indigo-500" />,
-};
+const ASSIGNMENT_DEFAULTS_KEY = 'text2handwriting_assignment_defaults';
+
+type AssignmentDefaults = { name: string; studentId: string; subject: string };
+
+function formatAssignmentHeader({ name, studentId, subject }: AssignmentDefaults) {
+    return [
+        name.trim() ? `Name: ${name.trim()}` : '',
+        studentId.trim() ? `SAP ID / Roll No: ${studentId.trim()}` : '',
+        subject.trim() ? `Subject: ${subject.trim()}` : '',
+    ].filter(Boolean).join('\n');
+}
+
+const panelClass = 'rounded-[1.5rem] border border-white/80 bg-white/72 shadow-[0_18px_55px_-42px_rgba(28,25,23,.46)] backdrop-blur-xl';
 
 export default function AccountPage() {
     const { user, isAuthenticated, logout, updateUserProfile, isLoading } = useAuth();
+    const history = useStore((state) => state.history);
+    const setPageOptions = useStore((state) => state.setPageOptions);
     const navigate = useNavigate();
-
     const [editingName, setEditingName] = useState(false);
     const [editName, setEditName] = useState(user?.name || '');
     const [saving, setSaving] = useState(false);
+    const [profileFeedback, setProfileFeedback] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
+    const [exportCount, setExportCount] = useState<number | null>(null);
+    const [avatarFailed, setAvatarFailed] = useState(false);
+    const [defaults, setDefaults] = useState<AssignmentDefaults>({ name: '', studentId: '', subject: '' });
+    const [defaultsFeedback, setDefaultsFeedback] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
 
     useEffect(() => {
-        if (!isLoading && (!isAuthenticated || !user)) {
-            navigate('/auth?redirect=/account', { replace: true });
-        }
+        if (!isLoading && (!isAuthenticated || !user)) navigate('/auth?redirect=/account', { replace: true });
     }, [isLoading, isAuthenticated, user, navigate]);
 
+    useEffect(() => {
+        getAllExportedFiles().then((files) => setExportCount(files.length)).catch(() => setExportCount(null));
+    }, []);
+
+    useEffect(() => {
+        if (!user) return;
+        const fallback: AssignmentDefaults = { name: user.name || '', studentId: user.studentId || '', subject: '' };
+        try {
+            const saved = localStorage.getItem(ASSIGNMENT_DEFAULTS_KEY);
+            if (!saved) { setDefaults(fallback); return; }
+            const parsed = JSON.parse(saved) as Partial<AssignmentDefaults>;
+            setDefaults({ name: parsed.name || fallback.name, studentId: parsed.studentId || fallback.studentId, subject: parsed.subject || '' });
+        } catch {
+            setDefaults(fallback);
+        }
+    }, [user]);
+
     if (isLoading) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF8F5] selection:bg-violet-200 selection:text-violet-900 gap-4">
-                <SiteLogo size={44} className="animate-pulse" />
-                <div className="flex items-center gap-2 text-xs font-bold text-stone-500">
-                    <div className="w-2 h-2 rounded-full bg-violet-600 animate-ping" />
-                    <span>Loading student account...</span>
-                </div>
-            </div>
-        );
+        return <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#fbfaf8]"><SiteLogo size={44} className="animate-pulse" /><p className="text-sm font-semibold text-stone-500">Loading your account…</p></div>;
     }
+    if (!isAuthenticated || !user) return null;
 
-    if (!isAuthenticated || !user) {
-        return null;
-    }
-
-    const initial = user.given_name?.[0]?.toUpperCase() || user.name?.[0]?.toUpperCase() || '?';
-    const providerLabel: Record<string, string> = {
-        google: 'Google', github: 'GitHub', student: 'Student ID', email: 'Email'
-    };
-
-    const handleSaveName = async () => {
+    const initial = (user.given_name || user.name || '?')[0]?.toUpperCase();
+    const provider = { google: 'Google', github: 'GitHub', student: 'Student ID', email: 'Email' }[user.authProvider] || 'Email';
+    const saveName = async () => {
+        const name = editName.trim();
+        if (!name) { setProfileFeedback({ kind: 'error', message: 'Name cannot be empty.' }); return; }
         setSaving(true);
-        await updateUserProfile({ name: editName, given_name: editName.split(' ')[0] });
-        setSaving(false);
-        setEditingName(false);
+        setProfileFeedback(null);
+        try {
+            await updateUserProfile({ name, given_name: name.split(' ')[0] });
+            setProfileFeedback({ kind: 'success', message: 'Name updated.' });
+            setEditingName(false);
+        } catch {
+            setProfileFeedback({ kind: 'error', message: 'Could not update your name. Please try again.' });
+        } finally { setSaving(false); }
     };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/', { replace: true });
+    const saveAssignmentDefaults = () => {
+        try {
+            localStorage.setItem(ASSIGNMENT_DEFAULTS_KEY, JSON.stringify(defaults));
+            setPageOptions({ headerText: formatAssignmentHeader(defaults) });
+            setDefaultsFeedback({ kind: 'success', message: 'Saved on this device and applied to the current studio session.' });
+        } catch {
+            setDefaultsFeedback({ kind: 'error', message: 'Could not save defaults. Check browser storage and try again.' });
+        }
     };
-
-    const statCards = [
-        { label: 'Documents Created', value: user.savedDocsCount ?? 0, icon: FileText, color: 'violet' },
-        { label: 'Account Type', value: 'Free', icon: Star, color: 'amber' },
-        { label: 'Cloud Backup', value: user.cloudBackupEnabled ? 'Active' : 'Off', icon: Shield, color: 'emerald' },
-    ];
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-[#FAF8F5] text-stone-900 selection:bg-violet-200 selection:text-violet-900"><div className="pointer-events-none -z-10 absolute inset-0 overflow-hidden"><div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(124,58,237,0.06),rgba(255,255,255,0))]" /></div>
-            {/* Navbar-like header */}
-            <div className="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-                <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-stone-500 hover:text-violet-600 transition-colors">
-                        ← Back
-                    </button>
-                    <span className="font-black text-stone-900">My Account</span>
-                    <button
-                        onClick={() => navigate('/editor')}
-                        className="text-sm font-semibold text-violet-600 hover:text-violet-700 transition-colors"
-                    >
-                        Open Editor →
-                    </button>
+        <div className="min-h-screen bg-[radial-gradient(circle_at_13%_2%,rgb(237_233_254_/_0.72),transparent_29%),radial-gradient(circle_at_88%_20%,rgb(219_234_254_/_0.6),transparent_26%),#f8f7f4] text-stone-900">
+            <header className="sticky top-0 z-20 border-b border-white/70 bg-white/65 backdrop-blur-xl">
+                <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+                    <button type="button" onClick={() => navigate('/')} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-stone-600 transition hover:bg-white hover:text-stone-950 focus-visible:outline-2 focus-visible:outline-violet-700"><ArrowLeft size={16} /> <span className="hidden sm:inline">Home</span></button>
+                    <div className="flex items-center gap-2 font-black tracking-tight"><SiteLogo size={24} /><span>Account</span></div>
+                    <button type="button" onClick={() => navigate('/editor')} className="inline-flex min-h-11 items-center rounded-xl bg-stone-950 px-3.5 text-sm font-bold text-white shadow-lg shadow-stone-900/15 transition hover:bg-violet-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Open studio</button>
                 </div>
-            </div>
+            </header>
 
-            <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
-
-                {/* Profile card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-3xl shadow-sm border border-stone-100 p-6"
-                >
-                    <div className="flex items-start gap-5">
-                        {/* Avatar */}
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-black flex-shrink-0 shadow-lg">
-                            {initial}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            {/* Name edit */}
-                            {editingName ? (
-                                <div className="flex items-center gap-2 mb-1">
-                                    <input
-                                        value={editName}
-                                        onChange={e => setEditName(e.target.value)}
-                                        className="text-xl font-black text-stone-900 border-b-2 border-violet-400 focus:outline-none bg-transparent flex-1"
-                                        autoFocus
-                                    />
-                                    <button onClick={handleSaveName} disabled={saving} className="text-emerald-500 hover:text-emerald-600">
-                                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
-                                    </button>
-                                    <button onClick={() => setEditingName(false)} className="text-stone-400 hover:text-stone-600">
-                                        <X size={18} />
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-2 mb-1">
-                                    <h2 className="text-xl font-black text-stone-900 truncate">{user.name}</h2>
-                                    <button onClick={() => { setEditName(user.name); setEditingName(true); }} className="text-stone-400 hover:text-violet-500 transition-colors">
-                                        <Edit2 size={15} />
-                                    </button>
-                                </div>
-                            )}
-                            <p className="text-stone-500 text-sm truncate">{user.email}</p>
-
-                            {/* Provider badge */}
-                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-100 text-xs font-semibold text-stone-600">
-                                    {PROVIDER_ICONS[user.authProvider]}
-                                    {providerLabel[user.authProvider] || user.authProvider}
-                                </div>
-                                {user.studentId && (
-                                    <div className="px-2.5 py-1 rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
-                                        {user.studentId}
-                                    </div>
-                                )}
-                                {user.collegeName && (
-                                    <div className="px-2.5 py-1 rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700 truncate max-w-[140px]">
-                                        {user.collegeName}
-                                    </div>
-                                )}
-                                <div className="px-2 py-0.5 rounded-full bg-emerald-50 text-[10px] font-bold text-emerald-700 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span>Supabase Cloud Auth</span>
-                                </div>
+            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+                <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-[2rem] bg-[#15131b] px-6 py-7 text-white shadow-[0_28px_70px_-35px_rgba(39,26,75,.75)] sm:px-9 sm:py-10">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_8%,rgba(167,139,250,.32),transparent_27%),radial-gradient(circle_at_10%_110%,rgba(45,212,191,.14),transparent_30%)]" />
+                    <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-center gap-4">
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 text-2xl font-black shadow-xl backdrop-blur-xl">
+                                {user.picture && !avatarFailed ? <img src={user.picture} alt="" className="h-full w-full object-cover" onError={() => setAvatarFailed(true)} /> : initial}
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-200">Your workspace</p>
+                                {editingName ? <div className="mt-1 flex items-center gap-2"><input value={editName} onChange={(event) => { setEditName(event.target.value); setProfileFeedback(null); }} onKeyDown={(event) => { if (event.key === 'Enter') void saveName(); if (event.key === 'Escape') setEditingName(false); }} aria-label="Your name" autoFocus className="min-w-0 rounded-lg border border-violet-300 bg-white/10 px-2 py-1 text-xl font-black text-white outline-none ring-0 placeholder:text-white/50 focus:border-white" /><button type="button" aria-label="Save name" onClick={() => void saveName()} disabled={saving} className="rounded-lg bg-white p-2 text-emerald-700 disabled:opacity-50">{saving ? <Loader2 size={17} className="animate-spin" /> : <Check size={17} />}</button><button type="button" aria-label="Cancel name edit" onClick={() => { setEditingName(false); setProfileFeedback(null); }} disabled={saving} className="rounded-lg p-2 text-white/70 hover:bg-white/10"><X size={17} /></button></div> : <div className="mt-1 flex items-center gap-2"><h1 className="truncate text-2xl font-black tracking-tight text-white sm:text-3xl">{user.name}</h1><button type="button" aria-label="Edit name" onClick={() => { setEditName(user.name); setProfileFeedback(null); setEditingName(true); }} className="rounded-lg p-1.5 text-white/55 transition hover:bg-white/10 hover:text-white"><Edit2 size={15} /></button></div>}
+                                <p className="mt-1 truncate text-sm text-white/60">{user.email}</p>
+                                {profileFeedback && <p role={profileFeedback.kind === 'error' ? 'alert' : 'status'} className={`mt-2 text-xs font-bold ${profileFeedback.kind === 'error' ? 'text-rose-200' : 'text-emerald-200'}`}>{profileFeedback.message}</p>}
                             </div>
                         </div>
+                        <div className="rounded-2xl border border-white/12 bg-white/[0.07] p-4 text-sm leading-relaxed text-white/68 backdrop-blur-xl sm:max-w-xs">Your drafts and exports stay on this device. Your account is used for sign-in and purchases.</div>
                     </div>
-                </motion.div>
+                </motion.section>
 
-                {/* Stats */}
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.08 }}
-                    className="grid grid-cols-3 gap-4"
-                >
-                    {statCards.map(({ label, value, icon: Icon, color }) => (
-                        <div key={label} className="bg-white rounded-2xl shadow-sm border border-stone-100 p-4 text-center">
-                            <div className={`w-9 h-9 rounded-xl mx-auto mb-2 flex items-center justify-center bg-${color}-100`}>
-                                <Icon size={18} className={`text-${color}-500`} />
-                            </div>
-                            <p className="text-xl font-black text-stone-900">{value}</p>
-                            <p className="text-xs text-stone-500 mt-0.5">{label}</p>
+                <section className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className={`${panelClass} p-5 sm:p-7`}>
+                        <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">Continue creating</p><h2 className="mt-1 text-2xl font-black tracking-tight text-stone-950">Your document workspace</h2><p className="mt-2 max-w-lg text-sm leading-relaxed text-stone-500">Pick up a local draft, prepare a new page, or review files saved in this browser.</p></div><button type="button" onClick={() => navigate('/editor')} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-bold text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-700"><Sparkles size={15} /> New document</button></div>
+                        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                            {[{ icon: FileText, value: history.length, label: 'Draft snapshots', tone: 'text-violet-700 bg-violet-50' }, { icon: HardDrive, value: exportCount === null ? '—' : exportCount, label: 'Saved exports', tone: 'text-sky-700 bg-sky-50' }, { icon: ShieldCheck, value: 'Local', label: 'Document storage', tone: 'text-emerald-700 bg-emerald-50' }].map(({ icon: Icon, value, label, tone }) => <div key={label} className="rounded-2xl border border-stone-200/80 bg-stone-50/75 p-4"><span className={`grid h-9 w-9 place-items-center rounded-xl ${tone}`}><Icon size={17} /></span><p className="mt-5 text-2xl font-black tracking-tight text-stone-950">{value}</p><p className="mt-1 text-xs font-semibold text-stone-500">{label}</p></div>)}
                         </div>
-                    ))}
-                </motion.div>
+                    </motion.div>
 
-                {/* Product access and transparent export pricing */}
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.14 }}
-                    className="bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 rounded-3xl p-6 sm:p-7 text-white relative overflow-hidden shadow-xl"
-                >
-                    <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none" />
-                    <div className="absolute bottom-[-30px] left-[-30px] w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-                    
-                    <div className="relative z-10">
-                        <div className="flex flex-wrap items-center gap-2 mb-3">
-                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-400 text-yellow-950 text-xs font-black tracking-wide shadow-sm animate-pulse">
-                                <Sparkles size={13} className="text-yellow-900" />
-                                <span>FREE WORKSPACE PREVIEW</span>
-                            </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white/90 text-xs font-semibold backdrop-blur-xs">
-                                No subscription
-                            </span>
-                        </div>
+                    <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={`${panelClass} p-5 sm:p-7`}>
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-stone-400">Sign-in</p><h2 className="mt-1 text-xl font-black text-stone-950">Account details</h2>
+                        <dl className="mt-5 space-y-4 text-sm"><div><dt className="text-xs font-bold text-stone-400">Email</dt><dd className="mt-1 break-all font-semibold text-stone-800">{user.email}</dd></div><div><dt className="text-xs font-bold text-stone-400">Provider</dt><dd className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-600"><ShieldCheck size={13} className="text-violet-600" /> {provider}</dd></div></dl>
+                    </motion.section>
+                </section>
 
-                        <h3 className="text-xl sm:text-2xl font-black mb-2 text-white">
-                            Design freely. Pay only when you export.
-                        </h3>
-                        <p className="text-white/85 text-sm sm:text-base leading-relaxed mb-5 max-w-xl">
-                            Create and preview your document with the full studio before checkout. When it is ready, export pricing is calculated clearly as <b>₹10 per document plus ₹2 per generated page</b>.
-                        </p>
+                <section className="mt-6 grid gap-4 lg:grid-cols-2">
+                    <details className={`${panelClass} group p-5 sm:p-7`}>
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-100 text-violet-700"><BookOpen size={18} /></span><div><h2 className="font-black text-stone-950">Document defaults</h2><p className="mt-0.5 text-sm text-stone-500">Optional header details for your next document.</p></div></div><ChevronRight size={18} className="text-stone-400 transition group-open:rotate-90" /></summary>
+                        <div className="mt-6 border-t border-stone-200/70 pt-5"><p className="mb-4 text-xs leading-relaxed text-stone-500">These values stay in this browser. Saving applies the formatted header to the current editor session.</p><div className="grid gap-3 sm:grid-cols-3"><label className="grid gap-1.5 text-xs font-bold text-stone-600">Name<input value={defaults.name} onChange={(event) => { setDefaults((current) => ({ ...current, name: event.target.value })); setDefaultsFeedback(null); }} placeholder="Your name" className="min-h-11 rounded-xl border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/15" /></label><label className="grid gap-1.5 text-xs font-bold text-stone-600">SAP ID / Roll No.<input value={defaults.studentId} onChange={(event) => { setDefaults((current) => ({ ...current, studentId: event.target.value })); setDefaultsFeedback(null); }} placeholder="500123456" className="min-h-11 rounded-xl border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/15" /></label><label className="grid gap-1.5 text-xs font-bold text-stone-600">Subject<input value={defaults.subject} onChange={(event) => { setDefaults((current) => ({ ...current, subject: event.target.value })); setDefaultsFeedback(null); }} placeholder="Subject" className="min-h-11 rounded-xl border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/15" /></label></div><div className="mt-4 flex flex-wrap items-center justify-between gap-3"><p role={defaultsFeedback?.kind === 'error' ? 'alert' : 'status'} className={`text-xs font-semibold ${defaultsFeedback?.kind === 'error' ? 'text-rose-700' : 'text-emerald-700'}`}>{defaultsFeedback?.message}</p><button type="button" onClick={saveAssignmentDefaults} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-violet-300 bg-white px-4 text-sm font-bold text-violet-800 shadow-sm transition hover:bg-violet-50"><Save size={15} /> Save defaults</button></div></div>
+                    </details>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
-                            {[
-                                'Full-resolution PDF and image exports',
-                                'Interactive Lab Notebook & Diagram Canvas',
-                                'A curated library of handwriting styles',
-                                '3D Metallic Twin-Wire Coil Bindings',
-                                'Smart Margin Indexing & Comparison Columns',
-                                'Exact total shown before secure checkout'
-                            ].map(f => (
-                                <div key={f} className="flex items-center gap-2 text-xs sm:text-sm text-white/95">
-                                    <div className="w-4 h-4 rounded-full bg-emerald-400/20 flex items-center justify-center shrink-0">
-                                        <Check size={11} className="text-emerald-300 font-bold" />
-                                    </div>
-                                    <span>{f}</span>
-                                </div>
-                            ))}
-                        </div>
+                    <section className={`${panelClass} p-5 sm:p-7`}><p className="text-xs font-black uppercase tracking-[0.16em] text-stone-400">Help & privacy</p><h2 className="mt-1 text-xl font-black text-stone-950">Keep control of your work</h2><div className="mt-5 space-y-2">{[['Privacy policy', '/privacy'], ['Terms of service', '/terms'], ['Support', '/support']].map(([label, href]) => <button type="button" key={href} onClick={() => navigate(href)} className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-bold text-stone-700 transition hover:bg-stone-50"><Mail size={16} className="text-stone-400" />{label}<ChevronRight size={17} className="ml-auto text-stone-300" /></button>)}</div></section>
+                </section>
 
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 border-t border-white/15">
-                            <div className="flex-1">
-                                <p className="text-xs text-white/70">
-                                    Account status: <span className="text-emerald-300 font-bold">Studio access active</span>
-                                </p>
-                                <p className="text-[11px] text-white/50">
-                                    Editing and previewing are free. You only pay when you choose to download an export.
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => navigate('/editor')}
-                                className="px-5 py-3 bg-white text-violet-900 hover:bg-violet-50 rounded-xl font-bold text-sm shadow-md hover:scale-102 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                            >
-                                <Sparkles size={16} className="text-violet-700" />
-                                <span>Open the Studio</span>
-                            </button>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Quick links */}
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.18 }}
-                    className="bg-white rounded-3xl shadow-sm border border-stone-100 divide-y divide-stone-100 overflow-hidden"
-                >
-                    {[
-                        { label: 'Privacy Policy', href: '/privacy', icon: Shield },
-                        { label: 'Terms of Service', href: '/terms', icon: FileText },
-                        { label: 'FAQ & Support', href: '/faq', icon: User },
-                    ].map(({ label, href, icon: Icon }) => (
-                        <button
-                            key={label}
-                            onClick={() => navigate(href)}
-                            className="w-full flex items-center gap-3 px-6 py-4 hover:bg-stone-50 transition-colors text-left"
-                        >
-                            <Icon size={18} className="text-stone-400" />
-                            <span className="font-medium text-stone-700">{label}</span>
-                            <ChevronRight size={16} className="ml-auto text-stone-300" />
-                        </button>
-                    ))}
-                </motion.div>
-
-                {/* Sign out */}
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.22 }}
-                >
-                    <button
-                        onClick={handleLogout}
-                        disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border-2 border-red-200 text-red-500 font-bold hover:bg-red-50 hover:border-red-400 transition-all"
-                    >
-                        <LogOut size={18} />
-                        Sign Out
-                    </button>
-                    <p className="text-center text-xs text-stone-400 mt-3">
-                        Member since {new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}
-                    </p>
-                </motion.div>
-            </div>
+                <button type="button" onClick={async () => { await logout(); navigate('/', { replace: true }); }} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-rose-600 transition hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-rose-600"><LogOut size={17} /> Sign out</button>
+            </main>
         </div>
     );
 }
-

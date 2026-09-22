@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { 
     supabase, 
     isSupabaseConfigured, 
-    signInWithGoogleIdToken,
     signInWithGoogleOAuth, 
     signInWithGithubOAuth, 
     signInWithMagicLink, 
@@ -199,9 +198,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                     // If landing on root or auth page after OAuth, redirect into the app
                     if (window.location.pathname === '/' || window.location.pathname === '/auth') {
-                        const isNew = !localStorage.getItem('text2handwriting_onboarding_done');
-                        const target = isNew ? '/onboarding' : '/editor';
-                        window.location.replace(target);
+                        // Setup is optional and must never interrupt a high-intent
+                        // sign-in/export journey.
+                        window.location.replace('/editor');
                         return;
                     }
                 }
@@ -303,13 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (isSupabaseConfigured && supabase) {
             try {
-                if (import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-                    await signInWithGoogleIdToken();
-                    setIsLoading(false);
-                    setAuthModalOpen(false);
-                    return { success: true, redirected: false };
-                }
-
+                // Use the stable Supabase OAuth flow; One Tap/FedCM can return unknown_reason.
                 const dest = redirectTo || `${window.location.origin}/account`;
                 await signInWithGoogleOAuth(dest);
                 return { success: true, redirected: true };

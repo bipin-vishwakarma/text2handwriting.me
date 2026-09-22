@@ -95,14 +95,14 @@ export default function AboutPage() {
                                 color: "text-blue-500",
                                 bg: "bg-blue-50",
                                 title: "Local-First Privacy",
-                                desc: "Your assignments are your intellectual property. All rendering happens directly in your browser. We never store your text."
+                                desc: "Core rendering is designed to happen in your browser. Draft settings and export history may be stored locally; account and payment features use online providers."
                             },
                             {
                                 icon: FlaskConical,
                                 color: "text-emerald-500",
                                 bg: "bg-emerald-50",
                                 title: "Imperfection Engine",
-                                desc: "Perfection is a dead giveaway. Our proprietary algorithm injects micro-variations into spacing, rotation, and baseline shifts."
+                                desc: "Adjust spacing, baseline, and other layout details to shape the page appearance. These controls affect presentation and do not guarantee any particular handwriting or detection outcome."
                             },
                             {
                                 icon: GraduationCap,

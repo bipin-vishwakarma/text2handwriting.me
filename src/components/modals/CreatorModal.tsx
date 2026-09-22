@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Github, Instagram, Linkedin, Mail, ExternalLink, Sparkles, Heart, Code2 } from 'lucide-react';
 
@@ -8,11 +8,20 @@ interface CreatorModalProps {
 }
 
 export const CreatorModal: React.FC<CreatorModalProps> = ({ isOpen, onClose }) => {
-    if (!isOpen) return null;
+    useEffect(() => {
+        if (!isOpen) return undefined;
+
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') onClose();
+        };
+        document.addEventListener('keydown', closeOnEscape);
+        return () => document.removeEventListener('keydown', closeOnEscape);
+    }, [isOpen, onClose]);
+
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {isOpen && <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -28,17 +37,22 @@ export const CreatorModal: React.FC<CreatorModalProps> = ({ isOpen, onClose }) =
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 15 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="creator-portfolio-title"
+                    aria-describedby="creator-portfolio-description"
                     className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-black/5 overflow-hidden z-10 flex flex-col"
                 >
                     {/* Header bar */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-black/5 bg-neutral-50/50">
                         <div className="flex items-center gap-2">
                             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-xs font-black uppercase tracking-widest text-neutral-400">About the Creator</span>
+                            <span className="text-xs font-black uppercase tracking-widest text-neutral-400">Creator portfolio</span>
                         </div>
                         <button
                             type="button"
                             onClick={onClose}
+                            aria-label="Close portfolio"
                             className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-500 hover:text-neutral-900 flex items-center justify-center transition-all cursor-pointer"
                         >
                             <X size={16} />
@@ -64,14 +78,14 @@ export const CreatorModal: React.FC<CreatorModalProps> = ({ isOpen, onClose }) =
                             </div>
                         </div>
 
-                        <h2 className="text-2xl sm:text-3xl font-display font-black text-neutral-900 tracking-tight mb-1">
+                        <h2 id="creator-portfolio-title" className="text-2xl sm:text-3xl font-display font-black text-neutral-900 tracking-tight mb-1">
                             Bipin Vishwakarma
                         </h2>
                         <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-4 flex items-center gap-1.5">
                             <Code2 size={13} /> Creator & Developer · text2handwriting.me
                         </p>
 
-                        <p className="text-sm text-neutral-600 max-w-md leading-relaxed mb-6 font-medium">
+                        <p id="creator-portfolio-description" className="text-sm text-neutral-600 max-w-md leading-relaxed mb-6 font-medium">
                             Biomedical Engineering student at <strong>UPES Dehradun</strong> with a minor in <strong>Artificial Intelligence</strong>. Passionate about creative tech, analog document realism, and building free, privacy-first tools for students and creators.
                         </p>
 
@@ -136,7 +150,7 @@ export const CreatorModal: React.FC<CreatorModalProps> = ({ isOpen, onClose }) =
                         </div>
                     </div>
                 </motion.div>
-            </div>
+            </div>}
         </AnimatePresence>
     );
 };

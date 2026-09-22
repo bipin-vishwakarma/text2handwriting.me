@@ -22,7 +22,7 @@ const SLIDES = [
         icon: FileText,
         color: 'from-blue-500/10 to-indigo-500/10 text-blue-600',
         headline: 'Question numbers automatically pin to the red margin',
-        description: 'Type "Q1.", "Ans:", "(a)", or "(i)" anywhere in your text. text2handwriting.me automatically isolates the question index and stamps it into the authentic left red rule — just like real Indian student notebooks.',
+        description: 'Type "Q1.", "Ans:", "(a)", or "(i)" anywhere in your text. text2handwriting.me can place the question index in the left margin for a familiar notebook-style layout.',
         demo: (
             <div className="w-full bg-white rounded-xl border border-neutral-200/90 p-3 shadow-inner relative overflow-hidden text-left font-mono text-xs">
                 <div className="absolute top-0 bottom-0 left-16 w-[1.5px] bg-rose-400/80" />
@@ -78,8 +78,8 @@ const SLIDES = [
         badge: 'Natural Studio Lighting',
         icon: Camera,
         color: 'from-amber-500/10 to-orange-500/10 text-amber-600',
-        headline: 'Authentic smartphone shadows, desk lamps & natural mistakes',
-        description: 'text2handwriting.me goes far beyond simple fonts: it simulates human hand fatigue (writing gets slightly looser down the page), realistic ballpoint jitter, wavy pen strikethroughs, desk lamp warmth, and 3D smartphone cast shadows.',
+        headline: 'Camera-style shadows, desk lighting & optional variation',
+        description: 'Use optional visual treatments such as line variation, strikethrough styling, desk-lamp warmth, and camera-style shadows to shape the page presentation. These controls create a styled digital preview rather than evidence of human authorship.',
         demo: (
             <div className="w-full bg-linear-to-r from-amber-50/70 to-orange-50/50 rounded-xl border border-amber-200/80 p-3 text-left space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-bold text-neutral-800">
@@ -89,10 +89,6 @@ const SLIDES = [
                 <div className="flex items-center justify-between text-[11px] font-bold text-neutral-800">
                     <span>📱 Smartphone Cast Shadow</span>
                     <span className="text-emerald-600 font-mono text-[10px]">125° Warm</span>
-                </div>
-                <div className="flex items-center justify-between text-[11px] font-bold text-neutral-800">
-                    <span>☕ Subtle Coffee / Desk Ring</span>
-                    <span className="text-neutral-500 font-mono text-[10px]">Optional</span>
                 </div>
             </div>
         )
@@ -124,7 +120,7 @@ const SLIDES = [
         icon: Download,
         color: 'from-rose-500/10 to-red-500/10 text-rose-600',
         headline: 'Download sharp, printable PDFs with student date headers',
-        description: 'Export clean multi-page documents as high-DPI PDFs or individual image ZIPs. Authentic Indian student notebook headers (Day tracker, Date, Page Number, and Youva/Classmate branding) are included automatically.',
+        description: 'Export clean multi-page documents as high-DPI PDFs or individual image ZIPs. Optional notebook-style headers can include a day tracker, date, and page number.',
         demo: (
             <div className="w-full bg-neutral-900 text-white rounded-xl p-3 text-left space-y-2">
                 <div className="flex items-center justify-between">

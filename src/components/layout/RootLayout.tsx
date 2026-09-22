@@ -7,7 +7,9 @@ import OnboardingModal from '../modals/OnboardingModal';
 
 export default function RootLayout() {
     const location = useLocation();
-    const isStudioRoute = location.pathname === '/editor';
+    // Treat the canonical and trailing-slash editor URLs as the same workspace.
+    // Otherwise the marketing navbar overlays the studio on some deployments.
+    const isStudioRoute = location.pathname.replace(/\/+$/, '') === '/editor';
 
     return (
         <>

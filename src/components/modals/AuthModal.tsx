@@ -91,7 +91,7 @@ export default function AuthModal() {
                 });
                 if (res.success) {
                     if (res.needsEmailConfirmation) {
-                        setSuccessMessage('Account created! Please check your email to confirm.');
+                        setSuccessMessage('Check your inbox for a verification link from Text2Handwriting. Your account becomes active after you confirm it.');
                     }
                 } else {
                     setErrorMessage(res.error || 'Could not create account.');
@@ -125,7 +125,7 @@ export default function AuthModal() {
                                 <SiteLogo size={32} />
                                 <div>
                                     <h2 className="text-sm font-extrabold text-neutral-900 leading-tight flex items-center gap-1.5">
-                                        <span>Student Cloud Vault</span>
+                                        <span>Sign in to text2handwriting.me</span>
                                         <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-mono font-bold">Beta</span>
                                     </h2>
                                     <p className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">

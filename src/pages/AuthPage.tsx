@@ -3,10 +3,11 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Mail, ArrowRight, Eye, EyeOff, Loader2, 
-    BookOpen, PenTool, Sparkles, CheckCircle2, AlertCircle, KeyRound, Home, Github, ShieldCheck, User
+    BookOpen, PenTool, Sparkles, CheckCircle2, AlertCircle, KeyRound, Home, Github, ShieldCheck, User, RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import SiteLogo from '../components/common/SiteLogo';
+import { resetPasswordForEmail, supabase } from '../lib/supabase';
 
 type AuthStep = 'choose' | 'email-password';
 
@@ -15,7 +16,7 @@ const providerCard =
 
 const features = [
     { icon: PenTool, text: 'Natural handwriting styling in seconds', desc: 'Adjust paper, ink, spacing, and organic variation.' },
-    { icon: BookOpen, text: '15+ authentic student paper types', desc: 'Lab notebooks, ruled pages, and assignment sheets.' },
+    { icon: BookOpen, text: 'A range of student paper types', desc: 'Lab notebooks, ruled pages, and assignment sheets.' },
     { icon: Sparkles, text: 'Design and preview before paying', desc: 'Exports use simple pay-per-document pricing.' },
 ];
 
@@ -31,7 +32,9 @@ export default function AuthPage() {
 
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const redirect = searchParams.get('redirect') || '/onboarding';
+    // Authentication must return people to the job they started. A long setup
+    // flow between review and payment is a high-intent dead end.
+    const redirect = searchParams.get('redirect') || '/editor';
 
     const [step, setStep] = useState<AuthStep>('choose');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -44,6 +47,10 @@ export default function AuthPage() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [fullName, setFullName] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
+    const [isResendingConfirmation, setIsResendingConfirmation] = useState(false);
+    const [confirmationNotice, setConfirmationNotice] = useState<string | null>(null);
+    const [isSendingPasswordReset, setIsSendingPasswordReset] = useState(false);
 
     // If already logged in, navigate immediately
     useEffect(() => {
@@ -52,16 +59,13 @@ export default function AuthPage() {
         }
     }, [isAuthenticated, navigate, redirect]);
 
-    const isNewUser = () => !localStorage.getItem('text2handwriting_onboarding_done');
-
     const afterAuth = () => {
-        const dest = isNewUser() ? '/onboarding' : (searchParams.get('redirect') || '/editor');
-        navigate(dest, { replace: true });
+        navigate(redirect, { replace: true });
     };
 
     const handleGoogle = async () => {
         setErrorMessage(null);
-        const dest = `${window.location.origin}${isNewUser() ? '/onboarding' : (searchParams.get('redirect') || '/editor')}`;
+        const dest = `${window.location.origin}${redirect}`;
         const res = await loginWithGoogle(dest);
         if (res.redirected) return;
         if (!res.success) {
@@ -73,7 +77,7 @@ export default function AuthPage() {
 
     const handleGithub = async () => {
         setErrorMessage(null);
-        const dest = `${window.location.origin}${isNewUser() ? '/onboarding' : (searchParams.get('redirect') || '/editor')}`;
+        const dest = `${window.location.origin}${redirect}`;
         const res = await loginWithGithub(dest);
         if (res.redirected) return;
         if (!res.success) {
@@ -98,7 +102,8 @@ export default function AuthPage() {
             const res = await signUpWithPassword(email, password, { name: fullName });
             if (res.success) {
                 if (res.needsEmailConfirmation) {
-                    setSuccessNotice(`Confirmation email sent to ${email}. Check your inbox to verify your account.`);
+                    setConfirmationEmail(email.trim());
+                    setConfirmationNotice(null);
                 } else {
                     afterAuth();
                 }
@@ -112,6 +117,38 @@ export default function AuthPage() {
             } else {
                 setErrorMessage(res.error || 'Invalid email or password.');
             }
+        }
+    };
+
+    const handleResendConfirmation = async () => {
+        if (!confirmationEmail || !supabase) return;
+        setIsResendingConfirmation(true);
+        setConfirmationNotice(null);
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email: confirmationEmail,
+            options: { emailRedirectTo: `${window.location.origin}${redirect === '/editor' ? '/auth?redirect=%2Feditor' : `/auth?redirect=${encodeURIComponent(redirect)}`}` },
+        });
+        setIsResendingConfirmation(false);
+        setConfirmationNotice(error ? 'We could not resend the email yet. Please wait a minute and try again.' : 'A fresh confirmation email is on its way.');
+    };
+
+    const handlePasswordReset = async () => {
+        setErrorMessage(null);
+        setSuccessNotice(null);
+        if (!email.trim() || !email.includes('@')) {
+            setErrors((current) => ({ ...current, email: 'Enter your account email first' }));
+            return;
+        }
+        setErrors((current) => ({ ...current, email: '' }));
+        setIsSendingPasswordReset(true);
+        try {
+            await resetPasswordForEmail(email, `${window.location.origin}/auth?mode=reset`);
+            setSuccessNotice('If an account exists for this email, a password reset link is on its way.');
+        } catch {
+            setErrorMessage('Password reset is currently unavailable. Please try again later or contact support.');
+        } finally {
+            setIsSendingPasswordReset(false);
         }
     };
 
@@ -166,13 +203,13 @@ export default function AuthPage() {
                     </div>
 
                     <h2 className="text-4xl lg:text-5xl font-semibold tracking-tight text-white leading-[1.1] mb-5">
-                        Your authentic <br />
+                        Your own <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400 italic font-medium">handwriting</span> <br />
                         digitized.
                     </h2>
                     
                     <p className="text-white/60 text-lg leading-relaxed max-w-md font-light">
-                        The most realistic text-to-handwriting engine. Trusted by students worldwide for assignments and lab records.
+                        Create handwritten-style pages for your own notes, drafts, and presentations.
                     </p>
                 </div>
 
@@ -255,7 +292,22 @@ export default function AuthPage() {
                         )}
 
                         <AnimatePresence mode="wait">
-                            {step === 'choose' && (
+                            {confirmationEmail ? (
+                                <motion.div key="confirmation" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }} className="text-center">
+                                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/70"><Mail size={30} /></div>
+                                    <h1 className="text-[32px] font-semibold tracking-tight text-neutral-900 mb-2">Check your inbox</h1>
+                                    <p className="text-neutral-500 text-[15px] leading-relaxed">We sent a verification link to <strong className="font-semibold text-neutral-800 break-all">{confirmationEmail}</strong>.</p>
+                                    <div className="my-7 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-left space-y-3">
+                                        <div className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">1</span><p className="text-sm text-neutral-700">Open the email from <strong>Text2Handwriting</strong>.</p></div>
+                                        <div className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">2</span><p className="text-sm text-neutral-700">Select <strong>Confirm email address</strong> to activate your account.</p></div>
+                                        <div className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">3</span><p className="text-sm text-neutral-700">Return here and sign in securely.</p></div>
+                                    </div>
+                                    <p className="mb-4 text-xs text-neutral-500">Nothing yet? Check Spam or Promotions first. Delivery can take a minute.</p>
+                                    {confirmationNotice && <p role="status" className="mb-4 text-sm font-medium text-emerald-700">{confirmationNotice}</p>}
+                                    <button type="button" onClick={handleResendConfirmation} disabled={isResendingConfirmation} className="w-full py-3.5 rounded-xl border border-violet-200 text-violet-700 font-semibold hover:bg-violet-50 disabled:opacity-60 flex items-center justify-center gap-2"><RefreshCw size={16} className={isResendingConfirmation ? 'animate-spin' : ''} />{isResendingConfirmation ? 'Sending another email...' : 'Resend verification email'}</button>
+                                    <button type="button" onClick={() => { setConfirmationEmail(null); setIsSignUp(false); setStep('email-password'); }} className="mt-4 text-sm font-semibold text-neutral-600 hover:text-violet-600">Back to sign in</button>
+                                </motion.div>
+                            ) : step === 'choose' && (
                                 <motion.div
                                     key="choose"
                                     initial={{ opacity: 0, x: 20 }}
@@ -264,7 +316,7 @@ export default function AuthPage() {
                                     transition={{ duration: 0.25 }}
                                 >
                                     <h1 className="text-[32px] font-semibold tracking-tight text-neutral-900 mb-2">Welcome</h1>
-                                    <p className="text-neutral-500 mb-8 text-[15px]">Log in or create an account to save your work.</p>
+                                    <p className="text-neutral-500 mb-8 text-[15px]">Log in or sign in to export a paid file and manage your account.</p>
 
                                     <div className="space-y-3.5">
                                         <button 
@@ -311,7 +363,7 @@ export default function AuthPage() {
 
                                     <div className="mt-10 flex items-center justify-center gap-2 text-xs text-neutral-500 font-medium bg-neutral-50 py-3 rounded-xl border border-neutral-100">
                                         <ShieldCheck size={16} className="text-emerald-500" />
-                                        <span>Secure 256-bit encryption</span>
+                                        <span>Supabase authentication</span>
                                     </div>
 
                                     <p className="text-center text-[13px] text-neutral-400 mt-8 font-medium">
@@ -382,7 +434,7 @@ export default function AuthPage() {
                                         <div>
                                             <label className="text-[13px] font-medium text-neutral-700 mb-1.5 flex justify-between items-center">
                                                 <span>Password</span>
-                                                {!isSignUp && <button type="button" className="text-violet-600 hover:underline cursor-pointer" onClick={() => alert('Password reset will be available soon.')}>Forgot?</button>}
+                                                {!isSignUp && <button type="button" disabled={isSendingPasswordReset} className="text-violet-600 hover:underline cursor-pointer disabled:opacity-60" onClick={handlePasswordReset}>{isSendingPasswordReset ? 'Sending…' : 'Forgot password?'}</button>}
                                             </label>
                                             <div className="relative">
                                                 <KeyRound size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />

@@ -44,7 +44,7 @@ export default function Footer() {
                              <span className="min-w-0 text-xl sm:text-2xl font-display font-bold tracking-tight text-neutral-900 break-words">text2handwriting.me</span>
                         </Link>
                         <p className="text-neutral-500 leading-relaxed max-w-sm text-sm font-medium">
-                            Hyper-realistic handwriting simulator with authentic human errors, pen scratch-outs, smartphone cast shadows, and realistic desk lighting.
+                            A handwriting-style document editor with paper, ink, layout, and presentation controls.
                         </p>
                     </motion.div>
 

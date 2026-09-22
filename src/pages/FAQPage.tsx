@@ -11,7 +11,7 @@ const faqItems = [
     },
     {
         question: 'Is my data secure and private?',
-        answer: 'Core handwriting rendering and file export happen in your browser, and we do not store your document files on our servers. If you choose an optional AI-assisted feature, the text you submit may be sent to the third-party model provider described in our Privacy Policy.',
+        answer: 'Document rendering and file generation are designed to run in your browser. Drafts and preferences may be saved in browser storage on your device. Sign-in and payment use service providers (including Supabase and Razorpay), which process account and transaction data; see our Privacy Policy for details.',
     },
     {
         question: 'Can I use my own handwriting font?',
@@ -19,7 +19,7 @@ const faqItems = [
     },
     {
         question: 'What file formats are supported for export?',
-        answer: 'text2handwriting.me supports high-definition PDF exports for multi-page documents formatted for A4 or Letter sizes. You can also export a ZIP file containing individual PNG images for digital sharing.',
+        answer: 'You can export a multi-page PDF or a ZIP containing page images. Available page sizes include A4 and Letter.',
     },
 ];
 
@@ -42,7 +42,7 @@ export default function FAQPage() {
             title="Help Center"
             subtitle="Frequently asked questions about text2handwriting.me."
             seoTitle="text2handwriting.me FAQ | Pricing, Privacy & Exports"
-            description="Answers about text2handwriting.me pricing, browser-based document processing, custom fonts, responsible use, and PDF export."
+            description="Answers about text2handwriting.me pricing, browser-based document processing, custom fonts, responsible use, and PDF or ZIP exports."
             structuredData={faqStructuredData}
         >
             <section className="space-y-10" aria-label="Frequently asked questions">

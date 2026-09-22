@@ -14,7 +14,6 @@ interface CameraOverlayProps {
     lightingWarmth: number;
     paperCrease: PaperCrease;
     sensorNoise: number;
-    coffeeStain?: boolean;
     pageIndex?: number;
     spiralBinding?: boolean;
     inkBleedThrough?: boolean;
@@ -34,7 +33,6 @@ const CameraOverlayComponent: React.FC<CameraOverlayProps> = ({
     lightingWarmth,
     paperCrease,
     sensorNoise,
-    coffeeStain = false,
     spiralBinding = false,
     inkBleedThrough = false,
     inkBleedIntensity = 0.12,
@@ -321,100 +319,6 @@ const CameraOverlayComponent: React.FC<CameraOverlayProps> = ({
                             background: 'radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(180, 130, 70, 0.3) 92%, rgba(120, 80, 40, 0.5) 100%)',
                         }}
                     />
-                </div>
-            )}
-
-            {/* HYPER-REALISTIC ORGANIC COFFEE CUP RING STAIN */}
-            {(paperCrease === 'vintage-worn' || coffeeStain) && (
-                <div 
-                    className="absolute bottom-10 right-10 w-44 h-44 pointer-events-none mix-blend-multiply select-none"
-                    style={{ opacity: 0.85, transform: 'rotate(-12deg)' }}
-                >
-                    <svg viewBox="0 0 200 200" className="w-full h-full overflow-visible">
-                        <defs>
-                            <radialGradient id="coffeeWashGrad" cx="48%" cy="48%" r="50%">
-                                <stop offset="0%" stopColor="#8c5828" stopOpacity="0.03" />
-                                <stop offset="55%" stopColor="#7a491e" stopOpacity="0.07" />
-                                <stop offset="82%" stopColor="#5d3514" stopOpacity="0.18" />
-                                <stop offset="94%" stopColor="#48270d" stopOpacity="0.4" />
-                                <stop offset="100%" stopColor="#2e1706" stopOpacity="0.75" />
-                            </radialGradient>
-                            <radialGradient id="coffeeDotGrad" cx="35%" cy="35%" r="65%">
-                                <stop offset="0%" stopColor="#7a491e" stopOpacity="0.8" />
-                                <stop offset="85%" stopColor="#48270d" stopOpacity="0.9" />
-                                <stop offset="100%" stopColor="#2e1706" stopOpacity="0.98" />
-                            </radialGradient>
-                            <filter id="coffeeEdgeDistort" x="-15%" y="-15%" width="130%" height="130%">
-                                <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="turb" />
-                                <feDisplacementMap in="SourceGraphic" in2="turb" scale="4.5" xChannelSelector="R" yChannelSelector="G" />
-                            </filter>
-                        </defs>
-                        
-                        {/* Dried puddle mottled center wash */}
-                        <circle cx="100" cy="100" r="74" fill="url(#coffeeWashGrad)" filter="url(#coffeeEdgeDistort)" />
-                        
-                        {/* Primary Capillary Rim (Dark outer ring where evaporation deposits solids) */}
-                        <ellipse 
-                            cx="100" 
-                            cy="99" 
-                            rx="74" 
-                            ry="72" 
-                            fill="none" 
-                            stroke="#3b1d08" 
-                            strokeWidth="3.6" 
-                            strokeDasharray="160 14 85 8 40 5"
-                            strokeLinecap="round"
-                            filter="url(#coffeeEdgeDistort)"
-                            opacity="0.88"
-                        />
-                        
-                        {/* Secondary heavier capillary segment (cup pressure puddle deposit) */}
-                        <path 
-                            d="M 32,106 A 72,70 0 0,0 162,126 A 71,72 0 0,0 170,90" 
-                            fill="none" 
-                            stroke="#2b1304" 
-                            strokeWidth="4.2" 
-                            strokeLinecap="round"
-                            filter="url(#coffeeEdgeDistort)"
-                            opacity="0.75"
-                        />
-                        
-                        {/* Faint sliding double ring / mug displacement mark */}
-                        <ellipse 
-                            cx="104" 
-                            cy="95" 
-                            rx="72" 
-                            ry="70" 
-                            fill="none" 
-                            stroke="#6f421f" 
-                            strokeWidth="1.8" 
-                            strokeDasharray="50 30 70 20"
-                            strokeLinecap="round"
-                            filter="url(#coffeeEdgeDistort)"
-                            opacity="0.5"
-                        />
-
-                        {/* Inner dried coffee sediment ring */}
-                        <ellipse 
-                            cx="98" 
-                            cy="102" 
-                            rx="66" 
-                            ry="64" 
-                            fill="none" 
-                            stroke="#7a491e" 
-                            strokeWidth="1.2" 
-                            strokeDasharray="25 45 65 35"
-                            opacity="0.32"
-                        />
-
-                        {/* Real satellite splatter droplets near cup rim */}
-                        <ellipse cx="186" cy="82" rx="2.8" ry="2.2" fill="url(#coffeeDotGrad)" />
-                        <ellipse cx="180" cy="70" rx="1.6" ry="1.3" fill="url(#coffeeDotGrad)" />
-                        <ellipse cx="20" cy="122" rx="3.2" ry="2.4" fill="url(#coffeeDotGrad)" transform="rotate(18 20 122)" />
-                        <ellipse cx="14" cy="135" rx="1.8" ry="1.4" fill="url(#coffeeDotGrad)" />
-                        <ellipse cx="122" cy="186" rx="2.5" ry="2.0" fill="url(#coffeeDotGrad)" />
-                        <ellipse cx="134" cy="194" rx="1.5" ry="1.2" fill="url(#coffeeDotGrad)" />
-                    </svg>
                 </div>
             )}
 

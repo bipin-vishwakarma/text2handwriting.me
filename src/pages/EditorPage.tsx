@@ -1,17 +1,18 @@
 import confetti from 'canvas-confetti';
 import { useState, useMemo, useDeferredValue, useEffect, useRef, useCallback } from 'react';
 
-import { 
-    FileText, 
-    AlignLeft, AlignCenter, AlignRight, AlignJustify, 
-    Download, Clock, 
+import {
+    FileText,
+    AlignLeft, AlignCenter, AlignRight, AlignJustify,
+    Download,
     ZoomIn, ZoomOut, Palette,
-    RotateCcw, Camera, Scissors, X, Dices,
-    Maximize2, Minimize2, Clipboard, Sparkles, Trash2,
-    FileUp, Upload, Loader2, FlaskConical, Compass, PanelLeft, Layers3
+    RotateCcw, Camera, Scissors, X, Dices, Clock,
+    Minimize2, Clipboard, Sparkles, Trash2,
+    FileUp, Upload, Loader2, FlaskConical, PanelLeft, Layers3, ChevronDown
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import SiteLogo from '../components/common/SiteLogo';
 
 import { useStore } from '../lib/store';
 import { useToast } from '../hooks/useToast';
@@ -27,11 +28,18 @@ import { CameraOverlay } from '../components/CameraOverlay';
 import { HumanErrorsControls } from '../components/HumanErrorsControls';
 import { CameraPhysicsControls } from '../components/CameraPhysicsControls';
 import { PenPresetSelector } from '../components/PenPresetSelector';
+import { GlassDock } from '../components/editor/GlassDock';
+import { StyleSlider } from '../components/editor/StyleSlider';
 import { parseWordToken, measureWordWidth, getFontFamilyCss, getEffectiveFontSize, clearWidthCache, type WordToken } from '../utils/humanErrorEngine';
 import { computePagePhoneShadow } from '../utils/cameraShadowEngine';
 import { cleanAIText, isLikelyAIText } from '../utils/aiTextCleaner';
 import { importDocumentFile } from '../utils/documentImporter';
 import type { StrikeStyle, PaperMaterial } from '../types';
+
+// Kept separate from the marketing/onboarding flow: this records that the
+// workspace tour was offered, not that a document was created or exported.
+const EDITOR_TOUR_SEEN_STORAGE_KEY = 'text2handwriting_editor_tour_seen';
+let hasLaunchedEditorTourThisSession = false;
 
 // --- PIPELINE TYPES ---
 interface LineData {
@@ -56,7 +64,7 @@ interface PageData {
 
 // --- PIPELINE STAGE 1 & 2: TOKENIZE & BUILD LINES WITH FONT METRICS ---
 function buildDocumentLines(
-    text: string, 
+    text: string,
     maxLineWidth: number,
     font: string,
     fontSize: number,
@@ -410,69 +418,69 @@ const FONTS = [
 ];
 
 const PAPERS = [
-    { 
-        id: 'youva-spiral', 
-        name: 'Indian Student Spiral (Youva / Classmate)', 
-        css: 'bg-white', 
-        lineHeight: 32, 
+    {
+        id: 'youva-spiral',
+        name: 'Indian Student Spiral (Youva / Classmate)',
+        css: 'bg-white',
+        lineHeight: 32,
         hasRedMargin: true,
-        style: { 
-            backgroundImage: 'linear-gradient(#cbd5e1 1px, transparent 1px)', 
-            backgroundSize: '100% 32px' 
-        } 
+        style: {
+            backgroundImage: 'linear-gradient(#cbd5e1 1px, transparent 1px)',
+            backgroundSize: '100% 32px'
+        }
     },
-    { 
-        id: 'college', 
-        name: 'College Ruled (Red Margin)', 
-        css: 'bg-white', 
-        lineHeight: 32, 
+    {
+        id: 'college',
+        name: 'College Ruled (Red Margin)',
+        css: 'bg-white',
+        lineHeight: 32,
         hasRedMargin: true,
-        style: { 
-            backgroundImage: 'linear-gradient(#cbd5e1 1px, transparent 1px)', 
-            backgroundSize: '100% 32px' 
-        } 
+        style: {
+            backgroundImage: 'linear-gradient(#cbd5e1 1px, transparent 1px)',
+            backgroundSize: '100% 32px'
+        }
     },
-    { 
-        id: 'lined', 
-        name: 'Standard Blue Ruled', 
-        css: 'bg-white', 
-        lineHeight: 32, 
+    {
+        id: 'lined',
+        name: 'Standard Blue Ruled',
+        css: 'bg-white',
+        lineHeight: 32,
         hasRedMargin: false,
-        style: { 
-            backgroundImage: 'linear-gradient(#93c5fd 1px, transparent 1px)', 
-            backgroundSize: '100% 32px' 
-        } 
+        style: {
+            backgroundImage: 'linear-gradient(#93c5fd 1px, transparent 1px)',
+            backgroundSize: '100% 32px'
+        }
     },
-    { 
-        id: 'grid', 
-        name: 'Engineering Graph Paper', 
-        css: 'bg-white', 
-        lineHeight: 28, 
+    {
+        id: 'grid',
+        name: 'Engineering Graph Paper',
+        css: 'bg-white',
+        lineHeight: 28,
         hasRedMargin: false,
-        style: { 
-            backgroundImage: 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)', 
-            backgroundSize: '24px 24px, 24px 24px' 
-        } 
+        style: {
+            backgroundImage: 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)',
+            backgroundSize: '24px 24px, 24px 24px'
+        }
     },
-    { 
-        id: 'blank', 
-        name: 'Plain White Sheet', 
-        css: 'bg-white', 
-        lineHeight: 32, 
+    {
+        id: 'blank',
+        name: 'Plain White Sheet',
+        css: 'bg-white',
+        lineHeight: 32,
         hasRedMargin: false,
-        style: {} 
+        style: {}
     },
-    { 
-        id: 'vintage', 
-        name: 'Vintage Notepad', 
-        css: 'bg-[#fef3c7]', 
-        lineHeight: 34, 
+    {
+        id: 'vintage',
+        name: 'Vintage Notepad',
+        css: 'bg-[#fef3c7]',
+        lineHeight: 34,
         hasRedMargin: false,
-        style: { 
-            backgroundColor: '#fef3c7', 
-            backgroundImage: 'linear-gradient(#fde68a 1px, transparent 1px)', 
-            backgroundSize: '100% 34px' 
-        } 
+        style: {
+            backgroundColor: '#fef3c7',
+            backgroundImage: 'linear-gradient(#fde68a 1px, transparent 1px)',
+            backgroundSize: '100% 34px'
+        }
     },
 ];
 
@@ -487,11 +495,16 @@ function normalizeInput(str: string): string {
 export default function EditorPage() {
     const { addToast } = useToast();
     const sourceRef = useRef<HTMLTextAreaElement>(null);
+    const focusTextareaRef = useRef<HTMLTextAreaElement>(null);
+    const activeTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const focusDialogRef = useRef<HTMLDivElement>(null);
+    const focusToolsTriggerRef = useRef<HTMLButtonElement>(null);
+    const focusToolsMenuRef = useRef<HTMLDivElement>(null);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
-    
+
     // Global Store State
-    const { 
-        text, setText, 
+    const {
+        text, setText,
         handwritingStyle: font, setHandwritingStyle: setFont,
         fontSize, setFontSize,
         inkColor: color,
@@ -526,7 +539,6 @@ export default function EditorPage() {
         paperCrease,
         sensorNoise,
         randomTilt,
-        coffeeStain,
         spiralBinding, setSpiralBinding,
         inkBleedThrough,
         inkBleedIntensity,
@@ -568,8 +580,14 @@ export default function EditorPage() {
 
     // Enhanced Textarea States & Handlers
     const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
-    const [editorFontSize, setEditorFontSize] = useState<'sm' | 'base' | 'lg'>('sm');
-    const [isEditorExpanded, setIsEditorExpanded] = useState(false);
+const [editorFontSize, setEditorFontSize] = useState<'sm' | 'base' | 'lg'>('sm');
+const [isEditorExpanded, setIsEditorExpanded] = useState(false);
+const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
+
+    const closeFocusEditor = useCallback(() => {
+        setIsFocusToolsOpen(false);
+        setIsEditorExpanded(false);
+    }, []);
 
     const updateCursorPos = useCallback((e: React.SyntheticEvent<HTMLTextAreaElement>) => {
         const target = e.currentTarget;
@@ -598,11 +616,11 @@ export default function EditorPage() {
             const start = target.selectionStart;
             const textBefore = draftText.slice(0, start);
             const currentLine = textBefore.split('\n').pop() || '';
-            
+
             // Smart auto-bullet and list continuation
             const bulletMatch = currentLine.match(/^(\s*)(•|-|\*)\s+/);
             const numMatch = currentLine.match(/^(\s*)(\d+)[.)]\s+/);
-            
+
             if (bulletMatch) {
                 if (currentLine.trim() === '•' || currentLine.trim() === '-' || currentLine.trim() === '*') {
                     // Double Enter: cancel list
@@ -651,15 +669,16 @@ export default function EditorPage() {
             const clipText = await navigator.clipboard.readText();
             if (clipText) {
                 const toInsert = isLikelyAIText(clipText) ? cleanAIText(clipText) : clipText;
-                if (sourceRef.current) {
-                    const start = sourceRef.current.selectionStart;
-                    const end = sourceRef.current.selectionEnd;
+                const target = activeTextareaRef.current ?? sourceRef.current;
+                if (target) {
+                    const start = target.selectionStart;
+                    const end = target.selectionEnd;
                     const next = draftText.slice(0, start) + toInsert + draftText.slice(end);
                     setDraftText(next);
                     setText(next);
                     setTimeout(() => {
-                        sourceRef.current?.focus();
-                        sourceRef.current?.setSelectionRange(start + toInsert.length, start + toInsert.length);
+                        target.focus();
+                        target.setSelectionRange(start + toInsert.length, start + toInsert.length);
                     }, 0);
                 } else {
                     const next = draftText ? draftText + '\n\n' + toInsert : toInsert;
@@ -767,7 +786,7 @@ export default function EditorPage() {
             const start = floatingToolbar.start;
             const end = floatingToolbar.end;
             const selected = draftText.slice(start, end);
-            
+
             let replacement = `${prefix}${selected}${suffix}`;
             if (prefix === '' && suffix === '') {
                 // Clear formatting
@@ -786,8 +805,9 @@ export default function EditorPage() {
             setText(next);
             setFloatingToolbar(prev => ({ ...prev, isOpen: false }));
             setTimeout(() => {
-                sourceRef.current?.focus();
-                sourceRef.current?.setSelectionRange(start, start + replacement.length);
+                const target = activeTextareaRef.current ?? sourceRef.current;
+                target?.focus();
+                target?.setSelectionRange(start, start + replacement.length);
             }, 10);
             addToast('Applied formatting to text!', 'success');
         } else if (floatingToolbar.source === 'canvas') {
@@ -833,8 +853,8 @@ export default function EditorPage() {
 
                 if (selection.rangeCount === 0) return;
                 const range = selection.getRangeAt(0);
-                const node = range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
-                    ? range.commonAncestorContainer.parentElement 
+                const node = range.commonAncestorContainer.nodeType === Node.TEXT_NODE
+                    ? range.commonAncestorContainer.parentElement
                     : range.commonAncestorContainer;
                 if (!node || !container.contains(node)) return;
 
@@ -896,18 +916,73 @@ export default function EditorPage() {
         return () => window.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Close focus editor on Escape key & dismiss floating toolbar on mode switch
+    // Dismiss transient controls when Focus Mode closes. Keep the Tools menu open
+    // while its own state changes; otherwise its trigger can never reveal it.
     useEffect(() => {
         setFloatingToolbar(prev => ({ ...prev, isOpen: false }));
+        if (!isEditorExpanded) setIsFocusToolsOpen(false);
+    }, [isEditorExpanded]);
+
+    // Close focus editor on Escape. Tools receives Escape first.
+    useEffect(() => {
         if (!isEditorExpanded) return;
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
-                setIsEditorExpanded(false);
+                if (isFocusToolsOpen) {
+                    e.preventDefault();
+                    setIsFocusToolsOpen(false);
+                    window.setTimeout(() => focusToolsTriggerRef.current?.focus(), 0);
+                    return;
+                }
+                closeFocusEditor();
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isEditorExpanded, isFocusToolsOpen, closeFocusEditor]);
+
+    useEffect(() => {
+        if (!isEditorExpanded) return;
+        window.setTimeout(() => focusTextareaRef.current?.focus(), 0);
+        const trapFocus = (event: KeyboardEvent) => {
+            if (event.key !== 'Tab') return;
+            const dialog = focusDialogRef.current;
+            if (!dialog) return;
+            const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not(:disabled), textarea, [href], [tabindex]:not([tabindex="-1"])'));
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable.at(-1)!;
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        };
+        window.addEventListener('keydown', trapFocus);
+        return () => window.removeEventListener('keydown', trapFocus);
     }, [isEditorExpanded]);
+
+    useEffect(() => {
+        if (!isFocusToolsOpen) return;
+        const menu = focusToolsMenuRef.current;
+        const firstItem = menu?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)');
+        firstItem?.focus();
+
+        const onPointerDown = (event: MouseEvent) => {
+            const target = event.target as Node;
+            if (!focusToolsMenuRef.current?.contains(target) && !focusToolsTriggerRef.current?.contains(target)) {
+                setIsFocusToolsOpen(false);
+            }
+        };
+        const onKeyDown = (event: KeyboardEvent) => {
+            const items = Array.from(menu?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? []);
+            const index = items.indexOf(document.activeElement as HTMLButtonElement);
+            if (event.key === 'Home') { event.preventDefault(); items[0]?.focus(); }
+            if (event.key === 'End') { event.preventDefault(); items.at(-1)?.focus(); }
+            if (event.key === 'ArrowDown') { event.preventDefault(); items[(index + 1 + items.length) % items.length]?.focus(); }
+            if (event.key === 'ArrowUp') { event.preventDefault(); items[(index - 1 + items.length) % items.length]?.focus(); }
+        };
+        window.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('keydown', onKeyDown);
+        return () => { window.removeEventListener('mousedown', onPointerDown); window.removeEventListener('keydown', onKeyDown); };
+    }, [isFocusToolsOpen]);
 
     // Randomness Seed State for re-rolling variations
     const [randomSeed, setRandomSeed] = useState(0);
@@ -920,6 +995,22 @@ export default function EditorPage() {
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
     const [fontLoadedVersion, setFontLoadedVersion] = useState(0);
+
+    // Resume the review screen after authentication without storing document
+    // content or sending anything off-device.
+    useEffect(() => {
+        try {
+            const pending = sessionStorage.getItem('text2handwriting_resume_export');
+            if (!pending) return;
+            const intent = JSON.parse(pending) as { format?: 'pdf' | 'zip' };
+            sessionStorage.removeItem('text2handwriting_resume_export');
+            setExportFormat(intent.format === 'zip' ? 'zip' : 'pdf');
+            setExportStatus('idle');
+            setIsExportModalOpen(true);
+        } catch {
+            sessionStorage.removeItem('text2handwriting_resume_export');
+        }
+    }, []);
 
     // Dynamic optical font-size scaling per handwriting style (matches texttohandwriting.com calibration)
     const effectiveFontSize = useMemo(() => getEffectiveFontSize(font, fontSize), [font, fontSize]);
@@ -994,6 +1085,13 @@ export default function EditorPage() {
         return PAPERS.find(p => p.id === paperMaterial) || PAPERS[0];
     }, [paperMaterial]);
 
+    // A ruled page needs a real writing gutter: never let typed ink sit against
+    // the red guide. This also upgrades older persisted documents safely.
+    const minimumLeftMargin = spiralBinding ? 118 : paper.hasRedMargin ? 100 : 20;
+    useEffect(() => {
+        if (marginLeft < minimumLeftMargin) setMargins({ left: minimumLeftMargin });
+    }, [marginLeft, minimumLeftMargin, setMargins]);
+
     // Page Navigation & Thumbnail Jumping
     const handleJumpToPage = useCallback((targetIdx: number) => {
         setActivePageIndex(targetIdx);
@@ -1002,10 +1100,6 @@ export default function EditorPage() {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [setActivePageIndex]);
-
-    // Page Effects States
-    const [showStickyNote, setShowStickyNote] = useState(false);
-    const [stickyNoteText, setStickyNoteText] = useState("Don't forget!");
 
     // History Snapshots (Debounced)
     useEffect(() => {
@@ -1020,7 +1114,7 @@ export default function EditorPage() {
                     });
                 }
             }
-        }, 10000); 
+        }, 10000);
         return () => clearTimeout(timer);
     }, [text, storeHistory, addToHistory]);
 
@@ -1050,7 +1144,7 @@ export default function EditorPage() {
 
         const prefix = text.slice(0, line.startChar);
         const suffix = text.slice(line.endChar);
-        
+
         let replacement = inlineText;
         if (line.marginIndex && !inlineText.startsWith(line.marginIndex)) {
             replacement = `${line.marginIndex} ${inlineText}`;
@@ -1128,10 +1222,29 @@ export default function EditorPage() {
 
     // Onboarding Tour & Explore Menu States
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
-    const [isExploreMenuOpen, setIsExploreMenuOpen] = useState(false);
 
-    // The first-use cue is inline in Write; the full tour is opt-in so it
-    // never interrupts a pasted document or a returning guest.
+    // Offer the studio tour just once, after the workspace has painted. Mark it
+    // as seen before opening so closing or navigating away never traps a user
+    // in a repeat tour. The in-memory guard is the privacy-mode fallback.
+    useEffect(() => {
+        if (hasLaunchedEditorTourThisSession) return;
+
+        try {
+            if (
+                localStorage.getItem(EDITOR_TOUR_SEEN_STORAGE_KEY) ||
+                localStorage.getItem('text2handwriting_onboarding_dismissed')
+            ) {
+                return;
+            }
+            localStorage.setItem(EDITOR_TOUR_SEEN_STORAGE_KEY, 'true');
+        } catch {
+            // localStorage can be unavailable in private browsing modes.
+        }
+
+        hasLaunchedEditorTourThisSession = true;
+        const launchTimer = window.setTimeout(() => setIsOnboardingOpen(true), 350);
+        return () => window.clearTimeout(launchTimer);
+    }, []);
 
     // --- PIPELINE EXECUTION: PRE-TOKENIZATION & PAGE PAGINATION ---
     const pages = useMemo(() => {
@@ -1139,28 +1252,28 @@ export default function EditorPage() {
         if (fontLoadedVersion < 0) return [];
 
         const isSpiralActive = Boolean(spiralBinding);
-        const effectiveLeftForPagination = isSpiralActive ? Math.max(marginLeft, 118) : marginLeft;
+        const effectiveLeftForPagination = Math.max(marginLeft, isSpiralActive ? 118 : paper.hasRedMargin ? 100 : 20);
         const effectiveRightForPagination = isSpiralActive ? Math.max(marginRight, 65) : marginRight;
-        const effectiveTopForPagination = (paper.hasRedMargin || paper.id === 'youva-spiral' || showNotebookHeaderBox) 
-            ? Math.max(marginTop, 80) 
+        const effectiveTopForPagination = (paper.hasRedMargin || paper.id === 'youva-spiral' || showNotebookHeaderBox)
+            ? Math.max(marginTop, 80)
             : marginTop;
 
         const bodyHeight = 1131 - effectiveTopForPagination - marginBottom;
         const linesPerPage = Math.max(1, Math.floor(bodyHeight / paper.lineHeight));
         const maxLineWidth = Math.max(200, (800 - effectiveLeftForPagination - effectiveRightForPagination) - 16);
-        
+
         // Calculate header lines to reduce page 1 capacity
         const headerLineCount = showHeader && headerText.trim() ? headerText.split('\n').length : 0;
-        const page1Lines = Math.max(1, linesPerPage - (headerLineCount > 0 ? headerLineCount + 1 : 0)); 
+        const page1Lines = Math.max(1, linesPerPage - (headerLineCount > 0 ? headerLineCount + 1 : 0));
 
         const rawLines = buildDocumentLines(
-            deferredText, 
+            deferredText,
             maxLineWidth,
             font,
             effectiveFontSize,
-            String(randomSeed), 
-            autoTypoRate, 
-            strikeStyle, 
+            String(randomSeed),
+            autoTypoRate,
+            strikeStyle,
             autoCaret,
             smartMarginIndexing
         );
@@ -1262,11 +1375,10 @@ export default function EditorPage() {
         }
     };
 
-    // Re-roll Random Variations
     const handleShuffleRandomness = () => {
         setRandomSeed(prev => prev + 1);
-        addToast('Variations re-rolled!', 'info');
     };
+
 
     // Reset Handlers
     const handleResetStylesOnly = () => {
@@ -1294,16 +1406,16 @@ export default function EditorPage() {
         const currentFormat = explicitFormat || exportFormat;
         setExportStatus('processing');
         setProgress(0);
-        
+
         try {
-            await import('../utils/exportUtils').then(({ exportDocument }) => 
+            await import('../utils/exportUtils').then(({ exportDocument }) =>
                 exportDocument({
                     name: customName,
                     format: currentFormat,
                     onProgress: (p) => setProgress(p)
                 })
             );
-            
+
             setExportStatus('complete');
             addToast('Export Complete!', 'success');
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#8B5CF6', '#D946EF', '#3B82F6'] });
@@ -1322,36 +1434,36 @@ export default function EditorPage() {
                 <meta name="robots" content="noindex, nofollow" />
                 <link rel="canonical" href="https://text2handwriting.me/editor" />
             </Helmet>
-            
-            {/* Product-first workspace: document, canvas, and one clear action. */}
-            <header className="min-h-16 bg-white border-b border-stone-200 px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 z-30">
-                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                    <Link to="/" aria-label="Back to text2handwriting.me home" className="hidden sm:flex items-center shrink-0 font-display font-extrabold text-sm tracking-tight text-stone-900 hover:text-violet-700 transition-colors">text2handwriting.me</Link>
-                    <span className="hidden sm:block h-4 w-px bg-stone-200 shrink-0" />
 
+            {/* Product-first workspace: document, canvas, and one clear action. */}
+            <header className="editor-topbar min-h-16 pt-safe px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 z-30">
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <Link to="/" aria-label="Back to text2handwriting.me home" className="hidden sm:flex items-center gap-2 shrink-0 font-display font-extrabold text-sm tracking-tight text-stone-900 hover:text-violet-700 transition-colors"><SiteLogo size={25} /><span className="hidden 2xl:inline">text2handwriting.me</span></Link>
                     <div className="h-4 w-px bg-stone-200 hidden sm:block shrink-0" />
 
                     {/* Editable Document Title */}
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         value={headerText}
                         onChange={(e) => setPageOptions({ headerText: e.target.value })}
                         placeholder="Untitled document"
                         aria-label="Document title"
-                        className="min-w-0 w-[clamp(110px,18vw,220px)] bg-stone-50 hover:bg-stone-100 focus:bg-white text-xs font-semibold text-stone-800 placeholder:text-stone-400 border border-stone-200 focus:border-violet-600 focus-visible:ring-2 focus-visible:ring-violet-300 px-3 py-2 rounded-xl outline-none transition-all truncate"
+                        className="editor-title-input min-w-0 w-[clamp(110px,18vw,220px)] text-xs font-semibold text-stone-800 placeholder:text-stone-400 px-3 py-2 rounded-xl outline-none transition-all truncate"
                     />
 
                     {/* Stats Pill */}
-                    <div className="hidden md:flex items-center gap-2 text-[11px] font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-lg">
+                    <div className="editor-stats-pill hidden md:flex items-center gap-2 text-[11px] font-semibold text-stone-500 px-2.5 py-1 rounded-lg" aria-label={`${pages.length} pages, ${wordCount} words, ${draftText.length} characters`}>
                         <span>{pages.length} {pages.length === 1 ? 'page' : 'pages'}</span>
                         <span className="w-1 h-1 rounded-full bg-stone-400" />
                         <span>{wordCount} words</span>
+                        <span className="hidden 2xl:inline w-1 h-1 rounded-full bg-stone-400" />
+                        <span className="hidden 2xl:inline">{draftText.length} chars</span>
                     </div>
                 </div>
 
                 {/* Center: Canvas Zoom & Fit Dock */}
-                <div className="hidden lg:flex items-center gap-1 bg-stone-100/90 border border-stone-200/80 p-1 rounded-xl shadow-2xs text-stone-700">
-                    <button 
+                <div className="editor-zoom-dock hidden lg:flex items-center gap-1 p-1 rounded-xl text-stone-700">
+                    <button
                         onClick={zoomOut}
                         title="Zoom Out"
                         className="p-1.5 hover:bg-white hover:text-stone-900 rounded-lg text-stone-600 transition-all active:scale-95"
@@ -1359,7 +1471,7 @@ export default function EditorPage() {
                         <ZoomOut size={13} />
                     </button>
 
-                    <button 
+                    <button
                         onClick={zoom100}
                         title="Reset to 100%"
                         className="px-2 py-0.5 text-xs font-mono font-bold text-stone-800 hover:bg-white rounded-lg transition-colors min-w-[44px] text-center"
@@ -1367,7 +1479,7 @@ export default function EditorPage() {
                         {Math.round(scale * 100)}%
                     </button>
 
-                    <button 
+                    <button
                         onClick={zoomIn}
                         title="Zoom In"
                         className="p-1.5 hover:bg-white hover:text-stone-900 rounded-lg text-stone-600 transition-all active:scale-95"
@@ -1377,7 +1489,7 @@ export default function EditorPage() {
 
                     <div className="h-3 w-px bg-stone-300 mx-0.5" />
 
-                    <button 
+                    <button
                         onClick={zoomFitWidth}
                         className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                             zoomMode === 'fit-width' ? 'bg-white text-stone-900 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-900'
@@ -1386,7 +1498,7 @@ export default function EditorPage() {
                         Fit Width
                     </button>
 
-                    <button 
+                    <button
                         onClick={zoomFitPage}
                         className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                             zoomMode === 'fit-page' ? 'bg-white text-stone-900 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-900'
@@ -1398,140 +1510,80 @@ export default function EditorPage() {
 
                 {/* Right: Randomize, Reset, Creator, History, Export Preview */}
                 <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                    {/* Realism Randomizer Dice Button */}
-                    <button 
-                        onClick={() => {
-                            randomizeRealism();
-                            handleShuffleRandomness();
-                            addToast('🎲 Rolled organic human realism variations!', 'success');
-                        }}
-                        title="Roll random organic handwriting flaws, slant & lighting"
-                        className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition-all active:scale-95 border border-amber-200/80 shadow-2xs"
-                    >
-                        <Dices size={13} className="text-amber-600" />
-                        <span className="hidden sm:inline">Randomize</span>
-                    </button>
-
-                    {/* Quick Tour Button */}
-                    <button 
-                        type="button"
-                        onClick={() => setIsOnboardingOpen(true)}
-                        title="Open Interactive Student Tour & Features Guide"
-                        className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-amber-50 hover:text-amber-700 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60 cursor-pointer"
-                    >
-                        <Sparkles size={13} className="text-amber-500" />
-                        <span className="hidden md:inline">Tour</span>
-                    </button>
-
-                    {/* Explore Site Pages Dropdown */}
-                    <div className="relative hidden xl:block">
-                        <button 
+                    <div className="hidden lg:flex items-center gap-0.5 rounded-xl border border-stone-200/80 bg-white/55 p-1 shadow-2xs">
+                        <button
                             type="button"
-                            onClick={() => setIsExploreMenuOpen(!isExploreMenuOpen)}
-                            title="Explore text2handwriting.me Site Pages"
-                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-stone-200/70 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60 cursor-pointer"
-                        >
-                            <Compass size={13} className="text-indigo-600" />
-                            <span className="hidden lg:inline text-[11px]">Explore</span>
-                        </button>
-                        {isExploreMenuOpen && (
-                            <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-stone-200 py-1.5 z-50 text-left text-xs font-bold">
-                                <div className="px-3 py-1.5 text-[10px] text-stone-400 font-mono uppercase tracking-wider border-b border-stone-100">
-                                    text2handwriting.me Site Pages
-                                </div>
-                                <Link to="/features" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900">Features & Tools</Link>
-                                <Link to="/how-it-works" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900">How It Works Guide</Link>
-                                <Link to="/faq" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900">Student FAQ</Link>
-                                <Link to="/about" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900">About & Origins</Link>
-                                <Link to="/changelog" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900">Changelog (v2.1)</Link>
-                                <div className="border-t border-stone-100 my-1" />
-                                <Link to="/disclaimer" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-1.5 text-stone-500 hover:text-stone-800 text-[11px]">Disclaimer</Link>
-                                <Link to="/privacy" onClick={() => setIsExploreMenuOpen(false)} className="block px-3 py-1.5 text-stone-500 hover:text-stone-800 text-[11px]">Privacy & Terms</Link>
-                            </div>
-                        )}
+                            onClick={() => { randomizeRealism(); handleShuffleRandomness(); addToast('Rolled handwriting-style variation', 'success'); }}
+                            title="Randomize style variation"
+                            aria-label="Randomize style variation"
+                            className="p-2 rounded-lg text-amber-700 hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-violet-700"
+                        ><Dices size={15} aria-hidden="true" /></button>
+                        <button
+                            type="button"
+                            onClick={() => setShowResetModal(true)}
+                            title="Reset document"
+                            aria-label="Reset document"
+                            className="p-2 rounded-lg text-stone-600 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-violet-700"
+                        ><RotateCcw size={15} aria-hidden="true" /></button>
+                        <button
+                            type="button"
+                            onClick={() => setIsHistoryOpen(true)}
+                            title="Document history"
+                            aria-label="Document history"
+                            className="p-2 rounded-lg text-stone-600 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-violet-700"
+                        ><Clock size={15} aria-hidden="true" /></button>
                     </div>
 
-                    {/* Reset Button */}
-                    <button 
-                        onClick={() => setShowResetModal(true)}
-                        title="Reset document styles or clear page"
-                        className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-rose-50 hover:text-rose-600 text-stone-600 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60"
-                    >
-                        <RotateCcw size={13} />
-                        <span className="hidden sm:inline">Reset</span>
-                    </button>
-
-                    {/* Creator Credits Button with Bipin's Picture */}
-                    <button 
+                    {/* Creator portfolio */}
+                    <button
+                        type="button"
                         onClick={() => setShowCreatorModal(true)}
-                        title="Created with passion by Bipin Vishwakarma — View Profile & Socials"
-                        className="hidden xl:flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200/70 text-stone-700 rounded-xl text-xs font-bold transition-all active:scale-95 border border-stone-200/60"
+                        aria-haspopup="dialog"
+                        aria-label="Open Bipin Vishwakarma's portfolio"
+                        title="Meet the creator"
+                        className="group flex items-center gap-2 rounded-xl border border-violet-200/80 bg-white/80 p-1.5 2xl:pr-2.5 text-xs font-bold text-stone-700 shadow-2xs transition-all hover:border-violet-300 hover:bg-violet-50 hover:text-violet-800 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
                     >
-                        <div className="relative flex items-center justify-center">
-                            <img 
-                                src="https://avatars.githubusercontent.com/u/151464007?v=4" 
-                                alt="Bipin Vishwakarma" 
-                                className="w-5 h-5 rounded-full object-cover ring-1 ring-blue-500 shadow-2xs"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'https://github.com/bipin-vishwakarma.png';
-                                }}
-                            />
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 absolute -bottom-0.5 -right-0.5 ring-1 ring-white" />
-                        </div>
-                        <span className="hidden md:inline text-[11px] font-semibold text-stone-800">Bipin</span>
-                    </button>
-
-                    <button 
-                        onClick={() => setIsHistoryOpen(true)}
-                        title="Version History"
-                        className="hidden md:flex p-2 hover:bg-stone-100 rounded-xl text-stone-600 hover:text-stone-900 transition-colors"
-                    >
-                        <Clock size={16} />
+                        <img
+                            src="https://avatars.githubusercontent.com/u/151464007?v=4"
+                            alt=""
+                            className="h-6 w-6 rounded-lg object-cover ring-1 ring-violet-200 transition-transform group-hover:scale-105"
+                        />
+                        <span className="hidden 2xl:inline">Portfolio</span>
                     </button>
 
                     {/* User Account Menu */}
                     <UserMenu />
 
                     {/* Primary Export Preview Button */}
-                    <button onClick={() => handleStartExport('pdf')} aria-label="Review pages and export" className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-violet-700 hover:bg-violet-800 text-white rounded-xl text-xs sm:text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Download size={16} aria-hidden="true" /><span className="hidden min-[360px]:inline">Review & Export</span></button>
+                    <button onClick={() => handleStartExport('pdf')} aria-label="Review pages and export" className="editor-export-button flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Download size={16} aria-hidden="true" /><span className="hidden min-[360px]:inline">Review & Export</span></button>
                 </div>
             </header>
 
             {/* ==================== WORKSTATION BODY ==================== */}
-            <div className="flex-1 min-h-0 flex overflow-hidden relative bg-[#F7F5F1]">
-                
+            <div className="editor-workspace flex-1 min-h-0 flex overflow-hidden relative">
+
                 {/* 1. LEFT SIDEBAR CONTROLS */}
-                <aside aria-label="Document controls" className={`w-full lg:w-[min(340px,31vw)] bg-white border-r border-stone-200 flex-col shrink-0 overflow-hidden z-20 ${mobileTab === 'canvas' ? 'hidden lg:flex' : 'flex'}`}>
-                    
-                    {/* Navigation Tabs (Apple/Linear Segmented Style) */}
-                    <div className="grid grid-cols-5 bg-stone-100/90 p-1.5 shrink-0 border-b border-stone-200/80 gap-1">
-                        {[
+                <aside aria-label="Document controls" className={`editor-sidebar w-full lg:w-[min(420px,35vw)] flex-col shrink-0 overflow-hidden z-20 ${mobileTab === 'canvas' ? 'hidden lg:flex' : 'flex'}`}>
+
+                    {/* Floating glass section dock: kept outside the page preview. */}
+                    <div className="shrink-0 border-b border-white/70 bg-white/35">
+                        <GlassDock
+                            ariaLabel="Document control sections"
+                            value={activeSidebarTab}
+                            onChange={setActiveSidebarTab}
+                            items={[
                             { id: 'write' as const, label: 'Write', icon: FileText },
                             { id: 'pen' as const, label: 'Pen', icon: Palette },
                             { id: 'paper' as const, label: 'Paper', icon: AlignLeft },
-                            { id: 'realism' as const, label: 'Realism', icon: Scissors },
+                            { id: 'realism' as const, label: 'Variation', icon: Scissors },
                             { id: 'effects' as const, label: 'Effects', icon: Camera },
-                        ].map((t) => (
-                            <button
-                                key={t.id}
-                                onClick={() => setActiveSidebarTab(t.id)}
-                                aria-label={`${t.label} controls`}
-                                aria-pressed={activeSidebarTab === t.id}
-                                className={`min-h-12 py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col sm:flex-row items-center justify-center gap-1 transition-all focus-visible:outline-2 focus-visible:outline-violet-600 ${
-                                    activeSidebarTab === t.id
-                                        ? 'bg-stone-900 text-white shadow-xs'
-                                        : 'text-stone-500 hover:text-stone-900 hover:bg-stone-200/60'
-                                }`}
-                            >
-                                <t.icon size={13} />
-                                <span>{t.label}</span>
-                            </button>
-                        ))}
+                            ]}
+                        />
                     </div>
 
                     {/* Tab Panels Content */}
-                    <div className={`flex-1 ${activeSidebarTab === 'write' ? 'flex flex-col min-h-0' : 'overflow-y-auto custom-scrollbar space-y-6'} p-4 sm:p-5 text-sm bg-white`}>
-                        
+                    <div className={`flex-1 ${activeSidebarTab === 'write' ? 'flex flex-col min-h-0' : 'overflow-y-auto custom-scrollbar space-y-6'} p-4 sm:p-5 text-sm bg-white/70`}>
+
                         {/* TAB 1: WRITE */}
                         {activeSidebarTab === 'write' && (
                             <div className="flex-1 flex flex-col min-h-0 space-y-3.5">
@@ -1552,10 +1604,10 @@ export default function EditorPage() {
                                             )}
                                         </div>
                                         <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-stone-700 select-none">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={showHeader} 
-                                                onChange={e => setPageOptions({ showHeader: e.target.checked })} 
+                                            <input
+                                                type="checkbox"
+                                                checked={showHeader}
+                                                onChange={e => setPageOptions({ showHeader: e.target.checked })}
                                                 className="w-3.5 h-3.5 rounded border-stone-300 accent-stone-900 cursor-pointer"
                                             />
                                             <span className="text-[11px]">Show Heading</span>
@@ -1606,18 +1658,7 @@ export default function EditorPage() {
                                 <div className="flex-1 flex flex-col min-h-0 space-y-2">
                                     {/* Action Bar & Stats */}
                                     <div className="flex items-center justify-between shrink-0 gap-2">
-                                        <div className="flex items-center gap-1.5 flex-wrap">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-                                                Text Content
-                                            </span>
-                                            <span className="text-[10px] font-semibold px-2 py-0.5 bg-stone-100 text-stone-600 rounded-full font-mono">
-                                                {wordCount} words
-                                            </span>
-                                            <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-stone-100 text-stone-500 rounded-full font-mono hidden sm:inline-block">
-                                                {draftText.length} chars
-                                            </span>
-                                        </div>
-
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Draft tools</span>
                                         <div className="flex items-center gap-1 shrink-0">
                                             <button
                                                 type="button"
@@ -1650,15 +1691,6 @@ export default function EditorPage() {
                                             >
                                                 <Sparkles size={12} className="text-amber-600" />
                                                 <span>Clean AI</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsEditorExpanded(true)}
-                                                title="Open Fullscreen Focus Mode"
-                                                className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer border border-stone-200/60"
-                                            >
-                                                <Maximize2 size={12} />
-                                                <span className="hidden sm:inline">Focus</span>
                                             </button>
                                             {draftText.length > 0 && (
                                                 <button
@@ -1695,10 +1727,10 @@ export default function EditorPage() {
                                     )}
 
                                     {/* Inset Textarea Container - Floating Scrollbar & Status Bar */}
-                                    <div 
+                                    <div
                                         className={`flex-1 min-h-[260px] flex flex-col rounded-2xl bg-stone-50/90 border transition-all shadow-2xs overflow-hidden relative ${
-                                            isDraggingFile 
-                                                ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/30' 
+                                            isDraggingFile
+                                                ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/30'
                                                 : 'border-stone-200 focus-within:bg-white focus-within:border-stone-400 focus-within:ring-2 focus-within:ring-stone-900/10'
                                         }`}
                                         onDragOver={(e) => {
@@ -1743,6 +1775,7 @@ export default function EditorPage() {
                                         )}
                                         <textarea
                                             ref={sourceRef}
+                                            onFocus={(event) => { activeTextareaRef.current = event.currentTarget; }}
                                             value={draftText}
                                             onKeyDown={handleKeyDown}
                                             onKeyUp={handleTextareaSelect}
@@ -1784,14 +1817,6 @@ export default function EditorPage() {
                                                 >
                                                     Text: {editorFontSize === 'sm' ? 'Compact' : editorFontSize === 'base' ? 'Medium' : 'Large'}
                                                 </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setIsEditorExpanded(true)}
-                                                    title="Open Fullscreen Focus Mode"
-                                                    className="p-1 rounded-md hover:bg-stone-200/80 text-stone-600 transition-colors cursor-pointer"
-                                                >
-                                                    <Maximize2 size={12} />
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -1817,25 +1842,14 @@ export default function EditorPage() {
                                     </button>
                                 </div>
 
-                                {/* Font Selection */}
+                                {/* Font selection: intentional clicks only; scrolling never changes it. */}
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-                                            Handwriting Style
-                                        </label>
                                         <span className="text-[10px] font-bold px-2 py-0.5 bg-stone-100 text-stone-600 rounded-full">
                                             {FONTS.length} Fonts
                                         </span>
                                     </div>
-                                    <select
-                                        value={font}
-                                        onChange={e => setFont(e.target.value)}
-                                        className="w-full p-3 rounded-2xl bg-stone-50 border border-stone-200 text-stone-900 text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900/10 cursor-pointer transition-all"
-                                    >
-                                        {FONTS.map(f => (
-                                            <option key={f.name} value={f.name} className="py-1">{f.label}</option>
-                                        ))}
-                                    </select>
+                                    <StyleSlider options={FONTS} value={font} onChange={setFont} />
                                 </div>
 
                                 {/* Font Size & Baseline Slider */}
@@ -1845,13 +1859,13 @@ export default function EditorPage() {
                                             <span>Font Size</span>
                                             <span className="font-mono text-stone-900">{fontSize}px</span>
                                         </div>
-                                        <input 
-                                            type="range" 
-                                            min="14" 
-                                            max="64" 
-                                            value={fontSize} 
-                                            onChange={e => setFontSize(Number(e.target.value))} 
-                                            className="w-full accent-stone-900 cursor-pointer" 
+                                        <input
+                                            type="range"
+                                            min="14"
+                                            max="64"
+                                            value={fontSize}
+                                            onChange={e => setFontSize(Number(e.target.value))}
+                                            className="w-full accent-stone-900 cursor-pointer"
                                         />
                                     </div>
 
@@ -1860,13 +1874,13 @@ export default function EditorPage() {
                                             <span>Line Nudge / Baseline</span>
                                             <span className="font-mono text-stone-900">{baseline}px</span>
                                         </div>
-                                        <input 
-                                            type="range" 
-                                            min="-10" 
-                                            max="30" 
-                                            value={baseline} 
-                                            onChange={e => setBaseline(Number(e.target.value))} 
-                                            className="w-full accent-stone-900 cursor-pointer" 
+                                        <input
+                                            type="range"
+                                            min="-10"
+                                            max="30"
+                                            value={baseline}
+                                            onChange={e => setBaseline(Number(e.target.value))}
+                                            className="w-full accent-stone-900 cursor-pointer"
                                         />
                                     </div>
                                 </div>
@@ -1883,9 +1897,9 @@ export default function EditorPage() {
                                             { id: 'right' as const, icon: AlignRight },
                                             { id: 'justify' as const, icon: AlignJustify }
                                         ].map(opt => (
-                                            <button 
-                                                key={opt.id} 
-                                                onClick={() => setTextAlign(opt.id)} 
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => setTextAlign(opt.id)}
                                                 className={`flex-1 p-2 flex justify-center rounded-xl transition-all ${
                                                     textAlign === opt.id ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-900'
                                                 }`}
@@ -1939,8 +1953,8 @@ export default function EditorPage() {
                                                     }
                                                 }}
                                                 className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between border transition-all ${
-                                                    paper.id === p.id 
-                                                        ? 'bg-stone-900 text-white border-stone-900 shadow-xs' 
+                                                    paper.id === p.id
+                                                        ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
                                                         : 'bg-stone-50 border-stone-200/70 text-stone-700 hover:bg-stone-100'
                                                 }`}
                                             >
@@ -1968,9 +1982,9 @@ export default function EditorPage() {
                                             </div>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={labNotebookMode} 
+                                            <input
+                                                type="checkbox"
+                                                checked={labNotebookMode}
                                                 onChange={e => {
                                                     const active = e.target.checked;
                                                     setLabNotebookMode(active);
@@ -1979,7 +1993,7 @@ export default function EditorPage() {
                                                     } else {
                                                         addToast('Lab Practical Mode turned off.', 'info');
                                                     }
-                                                }} 
+                                                }}
                                                 className="w-4 h-4 rounded border-stone-300 accent-blue-600 cursor-pointer"
                                             />
                                         </label>
@@ -2090,10 +2104,10 @@ export default function EditorPage() {
                                             <span className="text-xs font-bold text-stone-900">3D Spiral Binding (Twin-Wire)</span>
                                             <span className="text-[9px] font-bold px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-md">3D</span>
                                         </div>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={spiralBinding} 
-                                            onChange={e => setSpiralBinding(e.target.checked)} 
+                                        <input
+                                            type="checkbox"
+                                            checked={spiralBinding}
+                                            onChange={e => setSpiralBinding(e.target.checked)}
                                             className="w-4 h-4 rounded border-stone-300 accent-stone-900 cursor-pointer"
                                         />
                                     </label>
@@ -2104,10 +2118,10 @@ export default function EditorPage() {
 
                                 {/* Page Number Option */}
                                 <label className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-200/70 cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={showPageNumbers} 
-                                        onChange={e => setPageOptions({ showPageNumbers: e.target.checked })} 
+                                    <input
+                                        type="checkbox"
+                                        checked={showPageNumbers}
+                                        onChange={e => setPageOptions({ showPageNumbers: e.target.checked })}
                                         className="w-4 h-4 rounded border-stone-300 accent-stone-900 cursor-pointer"
                                     />
                                     <span className="text-xs font-bold text-stone-800">Show Bottom Page Numbers (— 1 —)</span>
@@ -2120,10 +2134,10 @@ export default function EditorPage() {
                                             <span className="text-xs font-bold text-stone-900">Classic Notebook Date & Page Box</span>
                                             <span className="text-[9px] font-bold px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded-md">Iconic</span>
                                         </div>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={showNotebookHeaderBox} 
-                                            onChange={e => setShowNotebookHeaderBox(e.target.checked)} 
+                                        <input
+                                            type="checkbox"
+                                            checked={showNotebookHeaderBox}
+                                            onChange={e => setShowNotebookHeaderBox(e.target.checked)}
                                             className="w-4 h-4 rounded border-stone-300 accent-stone-900 cursor-pointer"
                                         />
                                     </label>
@@ -2134,8 +2148,8 @@ export default function EditorPage() {
                                         <div className="pt-2 space-y-2 border-t border-rose-200/60">
                                             <div className="flex items-center gap-2">
                                                 <label className="text-[11px] font-bold text-stone-600 shrink-0">Custom Date:</label>
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     value={notebookDate}
                                                     onChange={e => setNotebookDate(e.target.value)}
                                                     placeholder={new Date().toLocaleDateString('en-GB')}
@@ -2175,10 +2189,10 @@ export default function EditorPage() {
                                             <span className="text-xs font-bold text-stone-900">Smart Margin Indexing</span>
                                             <span className="text-[9px] font-bold px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-md">Student</span>
                                         </div>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={smartMarginIndexing} 
-                                            onChange={e => setSmartMarginIndexing(e.target.checked)} 
+                                        <input
+                                            type="checkbox"
+                                            checked={smartMarginIndexing}
+                                            onChange={e => setSmartMarginIndexing(e.target.checked)}
                                             className="w-4 h-4 rounded border-stone-300 accent-stone-900 cursor-pointer"
                                         />
                                     </label>
@@ -2192,7 +2206,7 @@ export default function EditorPage() {
                                     <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 block">
                                         Page Margins (px)
                                     </label>
-                                    
+
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
                                             <div className="flex justify-between text-xs mb-1 text-stone-500 font-bold">
@@ -2215,7 +2229,7 @@ export default function EditorPage() {
                                                 <span>Left</span>
                                                 <span className="font-mono text-stone-900">{marginLeft}</span>
                                             </div>
-                                            <input type="range" min="20" max="150" value={marginLeft} onChange={e => setMargins({ left: Number(e.target.value) })} className="w-full accent-stone-900 cursor-pointer" />
+                                            <input type="range" min={minimumLeftMargin} max="150" value={marginLeft} onChange={e => setMargins({ left: Number(e.target.value) })} className="w-full accent-stone-900 cursor-pointer" />
                                         </div>
 
                                         <div>
@@ -2230,19 +2244,19 @@ export default function EditorPage() {
                             </div>
                         )}
 
-                        {/* TAB 4: REALISM & ERRORS */}
+                        {/* TAB 4: HANDWRITING-STYLE VARIATION */}
                         {activeSidebarTab === 'realism' && (
                             <div className="space-y-6">
                                 <div className="flex justify-between items-center pb-1 border-b border-stone-100">
-                                    <span className="text-xs font-bold text-stone-800">Human Imperfections</span>
+                                    <span className="text-xs font-bold text-stone-800">Handwriting-style variation</span>
                                     <div className="flex items-center gap-1.5">
                                         <button
                                             onClick={() => {
                                                 randomizeRealism();
-                                                addToast('🎲 Organic realism variations rolled!', 'success');
+                                                addToast('🎲 Handwriting-style variation updated!', 'success');
                                             }}
                                             className="flex items-center gap-1 text-[11px] text-amber-800 hover:text-amber-900 font-semibold px-2 py-0.5 rounded-md bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-200/60"
-                                            title="Roll random human flaws"
+                                            title="Randomize visual variation"
                                         >
                                             <Dices size={11} className="text-amber-600" />
                                             <span>Randomize</span>
@@ -2252,7 +2266,7 @@ export default function EditorPage() {
                                                 setJitter(1.5);
                                                 setPressure(1.0);
                                                 setSmudge(0);
-                                                addToast('Realism controls reset', 'info');
+                                                addToast('Variation controls reset', 'info');
                                             }}
                                             className="flex items-center gap-1 text-[11px] text-stone-400 hover:text-stone-800 font-semibold px-2 py-0.5 rounded-md hover:bg-stone-100 transition-colors"
                                             title="Reset wobble, pressure and smudge"
@@ -2300,29 +2314,6 @@ export default function EditorPage() {
                                 {/* Camera & Photo Physics */}
                                 <CameraPhysicsControls />
 
-                                {/* Sticky Note Extra */}
-                                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-3">
-                                    <label className="flex items-center gap-3 cursor-pointer">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={showStickyNote} 
-                                            onChange={e => setShowStickyNote(e.target.checked)} 
-                                            className="w-4 h-4 rounded border-stone-300 accent-stone-900 cursor-pointer"
-                                        />
-                                        <div>
-                                            <span className="text-xs font-bold text-stone-900 block">Sticky Post-it Note</span>
-                                            <span className="text-[10px] text-stone-500 font-medium">Adds a yellow taped reminder on page 1</span>
-                                        </div>
-                                    </label>
-                                    {showStickyNote && (
-                                        <textarea
-                                            value={stickyNoteText}
-                                            onChange={e => setStickyNoteText(e.target.value)}
-                                            placeholder="Write reminder note..."
-                                            className="w-full h-18 p-3 rounded-xl bg-amber-100 text-amber-950 border border-amber-300/60 text-xs font-sans font-semibold focus:outline-none resize-none shadow-xs"
-                                        />
-                                     )}
-                                </div>
                             </div>
                         )}
 
@@ -2330,7 +2321,7 @@ export default function EditorPage() {
                 </aside>
 
                 {/* 2. RIGHT DIGITAL CANVAS WORKSTATION (Edge-to-Edge Drafting Desk) */}
-                <main 
+                <main
                     ref={canvasContainerRef}
                     aria-label="Live document preview"
                     className={`flex-1 min-w-0 h-full overflow-auto custom-scrollbar flex-col items-center bg-[#F1F3F6] relative p-4 sm:p-8 pb-24 sm:pb-16 select-text ${mobileTab !== 'canvas' ? 'hidden lg:flex' : 'flex'}`}
@@ -2347,10 +2338,9 @@ export default function EditorPage() {
                     </div>
 
                     {/* Pages Container */}
-                    <div className="flex flex-col items-center gap-10 sm:gap-14 py-6 relative z-10 w-full">
+                    <div className="flex flex-col items-center gap-12 sm:gap-16 pt-12 pb-6 relative z-10 w-full">
                         {pages.map((page, pIdx) => {
                             const pageOverrides = pageEffectOverrides[pIdx] || {};
-                            const effectiveCoffeeStain = pageOverrides.coffeeStain !== undefined ? pageOverrides.coffeeStain : coffeeStain;
                             const effectiveCrease = pageOverrides.paperCrease !== undefined ? pageOverrides.paperCrease : paperCrease;
                             const effectivePerspective = pageOverrides.perspectiveWarp !== undefined ? pageOverrides.perspectiveWarp : perspectiveWarp;
                             const baseTiltX = pageOverrides.tiltX !== undefined ? pageOverrides.tiltX : tiltX;
@@ -2376,21 +2366,21 @@ export default function EditorPage() {
 
                             const isSpiralActive = Boolean(spiralBinding);
                             const isLeftSpiral = isSpiralActive; // always left
-                            const redMarginLeft = isLeftSpiral ? 104 : 65;
-                            const effectivePageMarginLeft = isLeftSpiral ? Math.max(marginLeft, 118) : marginLeft;
+                            const redMarginLeft = isLeftSpiral ? 104 : 78;
+                            const effectivePageMarginLeft = Math.max(marginLeft, isLeftSpiral ? 118 : paper.hasRedMargin ? 100 : 20);
                             const effectivePageMarginRight = marginRight;
 
-                            const effectivePaperId = pageMaterialOverrides[pIdx] 
+                            const effectivePaperId = pageMaterialOverrides[pIdx]
                                 || (page.isDiagramPage ? (labDiagramPaper === 'grid' ? 'grid' : 'blank') : paperMaterial);
 
-                            const effectivePaper = PAPERS.find(p => p.id === effectivePaperId) 
+                            const effectivePaper = PAPERS.find(p => p.id === effectivePaperId)
                                 || (effectivePaperId === 'grid' ? PAPERS.find(p => p.id === 'grid') : null)
                                 || (effectivePaperId === 'blank' ? PAPERS.find(p => p.id === 'blank') : null)
                                 || paper;
 
                             const isDiagram = Boolean(page.isDiagramPage || pageDiagrams[pIdx]);
-                            const isFirstTextPage = labNotebookMode 
-                                ? (labNotebookStartWith === 'blank' ? pIdx === 1 : pIdx === 0) 
+                            const isFirstTextPage = labNotebookMode
+                                ? (labNotebookStartWith === 'blank' ? pIdx === 1 : pIdx === 0)
                                 : pIdx === 0;
 
                             const effectivePageMarginTop = (effectivePaper.hasRedMargin || effectivePaper.id === 'youva-spiral' || (showNotebookHeaderBox && !isDiagram))
@@ -2398,10 +2388,10 @@ export default function EditorPage() {
                                 : marginTop;
 
                             return (
-                                <div 
+                                <div
                                     key={pIdx}
-                                    style={{ 
-                                        width: 800 * scale, 
+                                    style={{
+                                        width: 800 * scale,
                                         height: 1131 * scale,
                                     }}
                                     className="relative shrink-0 transition-all duration-150 ease-out cursor-pointer group/page"
@@ -2409,7 +2399,7 @@ export default function EditorPage() {
                                 >
                                     {/* Per-Page Floating Controls Pill Bar (Hover/Active) */}
                                     <div className="absolute -top-9 left-1 right-1 flex items-center justify-between opacity-80 group-hover/page:opacity-100 transition-opacity z-20 pointer-events-auto px-1">
-                                        <div className="flex items-center gap-1.5 bg-stone-900/90 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full shadow-md backdrop-blur-xs">
+                                        <div className="flex items-center gap-1.5 border border-white/25 bg-stone-900/55 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full shadow-sm backdrop-blur-md">
                                             <span className="font-mono">Page {pIdx + 1}</span>
                                             <span className="text-stone-500">•</span>
                                             <span className={isDiagram ? 'text-cyan-300 font-bold' : 'text-stone-300'}>
@@ -2417,7 +2407,7 @@ export default function EditorPage() {
                                             </span>
                                         </div>
 
-                                        <div className="flex items-center gap-1.5 bg-white/95 border border-stone-200/90 shadow-md rounded-full px-2 py-0.5 backdrop-blur-xs text-[11px]">
+                                        <div className="flex items-center gap-1.5 bg-white/56 border border-white/80 shadow-sm rounded-full px-2 py-0.5 backdrop-blur-md text-[11px]">
                                             <select
                                                 value={pageMaterialOverrides[pIdx] || (page.isDiagramPage ? labDiagramPaper : '')}
                                                 onChange={(e) => {
@@ -2473,26 +2463,26 @@ export default function EditorPage() {
                                         </div>
                                     </div>
 
-                                    <div 
+                                    <div
                                         className={`handwritten-page-render absolute top-0 left-0 w-[800px] h-[1131px] bg-white ${
-                                            pIdx === activePageIndex 
-                                                ? 'ring-2 ring-blue-500/70 shadow-[0_25px_60px_-15px_rgba(37,99,235,0.22)]' 
-                                                : pIdx === 0 
-                                                    ? 'shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)]' 
+                                            pIdx === activePageIndex
+                                                ? 'ring-2 ring-violet-500/55 shadow-[0_25px_60px_-15px_rgba(124,58,237,0.18)]'
+                                                : pIdx === 0
+                                                    ? 'shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)]'
                                                     : 'shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)]'
-                                        } overflow-hidden rounded-xs origin-top-left`} 
-                                        style={{ 
+                                        } overflow-hidden rounded-xs origin-top-left`}
+                                        style={{
                                             transform: `scale(${scale})`,
                                             transformOrigin: 'top left',
                                         }}
                                     >
                                         {/* Export target capture area: 800x1131 container preserving 3D tilt and shadows */}
-                                        <div 
+                                        <div
                                             className="handwritten-export-target w-[800px] h-[1131px] relative overflow-hidden bg-white flex items-center justify-center"
                                             data-page-index={pIdx}
                                         >
-                                            <div 
-                                                className={`w-full h-full relative ${effectivePaper.css} transition-transform duration-200`} 
+                                            <div
+                                                className={`w-full h-full relative ${effectivePaper.css} transition-transform duration-200`}
                                                 style={{
                                                     ...effectivePaper.style,
                                                     ...(effectivePerspective ? {
@@ -2503,10 +2493,10 @@ export default function EditorPage() {
                                                     } : {})
                                                 }}
                                             >
-                                                
+
                                                 {/* Clean Top Margin Header Zone Mask (Clears any background ruled lines above double red rule) */}
                                                 {(effectivePaper.hasRedMargin || effectivePaper.id === 'youva-spiral' || (showNotebookHeaderBox && !isDiagram)) && (
-                                                    <div 
+                                                    <div
                                                         className="absolute top-0 left-0 right-0 h-[72px] pointer-events-none z-[5]"
                                                         style={{
                                                             backgroundColor: effectivePaper.style.backgroundColor || (effectivePaper.id === 'vintage' ? '#fef3c7' : '#ffffff'),
@@ -2516,8 +2506,8 @@ export default function EditorPage() {
 
                                                 {/* Red Margin Line (Full height top-to-bottom) */}
                                                 {effectivePaper.hasRedMargin && !isDiagram && (
-                                                    <div 
-                                                        className="absolute top-0 bottom-0 w-[2px] bg-rose-400 opacity-60 pointer-events-none z-10 transition-all" 
+                                                    <div
+                                                        className="absolute top-0 bottom-0 w-[2px] bg-rose-400 opacity-60 pointer-events-none z-10 transition-all"
                                                         style={{ left: `${redMarginLeft}px` }}
                                                     />
                                                 )}
@@ -2530,19 +2520,11 @@ export default function EditorPage() {
                                                     </div>
                                                 )}
 
-                                                 {/* Sticky Note */}
-                                                {showStickyNote && isFirstTextPage && !isDiagram && (
-                                                    <div 
-                                                        className="absolute top-6 right-6 w-36 h-36 bg-amber-200 text-amber-950 p-4 shadow-xl rotate-3 z-20 font-sans text-xs font-semibold leading-snug rounded-xs border border-amber-300 pointer-events-none"
-                                                    >
-                                                        <div className="w-12 h-3 bg-amber-300/60 -top-1.5 left-1/2 -translate-x-1/2 absolute rounded-xs" />
-                                                        {stickyNoteText}
-                                                    </div>
-                                                )}
+
 
                                                 {/* Standardized Student Notebook Date & Page No. Box (Matching Real Youva/Classmate) */}
                                                 {showNotebookHeaderBox && !isDiagram && (
-                                                    <div 
+                                                    <div
                                                         className="absolute top-[12px] z-10 pointer-events-none select-none text-left"
                                                         style={{
                                                             right: '24px',
@@ -2568,21 +2550,21 @@ export default function EditorPage() {
                                                                                 {day}
                                                                             </span>
                                                                             {isToday && notebookDayCircle && (
-                                                                                <svg 
+                                                                                <svg
                                                                                     className="absolute -inset-0.5 w-3.5 h-3.5 pointer-events-none overflow-visible"
                                                                                     viewBox="0 0 20 20"
                                                                                 >
-                                                                                    <ellipse 
-                                                                                        cx="10" 
-                                                                                        cy="10" 
-                                                                                        rx="7.5" 
-                                                                                        ry="7" 
-                                                                                        fill="none" 
-                                                                                        stroke={color} 
-                                                                                        strokeWidth="1.5" 
-                                                                                        strokeDasharray="40" 
-                                                                                        strokeDashoffset="1" 
-                                                                                        transform="rotate(-8 10 10)" 
+                                                                                    <ellipse
+                                                                                        cx="10"
+                                                                                        cy="10"
+                                                                                        rx="7.5"
+                                                                                        ry="7"
+                                                                                        fill="none"
+                                                                                        stroke={color}
+                                                                                        strokeWidth="1.5"
+                                                                                        strokeDasharray="40"
+                                                                                        strokeDashoffset="1"
+                                                                                        transform="rotate(-8 10 10)"
                                                                                         opacity="0.9"
                                                                                     />
                                                                                 </svg>
@@ -2597,7 +2579,7 @@ export default function EditorPage() {
                                                                 <span className="text-[8px] font-mono font-bold tracking-tight text-rose-500/85">
                                                                     Page No. :
                                                                 </span>
-                                                                <span 
+                                                                <span
                                                                     style={{
                                                                         fontFamily: getFontFamilyCss(font),
                                                                         fontSize: Math.max(13, fontSize * 0.8),
@@ -2614,7 +2596,7 @@ export default function EditorPage() {
                                                                 <span className="text-[8px] font-mono font-bold tracking-tight text-rose-500/85">
                                                                     Date :
                                                                 </span>
-                                                                <span 
+                                                                <span
                                                                     style={{
                                                                         fontFamily: getFontFamilyCss(font),
                                                                         fontSize: Math.max(12, fontSize * 0.75),
@@ -2628,7 +2610,7 @@ export default function EditorPage() {
                                                         </div>
 
                                                         {/* Right Section: Brand Badge Compartment */}
-                                                        <div 
+                                                        <div
                                                             className="w-[58px] border-l border-rose-400/45 flex flex-col items-center justify-center p-1 select-none bg-rose-500/5 overflow-hidden text-center"
                                                         >
                                                             {(!notebookBrand || notebookBrand === 'YOUVA') && (
@@ -2684,7 +2666,7 @@ export default function EditorPage() {
 
                                                 {/* Document Header (First Text Page Only) */}
                                                 {showHeader && isFirstTextPage && headerText.trim() && !isDiagram && (
-                                                    <div 
+                                                    <div
                                                         className="absolute z-10 leading-tight whitespace-pre-wrap"
                                                         style={{
                                                             top: effectivePageMarginTop,
@@ -2702,7 +2684,7 @@ export default function EditorPage() {
 
                                                 {/* Document Body Lines OR Lab Diagram Canvas */}
                                                 {isDiagram ? (
-                                                    <div 
+                                                    <div
                                                         className="w-full h-full relative z-10 flex flex-col justify-center items-center"
                                                         style={{
                                                             paddingTop: effectivePageMarginTop,
@@ -2721,7 +2703,7 @@ export default function EditorPage() {
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div 
+                                                    <div
                                                         className="w-full h-full relative select-text"
                                                         style={{
                                                             paddingTop: (isFirstTextPage && showHeader && headerText.trim())
@@ -2733,25 +2715,25 @@ export default function EditorPage() {
                                                         }}
                                                     >
                                                         {page.lines.map((line, lIdx) => (
-                                                            <div 
-                                                                key={lIdx} 
+                                                            <div
+                                                                key={lIdx}
                                                                 dir={line.dir}
                                                                 onDoubleClick={() => startInlineEdit(pIdx, lIdx, line)}
                                                                 style={{
-                                                                    fontFamily: getFontFamilyCss(font), 
-                                                                    fontSize: effectiveFontSize, 
-                                                                    color, 
-                                                                    height: effectivePaper.lineHeight, 
-                                                                    lineHeight: `${effectivePaper.lineHeight}px`, 
-                                                                    transform: `translateY(${baseline}px)`, 
-                                                                    textAlign: line.dir === 'rtl' ? (textAlign === 'left' ? 'right' : textAlign === 'right' ? 'left' : textAlign) : textAlign, 
+                                                                    fontFamily: getFontFamilyCss(font),
+                                                                    fontSize: effectiveFontSize,
+                                                                    color,
+                                                                    height: effectivePaper.lineHeight,
+                                                                    lineHeight: `${effectivePaper.lineHeight}px`,
+                                                                    transform: `translateY(${baseline}px)`,
+                                                                    textAlign: line.dir === 'rtl' ? (textAlign === 'left' ? 'right' : textAlign === 'right' ? 'left' : textAlign) : textAlign,
                                                                     paddingLeft: line.indent ? line.indent * (effectiveFontSize * 0.4) : 0,
-                                                                }} 
+                                                                }}
                                                                 className="w-full whitespace-nowrap relative group cursor-text"
                                                             >
                                                                 {/* Interactive Left Margin Slot (Empty or Indexed) - Positioned safely past spiral */}
                                                                 {effectivePageMarginLeft >= 30 && (
-                                                                    <div 
+                                                                    <div
                                                                         className="absolute top-0 flex items-center justify-center group/margin cursor-pointer transition-colors z-20"
                                                                         style={{
                                                                             left: `-${effectivePageMarginLeft - (isLeftSpiral ? 48 : 0)}px`,
@@ -2787,13 +2769,13 @@ export default function EditorPage() {
                                                                             autoFocus
                                                                         />
                                                                     ) : line.marginIndex ? (
-                                                                        <span 
+                                                                        <span
                                                                             className="w-full text-center font-bold select-none group-hover/margin:text-blue-700 transition-colors"
                                                                             style={{
                                                                                 color: color,
                                                                                 fontFamily: getFontFamilyCss(font),
-                                                                                fontSize: (line.marginIndex && line.marginIndex.length > 3) 
-                                                                                    ? Math.min(fontSize * 0.85, 14) 
+                                                                                fontSize: (line.marginIndex && line.marginIndex.length > 3)
+                                                                                    ? Math.min(fontSize * 0.85, 14)
                                                                                     : Math.min(fontSize * 0.95, 17),
                                                                                 opacity: 0.92,
                                                                                 whiteSpace: 'nowrap',
@@ -2845,7 +2827,7 @@ export default function EditorPage() {
                                                                             const totalPages = pages.length;
                                                                             const docProgress = totalPages > 0 ? (pIdx + (page.lines.length > 0 ? lIdx / page.lines.length : 0)) / totalPages : 0;
                                                                             return (
-                                                                                <HandwrittenWord 
+                                                                                <HandwrittenWord
                                                                                     key={`left-${tIdx}`}
                                                                                     token={tok}
                                                                                     pageIndex={pIdx}
@@ -2873,7 +2855,7 @@ export default function EditorPage() {
                                                                     </div>
 
                                                                     {/* Center Pen-Drawn Vertical Divider */}
-                                                                    <div 
+                                                                    <div
                                                                         className="absolute left-1/2 -top-0.5 bottom-0 -translate-x-1/2 w-[1.5px] pointer-events-none opacity-60"
                                                                         style={{
                                                                             backgroundColor: color,
@@ -2887,7 +2869,7 @@ export default function EditorPage() {
                                                                             const totalPages = pages.length;
                                                                             const docProgress = totalPages > 0 ? (pIdx + (page.lines.length > 0 ? lIdx / page.lines.length : 0)) / totalPages : 0;
                                                                             return (
-                                                                                <HandwrittenWord 
+                                                                                <HandwrittenWord
                                                                                     key={`right-${tIdx}`}
                                                                                     token={tok}
                                                                                     pageIndex={pIdx}
@@ -2921,7 +2903,8 @@ export default function EditorPage() {
                                                                             e.stopPropagation();
                                                                             startInlineEdit(pIdx, lIdx, line);
                                                                         }}
-                                                                        className="opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity ml-2 text-[10px] text-blue-500 align-middle inline-flex items-center cursor-pointer absolute right-0"
+                                                                        aria-label={`Edit line ${lIdx + 1} on page ${pIdx + 1}`}
+                                                                        className="opacity-0 group-hover:opacity-60 focus:!opacity-100 hover:!opacity-100 transition-opacity ml-2 text-[10px] text-violet-700 align-middle inline-flex items-center cursor-pointer absolute right-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
                                                                         title="Edit this line directly on paper"
                                                                     >
                                                                         ✏️
@@ -2933,7 +2916,7 @@ export default function EditorPage() {
                                                                         const totalPages = pages.length;
                                                                         const docProgress = totalPages > 0 ? (pIdx + (page.lines.length > 0 ? lIdx / page.lines.length : 0)) / totalPages : 0;
                                                                         return (
-                                                                            <HandwrittenWord 
+                                                                            <HandwrittenWord
                                                                                 key={tIdx}
                                                                                 token={tok}
                                                                                 pageIndex={pIdx}
@@ -2965,7 +2948,8 @@ export default function EditorPage() {
                                                                             e.stopPropagation();
                                                                             startInlineEdit(pIdx, lIdx, line);
                                                                         }}
-                                                                        className="opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity ml-2 text-[10px] text-blue-500 align-middle inline-flex items-center cursor-pointer"
+                                                                        aria-label={`Edit line ${lIdx + 1} on page ${pIdx + 1}`}
+                                                                        className="opacity-0 group-hover:opacity-60 focus:!opacity-100 hover:!opacity-100 transition-opacity ml-2 text-[10px] text-violet-700 align-middle inline-flex items-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
                                                                         title="Edit this line directly on paper"
                                                                     >
                                                                         ✏️
@@ -2979,7 +2963,7 @@ export default function EditorPage() {
 
                                                 {/* Page Number */}
                                                 {showPageNumbers && (
-                                                    <div 
+                                                    <div
                                                         className="absolute bottom-5 left-0 right-0 text-center font-sans text-[11px] opacity-40 font-mono tracking-widest pointer-events-none"
                                                         style={{ color }}
                                                     >
@@ -3001,7 +2985,6 @@ export default function EditorPage() {
                                                     lightingWarmth={effectiveWarmth}
                                                     paperCrease={effectiveCrease}
                                                     sensorNoise={effectiveNoise}
-                                                    coffeeStain={effectiveCoffeeStain}
                                                     pageIndex={pIdx}
                                                     spiralBinding={spiralBinding}
                                                     inkBleedThrough={inkBleedThrough}
@@ -3030,19 +3013,19 @@ export default function EditorPage() {
             </div>
 
             {/* Mobile workspace navigation: canvas remains the primary view. */}
-            <nav aria-label="Mobile editor views" className="lg:hidden shrink-0 grid grid-cols-3 gap-1 border-t border-stone-200 bg-white px-3 pt-2 pb-[max(.5rem,env(safe-area-inset-bottom))]">
-                {[
+            <div className="lg:hidden shrink-0 pt-2 pb-[env(safe-area-inset-bottom)] bg-stone-50/80">
+                <GlassDock
+                    compact
+                    ariaLabel="Mobile editor views"
+                    value={mobileTab}
+                    onChange={(view) => { setMobileTab(view); if (view === 'write') setActiveSidebarTab('write'); if (view === 'settings' && activeSidebarTab === 'write') setActiveSidebarTab('pen'); }}
+                    items={[
                     { id: 'write' as const, label: 'Write', icon: FileText },
                     { id: 'canvas' as const, label: 'Preview', icon: Layers3 },
                     { id: 'settings' as const, label: 'Style', icon: PanelLeft },
-                ].map(view => (
-                    <button key={view.id} type="button" aria-current={mobileTab === view.id ? 'page' : undefined}
-                        onClick={() => { setMobileTab(view.id); if (view.id === 'write') setActiveSidebarTab('write'); if (view.id === 'settings' && activeSidebarTab === 'write') setActiveSidebarTab('pen'); }}
-                        className={`min-h-11 rounded-xl flex items-center justify-center gap-2 text-xs font-bold focus-visible:outline-2 focus-visible:outline-violet-700 ${mobileTab === view.id ? 'bg-violet-50 text-violet-800' : 'text-stone-600 hover:bg-stone-50'}`}>
-                        <view.icon size={16} aria-hidden="true" />{view.label}
-                    </button>
-                ))}
-            </nav>
+                    ]}
+                />
+            </div>
 
             {/* ==================== RESET CONFIRMATION MODAL ==================== */}
             {showResetModal && (
@@ -3093,7 +3076,7 @@ export default function EditorPage() {
             )}
 
             {/* ==================== MULTI-PAGE EXPORT PREVIEW MODAL ==================== */}
-            <ExportModal 
+            <ExportModal
                 key={isExportModalOpen ? 'open' : 'closed'}
                 isOpen={isExportModalOpen}
                 onClose={() => {
@@ -3139,10 +3122,7 @@ export default function EditorPage() {
                 tiltY={tiltY}
                 randomTilt={randomTilt}
                 smartMarginIndexing={smartMarginIndexing}
-                coffeeStain={coffeeStain}
                 pageEffectOverrides={pageEffectOverrides}
-                showStickyNote={showStickyNote}
-                stickyNoteText={stickyNoteText}
                 lowInkFade={lowInkFade}
                 lowInkStart={lowInkStart}
                 lowInkIntensity={lowInkIntensity}
@@ -3158,275 +3138,72 @@ export default function EditorPage() {
             />
 
             {/* Creator Credits Modal */}
-            <CreatorModal 
-                isOpen={showCreatorModal} 
-                onClose={() => setShowCreatorModal(false)} 
+            <CreatorModal
+                isOpen={showCreatorModal}
+                onClose={() => setShowCreatorModal(false)}
             />
 
-            <HistoryModal 
-                isOpen={isHistoryOpen} 
-                onClose={() => setIsHistoryOpen(false)} 
+            <HistoryModal
+                isOpen={isHistoryOpen}
+                onClose={() => setIsHistoryOpen(false)}
             />
 
             {/* Fullscreen / Focus Writing Modal */}
             {isEditorExpanded && (
-                <div 
+                <div
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Distraction-Free Focus Editor"
-                    className="fixed inset-0 z-50 bg-stone-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
+                    aria-labelledby="focus-editor-title"
+                    className="focus-backdrop fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
                 >
-                    <div className="relative w-full max-w-5xl h-[92vh] bg-white rounded-3xl shadow-2xl flex flex-col border border-stone-200 overflow-hidden ring-1 ring-black/10">
-                        {/* Top Toolbar */}
-                        <div className="px-5 py-3.5 bg-stone-50/95 border-b border-stone-200 flex items-center justify-between gap-4 select-none shrink-0">
-                            <div className="flex items-center gap-3">
-                                <span className="p-2 rounded-xl bg-stone-900 text-white shadow-xs">
-                                    <Sparkles size={16} />
-                                </span>
-                                <div>
-                                    <h3 className="text-sm font-bold text-stone-900 tracking-tight flex items-center gap-2">
-                                        Focus Writing Mode
-                                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-stone-200/70 text-stone-700">
-                                            Distraction Free
-                                        </span>
-                                    </h3>
-                                    <div className="flex items-center gap-2 text-[11px] text-stone-500 font-medium">
-                                        <span>{wordCount} words</span>
-                                        <span>•</span>
-                                        <span>{draftText.length} characters</span>
-                                        <span>•</span>
-                                        <span className="text-stone-700 font-semibold">
-                                            ~{Math.max(1, Math.ceil(wordCount / 220))} handwritten {Math.ceil(wordCount / 220) === 1 ? 'page' : 'pages'}
-                                        </span>
-                                    </div>
+                    <div ref={focusDialogRef} className="focus-glass-shell relative flex h-[92vh] w-full max-w-5xl flex-col gap-3">
+                        {/* Minimal focus-mode glass header. Secondary actions live in Tools. */}
+                        <div className="focus-glass-header px-4 sm:px-5 py-3 flex items-center justify-between gap-3 select-none shrink-0">
+                            <div className="flex min-w-0 items-center gap-2.5">
+                                <span className="focus-glass-icon"><Sparkles size={15} aria-hidden="true" /></span>
+                                <div className="min-w-0">
+                                    <h3 id="focus-editor-title" className="truncate text-sm font-bold tracking-tight text-stone-900">Focus writing</h3>
+                                    <p className="text-[11px] font-medium text-stone-500">{wordCount} words · ~{Math.max(1, Math.ceil(wordCount / 220))} handwritten {Math.ceil(wordCount / 220) === 1 ? 'page' : 'pages'}</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                                {/* Font Size Toggle */}
-                                <div className="hidden sm:flex items-center bg-stone-200/60 p-0.5 rounded-lg text-[11px] font-semibold text-stone-600">
-                                    <button
-                                        type="button"
-                                        onClick={() => setEditorFontSize('sm')}
-                                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                                            editorFontSize === 'sm' ? 'bg-white text-stone-900 shadow-2xs' : 'hover:text-stone-900'
-                                        }`}
-                                    >
-                                        Compact
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setEditorFontSize('base')}
-                                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                                            editorFontSize === 'base' ? 'bg-white text-stone-900 shadow-2xs' : 'hover:text-stone-900'
-                                        }`}
-                                    >
-                                        Medium
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setEditorFontSize('lg')}
-                                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                                            editorFontSize === 'lg' ? 'bg-white text-stone-900 shadow-2xs' : 'hover:text-stone-900'
-                                        }`}
-                                    >
-                                        Large
-                                    </button>
+                            <div className="flex shrink-0 items-center gap-1.5">
+                                <div role="radiogroup" aria-label="Editor text size" className="hidden sm:flex focus-size-switch">
+                                    {(['sm', 'base', 'lg'] as const).map((size) => (
+                                        <button key={size} type="button" role="radio" aria-checked={editorFontSize === size} onClick={() => setEditorFontSize(size)} className={editorFontSize === size ? 'focus-size-switch__selected' : ''}>
+                                            {size === 'sm' ? 'A' : size === 'base' ? 'A+' : 'A++'}
+                                        </button>
+                                    ))}
                                 </div>
-
-                                {/* Quick Tools */}
-                                <button
-                                    type="button"
-                                    onClick={handlePasteClipboard}
-                                    title="Paste from clipboard"
-                                    className="px-2.5 py-1.5 bg-white hover:bg-stone-100 border border-stone-200 rounded-lg text-stone-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
-                                >
-                                    <Clipboard size={13} />
-                                    <span className="hidden md:inline">Paste</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleCleanSpacing}
-                                    title="Clean extra empty lines"
-                                    className="px-2.5 py-1.5 bg-white hover:bg-stone-100 border border-stone-200 rounded-lg text-stone-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
-                                >
-                                    <Sparkles size={13} className="text-amber-500" />
-                                    <span className="hidden md:inline">Clean Spacing</span>
-                                </button>
-
-                                {/* Close / Minimize */}
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditorExpanded(false)}
-                                    className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer ml-1"
-                                >
-                                    <Minimize2 size={13} />
-                                    <span>Done</span>
-                                    <kbd className="hidden lg:inline ml-1 text-[9px] bg-stone-700 text-stone-300 px-1 py-0.5 rounded">Esc</kbd>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* MS Word-Style Ribbon Toolbar */}
-                        <div className="px-5 py-2.5 bg-stone-100/75 border-b border-stone-200 flex items-center gap-3 overflow-x-auto custom-scrollbar select-none shrink-0">
-                            {/* Group 1: AI & Actions */}
-                            <div className="flex items-center gap-1.5 shrink-0 pr-2 border-r border-stone-200">
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={isImporting}
-                                    title="Import Word (.docx), PDF (.pdf), Markdown (.md), Text (.txt), or Image OCR"
-                                    className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200/80 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-                                >
-                                    {isImporting ? (
-                                        <Loader2 size={13} className="animate-spin text-blue-600" />
-                                    ) : (
-                                        <FileUp size={13} className="text-blue-600" />
+                                <div className="relative">
+                                    <button ref={focusToolsTriggerRef} type="button" onClick={() => setIsFocusToolsOpen(open => !open)} aria-expanded={isFocusToolsOpen} aria-haspopup="menu" className="focus-glass-button" title="Writing tools">
+                                        <Sparkles size={14} aria-hidden="true" /><span className="hidden sm:inline">Tools</span><ChevronDown size={13} aria-hidden="true" className={`transition-transform duration-200 ${isFocusToolsOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {isFocusToolsOpen && (
+                                        <div ref={focusToolsMenuRef} role="menu" aria-label="Focus writing tools" className="focus-tools-menu">
+                                            <p className="focus-tools-menu__label">Document</p>
+                                            <button role="menuitem" type="button" onClick={() => { fileInputRef.current?.click(); setIsFocusToolsOpen(false); }} disabled={isImporting}><FileUp size={14} />{isImporting ? 'Importing…' : 'Import document'}</button>
+                                            <button role="menuitem" type="button" onClick={() => { handlePasteClipboard(); setIsFocusToolsOpen(false); }}><Clipboard size={14} />Paste</button>
+                                            <button role="menuitem" type="button" onClick={() => { handleCleanAIText(); setIsFocusToolsOpen(false); }}><Sparkles size={14} />Clean AI text</button>
+                                            <button role="menuitem" type="button" onClick={() => { handleCleanSpacing(); setIsFocusToolsOpen(false); }}>Clean spacing</button>
+                                            <span className="focus-tools-menu__divider" />
+                                            <p className="focus-tools-menu__label">Insert</p>
+                                            <button role="menuitem" type="button" onClick={() => { setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '__TITLE OF ASSIGNMENT__\n\n'); setIsFocusToolsOpen(false); }}>Add title</button>
+                                            <button role="menuitem" type="button" onClick={() => { setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '__Section Name__\n'); setIsFocusToolsOpen(false); }}>Add section</button>
+                                            <button role="menuitem" type="button" onClick={() => { setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + 'Q1: \nAns: '); setIsFocusToolsOpen(false); }}>Add Q&amp;A</button>
+                                            <button role="menuitem" type="button" onClick={() => { setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '• '); setIsFocusToolsOpen(false); }}>Add bullet</button>
+                                            <button role="menuitem" type="button" onClick={() => { setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '1. '); setIsFocusToolsOpen(false); }}>Add numbered item</button>
+                                            <button role="menuitem" type="button" onClick={() => { setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '\n[compare: Parameter | Method A | Method B]\nSpeed | Fast | Moderate\nAccuracy | 98.2% | 85.0%\n[/compare]\n'); setIsFocusToolsOpen(false); }}>Add comparison table</button>
+                                            <button role="menuitem" type="button" onClick={() => { setDraftText(prev => prev + ' → '); setIsFocusToolsOpen(false); }}>Insert arrow</button>
+                                        </div>
                                     )}
-                                    <span>{isImporting ? 'Importing...' : 'Import Doc'}</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleCleanAIText}
-                                    title="Auto-Clean ChatGPT / Claude dumps (removes chat greetings, formats headings & Q/A)"
-                                    className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
-                                >
-                                    <Sparkles size={13} />
-                                    <span>Clean AI Text</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handlePasteClipboard}
-                                    title="Paste from clipboard"
-                                    className="px-2 py-1 bg-white hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                                >
-                                    <Clipboard size={12} />
-                                    <span>Paste</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleCleanSpacing}
-                                    title="Clean extra empty lines"
-                                    className="px-2 py-1 bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                                >
-                                    <span>Clean Space</span>
-                                </button>
-                            </div>
-
-                            {/* Group 2: Document Structure & Headings */}
-                            <div className="flex items-center gap-1 shrink-0 pr-2 border-r border-stone-200">
-                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mr-1">Style:</span>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '__TITLE OF ASSIGNMENT__\n\n');
-                                    }}
-                                    title="Title / Double Underline (__TITLE__)"
-                                    className="px-2 py-1 bg-white hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-md text-xs font-bold shadow-2xs cursor-pointer active:scale-95 transition-all"
-                                >
-                                    Title (H1)
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '__Section Name__\n');
-                                    }}
-                                    title="Subheading (__Section__)"
-                                    className="px-2 py-1 bg-white hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-md text-xs font-semibold shadow-2xs cursor-pointer active:scale-95 transition-all"
-                                >
-                                    Section (H2)
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + 'Q1: \nAns: ');
-                                    }}
-                                    title="Question & Answer block"
-                                    className="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200/80 rounded-md text-xs font-bold shadow-2xs cursor-pointer active:scale-95 transition-all"
-                                >
-                                    📝 Q&A
-                                </button>
-                            </div>
-
-                            {/* Group 3: Formatting & Emphasis */}
-                            <div className="flex items-center gap-1 shrink-0 pr-2 border-r border-stone-200">
-                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mr-1">Font:</span>
-                                <button
-                                    type="button"
-                                    onClick={() => applyFormatToSelection('__', '__')}
-                                    title="Double Underline (__text__)"
-                                    className="w-7 h-7 bg-white hover:bg-stone-100 text-stone-900 border border-stone-200 rounded-md text-xs font-bold flex items-center justify-center underline underline-offset-2 shadow-2xs cursor-pointer"
-                                >
-                                    U
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyFormatToSelection('[[', ']]')}
-                                    title="Hand-Drawn Formula Box ([[text]])"
-                                    className="px-2 h-7 bg-white hover:bg-stone-100 text-stone-900 border border-stone-200 rounded-md text-xs font-mono font-bold flex items-center justify-center shadow-2xs cursor-pointer"
-                                >
-                                    [Box]
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyFormatToSelection('~~', '~~')}
-                                    title="Scribble Strike-Through (~~text~~)"
-                                    className="w-7 h-7 bg-white hover:bg-stone-100 text-rose-600 border border-stone-200 rounded-md text-xs font-bold flex items-center justify-center line-through shadow-2xs cursor-pointer"
-                                >
-                                    S
-                                </button>
-                            </div>
-
-                            {/* Group 4: Inserts */}
-                            <div className="flex items-center gap-1 shrink-0">
-                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mr-1">Insert:</span>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '• ');
-                                    }}
-                                    title="Bullet List Item (•)"
-                                    className="px-2 py-1 bg-white hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-md text-xs font-semibold shadow-2xs cursor-pointer active:scale-95 transition-all"
-                                >
-                                    • Bullet
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + '1. ');
-                                    }}
-                                    title="Numbered List Item (1.)"
-                                    className="px-2 py-1 bg-white hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-md text-xs font-semibold shadow-2xs cursor-pointer active:scale-95 transition-all"
-                                >
-                                    1. Numbered
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const sampleCompare = '\n[compare: Parameter | Method A | Method B]\nSpeed | Fast | Moderate\nAccuracy | 98.2% | 85.0%\n[/compare]\n';
-                                        setDraftText(prev => prev + (prev.endsWith('\n') || !prev ? '' : '\n') + sampleCompare);
-                                    }}
-                                    title="2-Column Student Comparison Table"
-                                    className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-md text-xs font-semibold shadow-2xs cursor-pointer active:scale-95 transition-all"
-                                >
-                                    ⚖️ Table
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDraftText(prev => prev + ' → ');
-                                    }}
-                                    title="Student Handwritten Arrow (→)"
-                                    className="px-2 py-1 bg-white hover:bg-stone-100 text-blue-700 border border-stone-200 rounded-md text-xs font-bold shadow-2xs cursor-pointer active:scale-95 transition-all"
-                                >
-                                    → Arrow
-                                </button>
+                                </div>
+                                <button type="button" onClick={closeFocusEditor} className="focus-done-button" aria-label="Exit focus writing mode"><Minimize2 size={14} aria-hidden="true" /><span className="hidden sm:inline">Done</span></button>
                             </div>
                         </div>
-
                         {/* Expanded Fullscreen Textarea */}
-                        <div 
-                            className={`flex-1 relative flex flex-col bg-white overflow-hidden transition-colors ${
+                        <div
+                            className={`focus-writing-area flex-1 relative flex overflow-hidden transition-colors ${
                                 isDraggingFile ? 'bg-blue-50/40 ring-4 ring-blue-500/20 ring-inset' : ''
                             }`}
                             onDragOver={(e) => {
@@ -3470,7 +3247,9 @@ export default function EditorPage() {
                                 </div>
                             )}
                             <textarea
+                                ref={focusTextareaRef}
                                 autoFocus
+                                onFocus={(event) => { activeTextareaRef.current = event.currentTarget; }}
                                 value={draftText}
                                 onKeyDown={handleKeyDown}
                                 onKeyUp={handleTextareaSelect}
@@ -3486,22 +3265,20 @@ export default function EditorPage() {
                                     updateCursorPos(e);
                                 }}
                                 placeholder="Write your long assignment or notes here in focus mode...&#10;&#10;Supports Tab indentation, smart Enter list continuation, and instant live sync to handwritten paper."
-                                className={`flex-1 w-full p-6 bg-transparent border-0 text-stone-900 ${
+                                className={`focus-writing-canvas h-full w-full max-w-3xl mx-auto p-6 sm:p-10 bg-transparent border-0 text-stone-900 ${
                                     editorFontSize === 'sm' ? 'text-sm' : editorFontSize === 'lg' ? 'text-lg' : 'text-base'
                                 } leading-relaxed focus:outline-none resize-none font-sans overflow-y-auto custom-scrollbar`}
                             />
                         </div>
 
                         {/* Bottom Status Bar */}
-                        <div className="px-5 py-2.5 bg-stone-50 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500 font-medium select-none shrink-0">
+                        <div className="focus-status-bar px-4 sm:px-5 py-2.5 flex items-center justify-between text-xs text-stone-500 font-medium select-none shrink-0">
                             <div className="flex items-center gap-3">
                                 <span className="font-mono text-xs text-stone-700 bg-white px-2 py-0.5 rounded border border-stone-200 shadow-2xs">
                                     Line {cursorPos.line}, Column {cursorPos.col}
                                 </span>
                                 <span className="text-stone-400">•</span>
-                                <span>Tab: 4 spaces indent</span>
-                                <span className="text-stone-400">•</span>
-                                <span>Enter: Auto-bullet continuation</span>
+                                <span className="hidden sm:inline">~{Math.max(1, Math.ceil(wordCount / 220))} pages</span>
                             </div>
 
                             <div className="flex items-center gap-3">
@@ -3513,19 +3290,13 @@ export default function EditorPage() {
                                                 setDraftText('');
                                             }
                                         }}
+                                        aria-label="Clear all document text"
                                         className="text-stone-400 hover:text-red-600 transition-colors flex items-center gap-1 cursor-pointer"
                                     >
                                         <Trash2 size={12} />
                                         <span>Clear</span>
                                     </button>
                                 )}
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditorExpanded(false)}
-                                    className="text-stone-900 font-semibold hover:underline cursor-pointer flex items-center gap-1"
-                                >
-                                    Return to Document & Preview →
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -3535,7 +3306,9 @@ export default function EditorPage() {
             {/* MS Word / Notion Style Floating Mini-Toolbar */}
             {floatingToolbar.isOpen && (
                 <div
-                    className="ms-word-floating-toolbar fixed z-50 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 bg-stone-900/95 text-white rounded-2xl shadow-2xl border border-white/20 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 select-none pointer-events-auto"
+                    role="toolbar"
+                    aria-label="Selected text formatting"
+                    className="ms-word-floating-toolbar focus-selection-toolbar fixed z-50 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 text-stone-800 rounded-2xl animate-in fade-in zoom-in-95 duration-150 select-none pointer-events-auto"
                     style={{
                         left: `${floatingToolbar.x}px`,
                         top: `${floatingToolbar.y}px`,
