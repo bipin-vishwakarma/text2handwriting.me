@@ -333,7 +333,17 @@ export default function ExportModal({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const paymentObject = new (window as any).Razorpay(options);
             paymentObject.on('payment.failed', function (response: Record<string, Record<string, string>>) {
-                alert('Payment failed: ' + response.error.description);
+                const providerMessage = response.error?.description?.trim();
+                const message = providerMessage?.toLowerCase().includes('pending')
+                    ? 'Your payment is still pending. Do not pay again yet—check your UPI or bank app first. If money was debited, wait a few minutes and then reopen this export to retry verification.'
+                    : providerMessage?.toLowerCase().includes('cancel')
+                        ? 'Payment was cancelled. No payment was completed, so you can try again whenever you are ready.'
+                        : providerMessage
+                            ? `Payment could not be completed: ${providerMessage} Try again or choose another payment method.`
+                            : 'Payment could not be completed. Try again or choose another payment method.';
+                // Keep payment feedback inside the export UI. A browser alert appears
+                // above Razorpay's own failure screen and makes cancellation confusing.
+                setCheckoutError(message);
                 // Razorpay reported a terminal failure, so a later checkout must
                 // reserve a fresh order rather than revive this failed attempt.
                 setPendingPaymentIntent(null);
