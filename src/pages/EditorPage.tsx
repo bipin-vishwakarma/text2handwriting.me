@@ -1546,7 +1546,7 @@ const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
                         <img
                             src="https://avatars.githubusercontent.com/u/151464007?v=4"
                             alt=""
-                            className="h-6 w-6 rounded-lg object-cover ring-1 ring-violet-200 transition-transform group-hover:scale-105"
+                            className="h-6 w-6 rounded-full object-cover ring-1 ring-violet-200 transition-transform group-hover:scale-105"
                         />
                         <span className="hidden 2xl:inline">Portfolio</span>
                     </button>
