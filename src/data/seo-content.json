@@ -1,0 +1,152 @@
+{
+  "/typed-text-to-handwritten-notes": {
+    "overview": "Turn your own typed notes into a readable handwritten-style layout. Choose a style, adjust spacing and margins, preview every page, and export only after checking the result.",
+    "steps": [
+      {
+        "title": "Paste your notes",
+        "description": "Start with notes and wording you created or are permitted to format."
+      },
+      {
+        "title": "Tune the page",
+        "description": "Choose a handwriting style, paper, margins, and line spacing for readability."
+      },
+      {
+        "title": "Review and export",
+        "description": "Check page breaks and headings before creating a print-ready PDF."
+      }
+    ],
+    "note": "Formatting changes presentation, not authorship. Review the content yourself and follow any applicable submission rules.",
+    "sections": [
+      {
+        "title": "Prepare a short sample before formatting everything",
+        "text": "Start with one heading, a paragraph, a numbered list and a line containing the symbols you actually use. For example, include a date, a percentage and a reference. Preview this sample in two fonts before pasting a long document. If letters or symbols are missing, choose a font that supports them rather than assuming the exported file will repair them."
+      },
+      {
+        "title": "Fix crowded lines without shrinking every letter",
+        "text": "If lower-case loops touch the next line, increase line spacing first. If only a heading wraps awkwardly, shorten that heading or adjust its size instead of reducing the whole document. Review the last line on each page and keep section headings near the text they introduce. A simple, readable style usually works better for revision notes than highly decorative cursive."
+      },
+      {
+        "title": "Check what the tool changes",
+        "text": "Handwriting styling changes the appearance of your text; it does not verify facts, recreate your personal handwriting or correct references. Compare the preview with your original notes, including equations and names. Previewing is separate from paid export: review the current pricing page and checkout amount before purchasing a file."
+      }
+    ]
+  },
+  "/practical-record-formatting-guide": {
+    "overview": "Prepare a consistent practical or lab record layout from your own draft, with clear sections for objectives, method, observations, calculations, results, and precautions.",
+    "steps": [
+      {
+        "title": "Structure the draft",
+        "description": "Organize each experiment with consistent headings and content you created."
+      },
+      {
+        "title": "Set the layout",
+        "description": "Choose paper, handwriting style, margins, and spacing that leave room for review."
+      },
+      {
+        "title": "Proofread pages",
+        "description": "Verify calculations, labels, page order, and instructor requirements before export."
+      }
+    ],
+    "note": "Use this as a formatting aid only. You remain responsible for accurate work and your institution’s academic-integrity rules.",
+    "sections": [
+      {
+        "title": "Use a repeatable experiment structure",
+        "text": "Start with the experiment title and date, followed by the objective, apparatus or materials, method, observations, calculations, result and precautions. Follow your instructor’s template if it differs. Keep measured observations separate from calculated values, record units beside quantities, and explain any deviations from the planned method rather than silently changing results."
+      },
+      {
+        "title": "Example: organizing an electrical measurement record",
+        "text": "For a voltage-current experiment, label voltage in volts and current in amperes, and record each measured pair before calculating resistance. Include the circuit arrangement and instrument ranges in your original draft. Check subscripts, decimal places and unit symbols in the preview. A handwriting font cannot validate a circuit diagram or replace a properly labelled observation table."
+      },
+      {
+        "title": "Review before submission",
+        "text": "Confirm that each figure has a caption and each calculation can be traced back to an observation. Keep the conclusion consistent with your measured data, including uncertainty or unexpected results. Ask whether digitally formatted handwritten-style pages are permitted before submitting them; some courses require records to be written by hand during the experiment."
+      }
+    ]
+  },
+  "/print-ready-handwritten-pdf-guide": {
+    "overview": "Create a reliable print-ready PDF by checking paper size, safe margins, contrast, page breaks, and the final preview before printing.",
+    "steps": [
+      {
+        "title": "Match paper settings",
+        "description": "Select the paper size and orientation used by your printer."
+      },
+      {
+        "title": "Check readability",
+        "description": "Use safe margins and enough ink contrast for printing or scanning."
+      },
+      {
+        "title": "Test one page",
+        "description": "Open the PDF on another device and print a test sheet before a full batch."
+      }
+    ],
+    "note": "Always inspect the exported PDF; browser previews and physical printers can render spacing differently.",
+    "sections": [
+      {
+        "title": "Match the PDF page size to the paper",
+        "text": "A4 is 210 × 297 mm; US Letter is 8.5 × 11 inches. Select the size required for your document and check the PDF page properties before printing. In the print dialog, compare Actual size with Fit: scaling can alter the apparent margins and handwriting size. Do not assume the printer has the same printable area as the on-screen page."
+      },
+      {
+        "title": "Inspect contrast, cropping and page breaks",
+        "text": "Open the exported PDF in a separate viewer and inspect the edges, first and last lines, and any symbols at 100% zoom. If ink looks too faint, use a darker colour and print a sample in the same colour or grayscale mode you plan to use for the final copy. Keep content away from the edges because many printers cannot print borderlessly."
+      },
+      {
+        "title": "Troubleshoot a failed print before exporting again",
+        "text": "If the PDF looks correct but the paper is cropped, check printer scaling, orientation and paper selection first. If the PDF itself is missing content, return to the editor and review pagination and font support. Keep the original text until you have checked the final file. For a paid-export problem, contact support with the order reference; never share card details or passwords."
+      }
+    ]
+  },
+  "/text-to-cursive": {
+    "overview": "Use the editor when you want to see how your own wording reads in a cursive style before you print or share it. You control the text, typeface, size, ink, margins, and paper layout rather than accepting a one-click result.",
+    "steps": [
+      {
+        "title": "Add your text",
+        "description": "Start with a note, letter, invitation draft, or another document you are allowed to format."
+      },
+      {
+        "title": "Choose a cursive style",
+        "description": "Compare the available fonts and adjust type size, spacing, and baseline placement in the live preview."
+      },
+      {
+        "title": "Review before exporting",
+        "description": "Check pagination and paper settings, then export only when the layout is ready."
+      }
+    ],
+    "note": "Cursive styling changes presentation, not authorship. Use only text you have the right to use and follow any applicable submission rules."
+  },
+  "/assignment-maker-online": {
+    "overview": "This workspace is for preparing permitted handwritten-style study materials, drafts, and layouts from your own work. It gives you a preview so you can make deliberate decisions about the document before exporting it.",
+    "steps": [
+      {
+        "title": "Prepare your own draft",
+        "description": "Write or import material you are allowed to use, then check its content independently."
+      },
+      {
+        "title": "Set the document layout",
+        "description": "Select paper, margins, handwriting style, and other presentation controls for the intended format."
+      },
+      {
+        "title": "Confirm requirements",
+        "description": "Review the pages and your institution or instructor requirements before exporting."
+      }
+    ],
+    "note": "text2handwriting.me does not make work original or guarantee compliance with academic policies. You are responsible for the content and for following your institution’s rules."
+  },
+  "/realistic-handwriting-generator": {
+    "overview": "The editor combines handwriting fonts with controls for spacing, baseline position, ink, and paper so you can create a handwritten-style presentation from your own text. The preview lets you inspect those choices before an export.",
+    "steps": [
+      {
+        "title": "Select a starting style",
+        "description": "Choose a handwriting font or upload a compatible font you are permitted to use."
+      },
+      {
+        "title": "Adjust visual details",
+        "description": "Tune paper, margins, ink, spacing, and baseline settings while watching the page preview."
+      },
+      {
+        "title": "Export a reviewed layout",
+        "description": "Verify the page order and document appearance, then create a PDF or image export as needed."
+      }
+    ],
+    "note": "Visual variation is a formatting feature, not evidence of human authorship and not a way to bypass plagiarism or AI-detection systems."
+  }
+}

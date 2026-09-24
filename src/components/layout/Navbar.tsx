@@ -1,4 +1,4 @@
-import { useState, useEffect, useId } from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Sparkles, ExternalLink } from 'lucide-react';
@@ -12,6 +12,8 @@ export default function Navbar() {
     const [activeSection, setActiveSection] = useState<string>('');
     const location = useLocation();
     const mobileMenuId = useId();
+    const mobileMenuRef = useRef<HTMLDivElement>(null);
+    const menuToggleRef = useRef<HTMLButtonElement>(null);
 
     // Scroll-spy targets on landing page — ordered to match DOM
     const scrollLinks: { name: string; sectionId: string }[] = [
@@ -31,11 +33,44 @@ export default function Navbar() {
 
     useEffect(() => {
         if (!mobileMenuOpen) return;
-        const closeOnEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') setMobileMenuOpen(false);
+        const menu = mobileMenuRef.current;
+        const toggle = menuToggleRef.current;
+        const desktop = window.matchMedia('(min-width: 768px)');
+        const closeOnDesktop = () => {
+            if (desktop.matches) setMobileMenuOpen(false);
         };
-        window.addEventListener('keydown', closeOnEscape);
-        return () => window.removeEventListener('keydown', closeOnEscape);
+        const focusable = () => Array.from(menu?.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input:not([disabled]), [tabindex="0"]'
+        ) ?? []).filter(element => element.getClientRects().length > 0);
+        focusable()[0]?.focus();
+        const handleKeys = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                event.stopPropagation();
+                setMobileMenuOpen(false);
+            }
+            if (event.key !== 'Tab') return;
+            const items = focusable();
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (!first) { event.preventDefault(); return; }
+            if (!menu?.contains(document.activeElement) ||
+                (event.shiftKey && document.activeElement === first) ||
+                (!event.shiftKey && document.activeElement === last)) {
+                event.preventDefault();
+                (event.shiftKey ? last : first).focus();
+            }
+        };
+        window.addEventListener('keydown', handleKeys);
+        desktop.addEventListener('change', closeOnDesktop);
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            window.removeEventListener('keydown', handleKeys);
+            desktop.removeEventListener('change', closeOnDesktop);
+            document.body.style.overflow = previousOverflow;
+            toggle?.focus({ preventScroll: true });
+        };
     }, [mobileMenuOpen]);
 
     // Scroll spy when on landing page
@@ -70,7 +105,7 @@ export default function Navbar() {
             e.preventDefault();
             const elem = document.getElementById(sectionId);
             if (elem) {
-                elem.scrollIntoView({ behavior: 'smooth' });
+                elem.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
                 window.history.pushState(null, '', `#${sectionId}`);
                 setActiveSection(sectionId);
             }
@@ -87,7 +122,7 @@ export default function Navbar() {
     return (
         <>
             <motion.nav
-                initial={{ y: -100, opacity: 0 }}
+                initial={false}
                 animate={{ 
                     y: isNavbarVisible ? 0 : -120,
                     opacity: isNavbarVisible ? 1 : 0,
@@ -100,11 +135,11 @@ export default function Navbar() {
                 }}
                 className="fixed top-3 sm:top-6 left-0 right-0 z-50 px-3 sm:px-6 flex justify-center pointer-events-none"
             >
-                <div className="w-full max-w-7xl glass rounded-full px-4 sm:px-6 py-2 sm:py-2.5 flex justify-between items-center pointer-events-auto ring-1 ring-black/5 shadow-lg shadow-black/5">
+                <div className="w-full max-w-7xl glass rounded-full px-3 sm:px-6 py-2 sm:py-2.5 flex justify-between items-center pointer-events-auto ring-1 ring-black/5 shadow-lg shadow-black/5">
                     {/* Brand Logo */}
-                    <Link to="/" onClick={() => setMobileMenuOpen(false)} aria-label="text2handwriting.me home" className="flex shrink-0 items-center gap-2 sm:gap-2.5 group relative">
+                    <Link to="/" onClick={() => setMobileMenuOpen(false)} aria-label="text2handwriting.me home" className="flex min-w-0 shrink items-center gap-1.5 sm:gap-2.5 group relative">
                         <SiteLogo size={32} />
-                        <span className="hidden min-[430px]:block whitespace-nowrap text-base sm:text-xl font-display font-black text-neutral-900 tracking-tight">text2handwriting.me</span>
+                        <span className="hidden min-[340px]:block max-w-[116px] truncate whitespace-nowrap text-xs font-display font-black tracking-tight text-neutral-900 min-[430px]:max-w-none min-[430px]:text-base sm:text-xl">text2handwriting.me</span>
                     </Link>
 
                     {/* Desktop Navigation Links */}
@@ -161,25 +196,26 @@ export default function Navbar() {
                     </div>
 
                     {/* Right Actions & Account */}
-                    <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
                         <div className="hidden sm:block">
                             <UserMenu />
                         </div>
 
                         <Link
                             to="/editor"
-                            className="px-3.5 sm:px-5 py-1.5 sm:py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full text-xs sm:text-sm font-bold shadow-md shadow-violet-600/20 hover:from-violet-500 hover:to-indigo-500 hover:scale-103 active:scale-97 transition-all flex items-center gap-1.5 whitespace-nowrap"
+                            aria-label="Open Studio"
+                            className="flex h-11 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 text-xs font-bold text-white shadow-md shadow-violet-600/20 transition-all hover:from-violet-500 hover:to-indigo-500 hover:scale-103 active:scale-97 min-[400px]:px-4 sm:h-auto sm:px-5 sm:py-2 sm:text-sm"
                         >
                             <Sparkles size={13} className="text-yellow-300" />
-                            <span className="hidden min-[360px]:inline">Open Studio</span>
-                            <span className="min-[360px]:hidden">Studio</span>
+                            <span className="hidden min-[400px]:inline">Open Studio</span>
                         </Link>
 
                         {/* Mobile Hamburger Toggle */}
                         <button
                             type="button"
+                            ref={menuToggleRef}
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-1.5 text-neutral-700 hover:text-neutral-950 rounded-full hover:bg-neutral-100 transition-colors"
+                            className="md:hidden grid h-11 w-11 place-items-center rounded-full text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-950"
                             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                             aria-expanded={mobileMenuOpen}
                             aria-controls={mobileMenuId}
@@ -202,17 +238,26 @@ export default function Navbar() {
                     />
                     <motion.div
                         id={mobileMenuId}
+                        ref={mobileMenuRef}
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-x-3 top-18 z-40 max-h-[calc(100dvh-5.5rem)] overflow-y-auto md:hidden bg-white/95 backdrop-blur-xl border border-neutral-200/90 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Site navigation"
+                        className="fixed inset-x-3 top-18 z-40 max-h-[calc(100dvh-5.5rem)] overflow-y-auto overscroll-contain md:hidden bg-white/95 backdrop-blur-xl border border-neutral-200/90 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4"
                     >
                         <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
                             <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-400">
                                 Navigation
                             </span>
-                            <UserMenu />
+                            <div className="flex items-center gap-2">
+                                <UserMenu />
+                                <button type="button" onClick={() => setMobileMenuOpen(false)}
+                                    className="grid min-h-11 min-w-11 place-items-center rounded-full hover:bg-neutral-100"
+                                    aria-label="Close navigation menu"><X size={18} /></button>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
@@ -225,7 +270,7 @@ export default function Navbar() {
                                         setMobileMenuOpen(false);
                                         handleScrollLinkClick(e, link.sectionId);
                                     }}
-                                    className={`p-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-between border cursor-pointer ${
+                                    className={`flex min-h-11 items-center justify-between rounded-2xl border p-3 text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${
                                         isScrollLinkActive(link.sectionId)
                                             ? 'bg-neutral-900 text-white border-neutral-900 shadow-xs'
                                             : 'bg-neutral-50 border-neutral-200/70 text-neutral-700 hover:bg-neutral-100'
@@ -241,7 +286,7 @@ export default function Navbar() {
                                     key={link.name}
                                     to={link.path}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className={`p-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-between border cursor-pointer ${
+                                    className={`flex min-h-11 items-center justify-between rounded-2xl border p-3 text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${
                                         isPageLinkActive(link.path)
                                             ? 'bg-neutral-900 text-white border-neutral-900 shadow-xs'
                                             : 'bg-neutral-50 border-neutral-200/70 text-neutral-700 hover:bg-neutral-100'
@@ -253,20 +298,20 @@ export default function Navbar() {
                         </div>
 
                         <div className="pt-2 border-t border-neutral-100 grid grid-cols-2 gap-3 text-[11px] font-medium text-neutral-500 min-[430px]:flex min-[430px]:items-center min-[430px]:justify-between">
-                            <Link to="/disclaimer" onClick={() => setMobileMenuOpen(false)} className="hover:text-neutral-900">
+                            <Link to="/disclaimer" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center rounded-lg hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-violet-700">
                                 Disclaimer
                             </Link>
-                            <Link to="/privacy" onClick={() => setMobileMenuOpen(false)} className="hover:text-neutral-900">
+                            <Link to="/privacy" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center rounded-lg hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-violet-700">
                                 Privacy Policy
                             </Link>
-                            <Link to="/terms" onClick={() => setMobileMenuOpen(false)} className="hover:text-neutral-900">
+                            <Link to="/terms" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center rounded-lg hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-violet-700">
                                 Terms
                             </Link>
                             <a
                                 href="https://github.com/bipin-vishwakarma/text2handwriting.me"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-1 hover:text-neutral-900"
+                                className="flex min-h-11 items-center gap-1 rounded-lg hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-violet-700"
                             >
                                 <span>GitHub</span>
                                 <ExternalLink size={10} />

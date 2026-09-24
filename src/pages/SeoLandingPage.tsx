@@ -1,9 +1,10 @@
+import seoContent from '../data/seo-content.json';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight, PenTool, Sparkles, FileText } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const SITE_URL = 'https://text2handwriting.me';
-const SOCIAL_IMAGE_URL = `${SITE_URL}/og-image.jpg`;
+const SOCIAL_IMAGE_URL = `${SITE_URL}/brand/text2handwriting-og.png`;
 
 interface SeoLandingPageProps {
     seoTitle: string;
@@ -17,64 +18,10 @@ interface LandingContent {
     overview: string;
     steps: Array<{ title: string; description: string }>;
     note: string;
+    sections?: Array<{ title: string; text: string }>;
 }
 
-const pageContent: Record<string, LandingContent> = {
-    '/typed-text-to-handwritten-notes': {
-        overview: 'Turn your own typed notes into a readable handwritten-style layout. Choose a style, adjust spacing and margins, preview every page, and export only after checking the result.',
-        steps: [
-            { title: 'Paste your notes', description: 'Start with notes and wording you created or are permitted to format.' },
-            { title: 'Tune the page', description: 'Choose a handwriting style, paper, margins, and line spacing for readability.' },
-            { title: 'Review and export', description: 'Check page breaks and headings before creating a print-ready PDF.' },
-        ],
-        note: 'Formatting changes presentation, not authorship. Review the content yourself and follow any applicable submission rules.',
-    },
-    '/practical-record-formatting-guide': {
-        overview: 'Prepare a consistent practical or lab record layout from your own draft, with clear sections for objectives, method, observations, calculations, results, and precautions.',
-        steps: [
-            { title: 'Structure the draft', description: 'Organize each experiment with consistent headings and content you created.' },
-            { title: 'Set the layout', description: 'Choose paper, handwriting style, margins, and spacing that leave room for review.' },
-            { title: 'Proofread pages', description: 'Verify calculations, labels, page order, and instructor requirements before export.' },
-        ],
-        note: 'Use this as a formatting aid only. You remain responsible for accurate work and your institution’s academic-integrity rules.',
-    },
-    '/print-ready-handwritten-pdf-guide': {
-        overview: 'Create a reliable print-ready PDF by checking paper size, safe margins, contrast, page breaks, and the final preview before printing.',
-        steps: [
-            { title: 'Match paper settings', description: 'Select the paper size and orientation used by your printer.' },
-            { title: 'Check readability', description: 'Use safe margins and enough ink contrast for printing or scanning.' },
-            { title: 'Test one page', description: 'Open the PDF on another device and print a test sheet before a full batch.' },
-        ],
-        note: 'Always inspect the exported PDF; browser previews and physical printers can render spacing differently.',
-    },
-    '/text-to-cursive': {
-        overview: 'Use the editor when you want to see how your own wording reads in a cursive style before you print or share it. You control the text, typeface, size, ink, margins, and paper layout rather than accepting a one-click result.',
-        steps: [
-            { title: 'Add your text', description: 'Start with a note, letter, invitation draft, or another document you are allowed to format.' },
-            { title: 'Choose a cursive style', description: 'Compare the available fonts and adjust type size, spacing, and baseline placement in the live preview.' },
-            { title: 'Review before exporting', description: 'Check pagination and paper settings, then export only when the layout is ready.' },
-        ],
-        note: 'Cursive styling changes presentation, not authorship. Use only text you have the right to use and follow any applicable submission rules.',
-    },
-    '/assignment-maker-online': {
-        overview: 'This workspace is for preparing permitted handwritten-style study materials, drafts, and layouts from your own work. It gives you a preview so you can make deliberate decisions about the document before exporting it.',
-        steps: [
-            { title: 'Prepare your own draft', description: 'Write or import material you are allowed to use, then check its content independently.' },
-            { title: 'Set the document layout', description: 'Select paper, margins, handwriting style, and other presentation controls for the intended format.' },
-            { title: 'Confirm requirements', description: 'Review the pages and your institution or instructor requirements before exporting.' },
-        ],
-        note: 'text2handwriting.me does not make work original or guarantee compliance with academic policies. You are responsible for the content and for following your institution’s rules.',
-    },
-    '/realistic-handwriting-generator': {
-        overview: 'The editor combines handwriting fonts with controls for spacing, baseline position, ink, and paper so you can create a handwritten-style presentation from your own text. The preview lets you inspect those choices before an export.',
-        steps: [
-            { title: 'Select a starting style', description: 'Choose a handwriting font or upload a compatible font you are permitted to use.' },
-            { title: 'Adjust visual details', description: 'Tune paper, margins, ink, spacing, and baseline settings while watching the page preview.' },
-            { title: 'Export a reviewed layout', description: 'Verify the page order and document appearance, then create a PDF or image export as needed.' },
-        ],
-        note: 'Visual variation is a formatting feature, not evidence of human authorship and not a way to bypass plagiarism or AI-detection systems.',
-    },
-};
+const pageContent: Record<string, LandingContent> = seoContent;
 
 const defaultContent: LandingContent = {
     overview: 'Create a handwritten-style document from your own text, adjust its visual presentation, and review the layout before exporting.',
@@ -116,52 +63,67 @@ export default function SeoLandingPage({ seoTitle, seoDescription, h1, subtitle,
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
                 <meta property="og:image" content={SOCIAL_IMAGE_URL} />
-                <meta property="og:image:type" content="image/jpeg" />
-                <meta property="og:image:width" content="1024" />
-                <meta property="og:image:height" content="1024" />
-                <meta property="og:image:alt" content="text2handwriting.me editor preview on ruled paper" />
+                <meta property="og:image:secure_url" content={SOCIAL_IMAGE_URL} />
+                <meta property="og:image:type" content="image/png" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:alt" content="text2handwriting.me — turn your text into print-ready handwritten pages" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={seoTitle} />
                 <meta name="twitter:description" content={seoDescription} />
                 <meta name="twitter:image" content={SOCIAL_IMAGE_URL} />
-                <meta name="twitter:image:alt" content="text2handwriting.me editor preview on ruled paper" />
+                <meta name="twitter:image:alt" content="text2handwriting.me — turn your text into print-ready handwritten pages" />
                 <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
             </Helmet>
-            <main className="flex-1 px-4 py-20 sm:px-6 lg:px-8 text-center bg-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-100/40 via-white to-white -z-10" />
+            <main className="relative flex-1 overflow-hidden bg-[#FAF8F5] px-4 py-20 text-center sm:px-6 lg:px-8">
+                <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-100/60 via-[#FAF8F5] to-[#FAF8F5]" />
 
                 <div className="max-w-4xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 font-medium text-sm mb-8 border border-indigo-100">
+                    <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/80 px-4 py-2 text-sm font-medium text-violet-700 shadow-sm backdrop-blur">
                         <Sparkles className="w-4 h-4" aria-hidden="true" />
                         <span>{keyword} tool</span>
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">{h1}</h1>
-                    <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">{subtitle}</p>
-                    <p className="text-base text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed">{content.overview}</p>
+                    <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-stone-950 md:text-6xl">{h1}</h1>
+                    <p className="mx-auto mb-8 max-w-2xl text-xl leading-relaxed text-stone-600 md:text-2xl">{subtitle}</p>
+                    <p className="mx-auto mb-10 max-w-3xl text-base leading-relaxed text-stone-600">{content.overview}</p>
 
                     <Link
                         to="/editor"
-                        className="inline-flex px-8 py-4 bg-indigo-600 text-white rounded-2xl font-semibold text-lg hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-200 active:scale-[0.98] transition-all duration-200 items-center justify-center gap-2 group"
+                        className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-950 px-8 py-4 text-lg font-semibold text-white shadow-xl shadow-stone-900/15 transition-all duration-200 hover:bg-violet-700 hover:shadow-violet-300 active:scale-[0.98]"
                     >
                         <PenTool className="w-5 h-5" aria-hidden="true" />
-                        Try the Editor
+                        Open the Studio
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                     </Link>
 
                     <section className="mt-20 text-left" aria-labelledby="how-it-works-heading">
-                        <h2 id="how-it-works-heading" className="text-3xl font-bold text-slate-900 text-center mb-8">How to use the editor</h2>
+                        <h2 id="how-it-works-heading" className="mb-8 text-center text-3xl font-bold text-stone-950">How to use the editor</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {content.steps.map(({ title, description }, index) => (
-                                <article key={title} className="p-7 bg-slate-50 rounded-3xl border border-slate-100">
-                                    <span className="inline-flex w-9 h-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold mb-5">{index + 1}</span>
-                                    <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
-                                    <p className="text-slate-600 leading-relaxed">{description}</p>
+                                <article key={title} className="rounded-3xl border border-stone-200/80 bg-white/75 p-7 shadow-sm">
+                                    <span className="mb-5 inline-flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 font-bold text-violet-700">{index + 1}</span>
+                                    <h3 className="mb-3 text-xl font-bold text-stone-950">{title}</h3>
+                                    <p className="leading-relaxed text-stone-600">{description}</p>
                                 </article>
                             ))}
                         </div>
                     </section>
 
+                    {content.sections?.map(section => (
+                        <section key={section.title} className="mt-10 text-left rounded-3xl border border-stone-200 bg-white p-7">
+                            <h2 className="text-2xl font-bold text-stone-950 mb-4">{section.title}</h2>
+                            <p className="leading-relaxed text-stone-600">{section.text}</p>
+                        </section>
+                    ))}
+                    <nav aria-label="Handwriting guides" className="mt-10 text-left">
+                        <h2 className="text-2xl font-bold mb-4">Related handwriting guides</h2>
+                        <ul className="space-y-3">
+                            {Object.entries(pageContent).filter(([path]) => path !== normalizedPath).map(([path, entry]) => (
+                                <li key={path}><Link className="text-violet-700 underline" to={`${path}/`}>{entry.steps[0].title} — {path.slice(1).replaceAll('-', ' ')}</Link></li>
+                            ))}
+                        </ul>
+                    </nav>
                     <section className="mt-10 p-6 text-left bg-amber-50 border border-amber-100 rounded-3xl" aria-labelledby="use-note-heading">
                         <div className="flex gap-4">
                             <FileText className="w-6 h-6 text-amber-700 shrink-0 mt-0.5" aria-hidden="true" />

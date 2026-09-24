@@ -98,12 +98,14 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
             window.addEventListener('mouseup', handleMouseUp);
             window.addEventListener('touchmove', handleTouchMove);
             window.addEventListener('touchend', handleMouseUp);
+            window.addEventListener('touchcancel', handleMouseUp);
         }
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleMouseUp);
+            window.removeEventListener('touchcancel', handleMouseUp);
         };
     }, [isDragging, updatePosition]);
 
@@ -172,7 +174,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
             {/* Comparison Canvas Card */}
             <div
                 ref={containerRef}
-                className="relative h-[400px] sm:h-[440px] rounded-3xl overflow-hidden shadow-2xl border border-neutral-300 ring-1 ring-black/5 cursor-ew-resize select-none bg-stone-100"
+                className="relative h-[400px] sm:h-[440px] rounded-3xl overflow-hidden shadow-2xl border border-neutral-300 ring-1 ring-black/5 cursor-ew-resize select-none touch-pan-y bg-stone-100"
                 onMouseDown={(e) => {
                     updatePosition(e.clientX);
                     setIsDragging(true);

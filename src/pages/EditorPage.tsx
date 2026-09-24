@@ -1438,6 +1438,10 @@ const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
             {/* Product-first workspace: document, canvas, and one clear action. */}
             <header className="editor-topbar min-h-16 pt-safe px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 z-30">
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <Link to="/" aria-label="Back to text2handwriting.me home" className="flex sm:hidden items-center gap-1.5 shrink-0 rounded-xl px-1 py-1 text-violet-700 hover:bg-violet-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
+                        <SiteLogo size={26} animated={false} />
+                        <span className="text-[11px] font-display font-black tracking-tight text-stone-900"><span className="min-[460px]:hidden">T2H</span><span className="hidden min-[460px]:inline">text2handwriting</span></span>
+                    </Link>
                     <Link to="/" aria-label="Back to text2handwriting.me home" className="hidden sm:flex items-center gap-2 shrink-0 font-display font-extrabold text-sm tracking-tight text-stone-900 hover:text-violet-700 transition-colors"><SiteLogo size={25} /><span className="hidden 2xl:inline">text2handwriting.me</span></Link>
                     <div className="h-4 w-px bg-stone-200 hidden sm:block shrink-0" />
 
@@ -1448,7 +1452,7 @@ const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
                         onChange={(e) => setPageOptions({ headerText: e.target.value })}
                         placeholder="Untitled document"
                         aria-label="Document title"
-                        className="editor-title-input min-w-0 w-[clamp(110px,18vw,220px)] text-xs font-semibold text-stone-800 placeholder:text-stone-400 px-3 py-2 rounded-xl outline-none transition-all truncate"
+                        className="editor-title-input min-w-0 w-[clamp(82px,16vw,220px)] sm:w-[clamp(110px,18vw,220px)] text-xs font-semibold text-stone-800 placeholder:text-stone-400 px-2.5 sm:px-3 py-2 rounded-xl outline-none transition-all truncate"
                     />
 
                     {/* Stats Pill */}
@@ -1541,7 +1545,7 @@ const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
                         aria-haspopup="dialog"
                         aria-label="Open Bipin Vishwakarma's portfolio"
                         title="Meet the creator"
-                        className="group flex items-center gap-2 rounded-xl border border-violet-200/80 bg-white/80 p-1.5 2xl:pr-2.5 text-xs font-bold text-stone-700 shadow-2xs transition-all hover:border-violet-300 hover:bg-violet-50 hover:text-violet-800 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
+                        className="group hidden lg:flex items-center gap-2 rounded-xl border border-violet-200/80 bg-white/80 p-1.5 2xl:pr-2.5 text-xs font-bold text-stone-700 shadow-2xs transition-all hover:border-violet-300 hover:bg-violet-50 hover:text-violet-800 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
                     >
                         <img
                             src="https://avatars.githubusercontent.com/u/151464007?v=4"
@@ -1555,7 +1559,7 @@ const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
                     <UserMenu />
 
                     {/* Primary Export Preview Button */}
-                    <button onClick={() => handleStartExport('pdf')} aria-label="Review pages and export" className="editor-export-button flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Download size={16} aria-hidden="true" /><span className="hidden min-[360px]:inline">Review & Export</span></button>
+                    <button onClick={() => handleStartExport('pdf')} aria-label="Review pages and export" title="Review & Export" className="editor-export-button flex min-h-11 items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Download size={16} aria-hidden="true" /><span className="hidden min-[400px]:inline">Review & Export</span></button>
                 </div>
             </header>
 

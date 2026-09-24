@@ -8,9 +8,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "postbuild": "node scripts/prerender-seo.mjs",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seo:check": "node scripts/check-seo.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

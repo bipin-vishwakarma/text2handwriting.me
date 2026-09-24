@@ -19,7 +19,7 @@ export const TiltCard: React.FC<TiltCardProps> = ({
     const [isHovered, setIsHovered] = useState(false);
 
     const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-        if (!cardRef.current) return;
+        if (!cardRef.current || window.matchMedia('(prefers-reduced-motion: reduce), (hover: none)').matches) return;
         const rect = cardRef.current.getBoundingClientRect();
         const clientX = e.clientX - rect.left;
         const clientY = e.clientY - rect.top;
@@ -42,7 +42,7 @@ export const TiltCard: React.FC<TiltCardProps> = ({
     };
 
     const handleMouseEnter = () => {
-        setIsHovered(true);
+        if (!window.matchMedia('(prefers-reduced-motion: reduce), (hover: none)').matches) setIsHovered(true);
     };
 
     const handleMouseLeave = () => {

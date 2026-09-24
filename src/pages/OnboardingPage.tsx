@@ -61,6 +61,8 @@ export default function OnboardingPage() {
     useEffect(() => {
         // Keyboard navigation — declared after goNext/goBack to avoid TDZ
         const handler = (e: KeyboardEvent) => {
+            const target = e.target as HTMLElement | null;
+            if (target?.closest('input, textarea, select, button, [contenteditable="true"]')) return;
             if (e.key === 'ArrowRight' && step < TOTAL_STEPS - 1) goNext();
             if (e.key === 'ArrowLeft' && step > 0) goBack();
         };
@@ -118,7 +120,7 @@ export default function OnboardingPage() {
         {
             id: 1,
             title: 'What will you use text2handwriting.me for?',
-            subtitle: 'Pick all that apply — we\'ll personalize your experience.',
+            subtitle: 'Pick any that fit the kind of work you plan to create.',
             content: (
                 <div className="grid grid-cols-2 gap-3 w-full">
                     {USE_CASES.map(({ id, icon: Icon, label, desc }) => {
@@ -127,7 +129,7 @@ export default function OnboardingPage() {
                             <button
                                 key={id}
                                 onClick={() => toggleUseCase(id)}
-                                className={`flex flex-col items-start gap-2 p-4 rounded-2xl border-2 transition-all text-left ${
+                                className={`relative flex flex-col items-start gap-2 p-4 rounded-2xl border-2 transition-all text-left ${
                                     active
                                         ? 'border-violet-500 bg-violet-50 shadow-md'
                                         : 'border-neutral-200 bg-white hover:border-violet-300 hover:bg-violet-50/50'

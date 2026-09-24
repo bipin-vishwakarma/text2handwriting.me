@@ -1,4 +1,5 @@
 import { Suspense, lazy } from 'react';
+import { MotionConfig } from 'framer-motion';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import RootLayout from './components/layout/RootLayout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
@@ -30,7 +31,7 @@ const SeoLandingPage = lazy(() => import('./pages/SeoLandingPage'));
 
 // Loading Fallback
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-paper">
+  <div role="status" aria-label="Loading page" className="min-h-screen flex items-center justify-center bg-paper">
     <div className="w-8 h-8 border-4 border-neutral-900 border-t-transparent rounded-full animate-spin"></div>
   </div>
 );
@@ -86,7 +87,7 @@ function InnerApp() {
           <Route path="realistic-handwriting-generator" element={
             <SeoLandingPage 
               seoTitle="Realistic Handwriting Generator | text2handwriting.me"
-              seoDescription="Generate ultra-realistic handwriting from text. Includes natural ink smudges, varied pressure, and 3D notebook physics."
+              seoDescription="Generate ultra-realistic handwriting from text. Customize handwriting-style fonts, ink, spacing, paper, and page layout."
               h1="Realistic Handwriting Generator"
               subtitle="Create natural-looking handwritten pages with adjustable ink, paper, spacing, and realistic variation."
               keyword="Handwriting Generator"
@@ -112,6 +113,7 @@ function InnerApp() {
 function App() {
   return (
     <ErrorBoundary>
+      <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <ToastProvider>
           <AuthProvider>
@@ -120,6 +122,7 @@ function App() {
           </AuthProvider>
         </ToastProvider>
       </BrowserRouter>
+      </MotionConfig>
     </ErrorBoundary>
   );
 }

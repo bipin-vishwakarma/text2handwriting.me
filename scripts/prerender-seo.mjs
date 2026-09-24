@@ -1,8 +1,17 @@
+import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 
 const dist = new URL('../dist/', import.meta.url);
 const template = await readFile(new URL('index.html', dist), 'utf8');
+const seoContent = JSON.parse(await readFile(new URL('../src/data/seo-content.json', import.meta.url), 'utf8'));
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+
+const homePage = {
+  title: 'text2handwriting.me — Convert Text to Handwriting for Assignments',
+  description: 'Turn your own text into print-ready handwriting with realistic styles, paper templates, live preview, and high-resolution PDF export.',
+  heading: 'Turn typed text into handwriting',
+  intro: 'Create and preview handwritten-style pages in your browser. Adjust the font, paper, ink, spacing and margins, then pay only when you choose to export.',
+};
 
 const publicRoutes = {
   pricing: {
@@ -106,21 +115,28 @@ const publicRoutes = {
 const appRoutes = ['auth', 'onboarding', 'account', 'editor'];
 const siteUrl = 'https://text2handwriting.me';
 
+function routeUrl(route) {
+  return route ? `${siteUrl}/${route}/` : `${siteUrl}/`;
+}
+
 function jsonLd(route, page) {
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: page.title,
     description: page.description,
-    url: `${siteUrl}/${route}/`,
+    url: routeUrl(route),
     isPartOf: { '@type': 'WebSite', name: 'text2handwriting.me', url: `${siteUrl}/` },
   });
 }
 
 function render(route, page, robots) {
-  const canonical = `${siteUrl}/${route}/`;
+  const canonical = routeUrl(route);
+  const content = seoContent[`/${route}`];
+  const detail = content ? `<p>${escapeHtml(content.overview)}</p><section><h2>How to use the editor</h2>${content.steps.map(step => `<h3>${escapeHtml(step.title)}</h3><p>${escapeHtml(step.description)}</p>`).join('')}</section>${(content.sections || []).map(section => `<section><h2>${escapeHtml(section.title)}</h2><p>${escapeHtml(section.text)}</p></section>`).join('')}<section><h2>Use it responsibly</h2><p>${escapeHtml(content.note)}</p></section>` : '';
+  const links = page ? `<nav aria-label="Handwriting guides"><h2>Handwriting guides</h2><ul>${Object.keys(seoContent).filter(path => path !== `/${route}`).map(path => `<li><a href="${path}/">${escapeHtml(publicRoutes[path.slice(1)].heading)}</a></li>`).join('')}</ul></nav>` : '';
   const body = page
-    ? `<main id="seo-prerender"><h1>${page.heading}</h1><p>${page.intro}</p><p><a href="${siteUrl}/editor">Open the editor</a> or review <a href="${siteUrl}/pricing">pricing</a> before exporting.</p></main>`
+    ? `<main id="seo-prerender" style="box-sizing:border-box;max-width:72rem;margin:0 auto;padding:5rem 1.5rem;color:#1c1917;background:#faf8f5"><h1>${page.heading}</h1><p>${page.intro}</p><p><a href="${siteUrl}/editor">Open the editor</a> or review <a href="${siteUrl}/pricing">pricing</a> before exporting.</p></main>`
     : '';
   let html = template
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${page?.title || 'text2handwriting.me'}</title>`)
@@ -133,21 +149,44 @@ function render(route, page, robots) {
     .replace(/<meta name="twitter:url" content="[^"]*"\s*\/>/, `<meta name="twitter:url" content="${canonical}" />`)
     .replace(/<meta name="twitter:title" content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${page?.title || 'text2handwriting.me'}" />`)
     .replace(/<meta name="twitter:description" content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${page?.description || 'Sign in to text2handwriting.me.'}" />`)
-    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, page ? `<script type="application/ld+json">${jsonLd(route, page)}</script>` : '')
-    .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, (original) => !route && page ? original : page ? `<script type="application/ld+json">${jsonLd(route, page)}</script>` : '')
+    .replace('<div id="root"></div>', `<div id="root">${body.replace('</main>', `${detail}${links}</main>`)}</div>`);
   return html;
 }
 
+function assertSeoShell(route, html, { indexable }) {
+  const canonical = routeUrl(route);
+  assert.match(html, new RegExp(`<link rel="canonical" href="${canonical}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="${canonical}"`));
+  assert.match(html, /<meta property="og:image" content="https:\/\/text2handwriting\.me\/brand\/text2handwriting-og\.png"/);
+  assert.match(html, /<meta property="og:image:width" content="1200"/);
+  assert.match(html, /<meta property="og:image:height" content="630"/);
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image"/);
+  assert.match(html, new RegExp(`<meta name="robots" content="${indexable ? 'index, follow' : 'noindex, nofollow'}"`));
+  if (indexable) {
+    assert.match(html, /<main id="seo-prerender"[^>]*><h1>[^<]+<\/h1>/);
+    assert.match(html, /<script type="application\/ld\+json">/);
+  }
+}
+
+const homeHtml = render('', homePage, 'index, follow');
+assertSeoShell('', homeHtml, { indexable: true });
+await writeFile(new URL('index.html', dist), homeHtml, 'utf8');
+
 for (const [route, page] of Object.entries(publicRoutes)) {
   const dir = new URL(`${route}/`, dist);
+  const html = render(route, page, 'index, follow');
+  assertSeoShell(route, html, { indexable: true });
   await mkdir(dir, { recursive: true });
-  await writeFile(new URL('index.html', dir), render(route, page, 'index, follow'), 'utf8');
+  await writeFile(new URL('index.html', dir), html, 'utf8');
 }
 
 for (const route of appRoutes) {
   const dir = new URL(`${route}/`, dist);
+  const html = render(route, null, 'noindex, nofollow');
+  assertSeoShell(route, html, { indexable: false });
   await mkdir(dir, { recursive: true });
-  await writeFile(new URL('index.html', dir), render(route, null, 'noindex, nofollow'), 'utf8');
+  await writeFile(new URL('index.html', dir), html, 'utf8');
 }
 
-console.log(`Prerendered ${Object.keys(publicRoutes).length} public SEO routes and ${appRoutes.length} app routes.`);
+console.log(`Prerendered the homepage, ${Object.keys(publicRoutes).length} public SEO routes and ${appRoutes.length} app routes.`);

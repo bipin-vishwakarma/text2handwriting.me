@@ -8,20 +8,44 @@ interface NotebookHero3DProps {
     activeInk?: string;
 }
 
-const INSCRIBE_NOTES = [
-    "Aim: Determine resistance per unit length of given specimen wire.",
-    "Apparatus: Constant DC supply, standard resistor, microammeter.",
-    "Formula: V = I × R (Ohm's Law holds at constant temperature).",
-    "Slope Calculation: Resistance R is given by ΔV / ΔI.",
-    "Observation 1: At V = 2.0 V, Current measured I = 0.41 A.",
-    "Observation 2: At V = 4.0 V, Current measured I = 0.83 A.",
-    "Observation 3: At V = 6.0 V, Current measured I = 1.25 A.",
-    "Observation 4: At V = 8.0 V, Current measured I = 1.66 A.",
-    "Observation 5: At V = 10.0 V, Current measured I = 2.08 A.",
-    "Calculations: Mean R = Σ(V/I) / 5 = 4.82 Ω ± 0.03 Ω.",
-    "Precautions: Connections must be clean, tight, and low-resistance.",
-    "Result: Verified by Instructor. Grade: A+ (10/10) [PASS]"
-];
+const NOTEBOOK_SAMPLES = [
+    {
+        title: "Verification of Ohm's Law",
+        figure: 'Fig. 4.1 · Circuit and V-I graph',
+        lines: [
+            'Aim: Study the V-I relation for a resistance wire.',
+            'Circuit: Cell, key, rheostat, ammeter and test wire.',
+            'At 2 V, the current recorded was 0.41 A.',
+            'At 6 V, the current recorded was 1.25 A.',
+            'The plotted points form a straight line through origin.',
+            'Therefore, V is directly proportional to I.',
+        ],
+    },
+    {
+        title: 'Resistance of a Given Wire',
+        figure: 'Fig. 4.2 · Wheatstone bridge observation',
+        lines: [
+            'Aim: Determine the resistance of a given wire.',
+            'Balance point was found at 47.2 cm on the bridge wire.',
+            'Known resistance in the left gap: 4.0 ohm.',
+            'Calculated value of the specimen: 3.58 ohm.',
+            'Repeat readings remained within a small tolerance.',
+            'Result: resistance recorded in the observation table.',
+        ],
+    },
+    {
+        title: 'V-I Characteristic of a Diode',
+        figure: 'Fig. 4.3 · Forward-bias test circuit',
+        lines: [
+            'Aim: Plot the forward-bias V-I characteristic of a diode.',
+            'Current remained low before the knee-voltage region.',
+            'A sharp rise was observed after the threshold voltage.',
+            'The diode was connected with correct polarity throughout.',
+            'Readings were noted only after the meter became steady.',
+            'Result: the curve confirms one-way conduction behaviour.',
+        ],
+    },
+] as const;
 
 export default function NotebookHero3D({ 
     className = '', 
@@ -61,6 +85,9 @@ export default function NotebookHero3D({
         let animationFrameId: number;
         let width = container.clientWidth;
         let height = container.clientHeight;
+        const isSmallScreen = window.matchMedia('(max-width: 767px)').matches;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const useLightweightRenderer = isSmallScreen || prefersReducedMotion;
 
         // 1. Three.js Scene
         const scene = new THREE.Scene();
@@ -77,8 +104,8 @@ export default function NotebookHero3D({
             powerPreference: 'high-performance',
         });
         renderer.setSize(width, height);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, useLightweightRenderer ? 1.25 : 2));
+        renderer.shadowMap.enabled = !useLightweightRenderer;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setClearColor(0x000000, 0);
         
@@ -89,8 +116,8 @@ export default function NotebookHero3D({
         // Warm Key Light (Top-right studio lamp)
         const keyLight = new THREE.DirectionalLight(0xfffdf0, 1.8);
         keyLight.position.set(5.0, 7.5, 6.0);
-        keyLight.castShadow = true;
-        keyLight.shadow.mapSize.set(1024, 1024);
+        keyLight.castShadow = !useLightweightRenderer;
+        keyLight.shadow.mapSize.set(useLightweightRenderer ? 512 : 1024, useLightweightRenderer ? 512 : 1024);
         keyLight.shadow.bias = -0.0001;
         scene.add(keyLight);
 
@@ -149,6 +176,7 @@ export default function NotebookHero3D({
         leftCanvas.width = 1024;
         leftCanvas.height = 1360;
         const lCtx = leftCanvas.getContext('2d')!;
+        let currentSampleIndex = 0;
 
         const renderLeftPage = () => {
             const paperType = paperRef.current;
@@ -174,41 +202,64 @@ export default function NotebookHero3D({
             // Header
             lCtx.font = '700 32px Caveat, cursive, sans-serif';
             lCtx.fillStyle = inkRef.current;
-            lCtx.fillText("Fig 4.1: Circuit Schematic · Ohm's Law", 100, 130);
+            lCtx.fillText(NOTEBOOK_SAMPLES[currentSampleIndex].figure, 100, 130);
 
-            // Hand-drawn circuit schematic
+            // Hand-drawn circuit schematic: a real series loop with a battery,
+            // key, ammeter, resistor and a voltmeter branch.
             lCtx.strokeStyle = inkRef.current;
-            lCtx.lineWidth = 4.0;
+            lCtx.lineWidth = 4;
             lCtx.lineCap = 'round';
             lCtx.lineJoin = 'round';
             lCtx.beginPath();
-            lCtx.moveTo(180, 260);
-            lCtx.lineTo(760, 260);
-            lCtx.lineTo(760, 680);
-            lCtx.lineTo(180, 680);
-            lCtx.closePath();
+            lCtx.moveTo(180, 260); lCtx.lineTo(385, 260);
+            lCtx.moveTo(535, 260); lCtx.lineTo(760, 260);
+            lCtx.moveTo(760, 260); lCtx.lineTo(760, 680);
+            lCtx.moveTo(760, 680); lCtx.lineTo(575, 680);
+            lCtx.moveTo(350, 680); lCtx.lineTo(180, 680);
+            lCtx.moveTo(180, 680); lCtx.lineTo(180, 260);
             lCtx.stroke();
 
-            // Battery symbol
-            lCtx.fillStyle = paperType === 'parchment' ? '#fbf4e6' : '#fdfbf7';
-            lCtx.fillRect(420, 235, 100, 50);
-            lCtx.lineWidth = 4.0;
-            lCtx.stroke();
-            lCtx.font = 'bold 24px Caveat, cursive';
-            lCtx.fillText("+  E  -", 445, 225);
-
-            // Ammeter symbol
-            lCtx.fillRect(725, 425, 70, 90);
+            // Battery plates and polarity.
             lCtx.beginPath();
-            lCtx.arc(760, 470, 32, 0, Math.PI * 2);
+            lCtx.moveTo(405, 224); lCtx.lineTo(405, 296);
+            lCtx.moveTo(432, 238); lCtx.lineTo(432, 282);
+            lCtx.moveTo(488, 224); lCtx.lineTo(488, 296);
+            lCtx.moveTo(515, 238); lCtx.lineTo(515, 282);
             lCtx.stroke();
-            lCtx.font = 'bold 30px Caveat, cursive';
-            lCtx.fillText("A", 751, 480);
+            lCtx.font = 'bold 23px Caveat, cursive';
+            lCtx.fillStyle = inkRef.current;
+            lCtx.fillText('+', 396, 212); lCtx.fillText('E', 452, 212); lCtx.fillText('−', 510, 212);
 
-            // Resistor zig-zag
-            lCtx.fillRect(390, 650, 160, 50);
-            lCtx.font = 'bold 24px Caveat, cursive';
-            lCtx.fillText("Resistance Specimen (R)", 365, 735);
+            // Open key on the left branch.
+            lCtx.beginPath();
+            lCtx.arc(180, 385, 7, 0, Math.PI * 2);
+            lCtx.moveTo(180, 385); lCtx.lineTo(223, 360);
+            lCtx.arc(180, 435, 7, 0, Math.PI * 2);
+            lCtx.stroke();
+            lCtx.font = 'bold 21px Caveat, cursive';
+            lCtx.fillText('K', 135, 415);
+
+            // Ammeter in series.
+            lCtx.fillStyle = paperType === 'parchment' ? '#fbf4e6' : '#fdfbf7';
+            lCtx.fillRect(715, 420, 90, 100);
+            lCtx.beginPath(); lCtx.arc(760, 470, 34, 0, Math.PI * 2); lCtx.stroke();
+            lCtx.font = 'bold 30px Caveat, cursive'; lCtx.fillStyle = inkRef.current; lCtx.fillText('A', 751, 480);
+
+            // Proper zig-zag resistance wire.
+            lCtx.beginPath();
+            lCtx.moveTo(350, 680);
+            for (let i = 0; i < 8; i++) lCtx.lineTo(370 + i * 25, i % 2 === 0 ? 650 : 710);
+            lCtx.lineTo(575, 680);
+            lCtx.stroke();
+            lCtx.font = 'bold 22px Caveat, cursive'; lCtx.fillText('R · test wire', 420, 755);
+
+            // Voltmeter branch across the resistor.
+            lCtx.beginPath();
+            lCtx.moveTo(350, 680); lCtx.lineTo(350, 555); lCtx.lineTo(575, 555); lCtx.lineTo(575, 680);
+            lCtx.stroke();
+            lCtx.fillStyle = paperType === 'parchment' ? '#fbf4e6' : '#fdfbf7'; lCtx.fillRect(430, 515, 70, 80);
+            lCtx.beginPath(); lCtx.arc(465, 555, 30, 0, Math.PI * 2); lCtx.stroke();
+            lCtx.font = 'bold 28px Caveat, cursive'; lCtx.fillStyle = inkRef.current; lCtx.fillText('V', 456, 565);
 
             // V-I Graph Box
             lCtx.strokeStyle = '#475569';
@@ -327,7 +378,7 @@ export default function NotebookHero3D({
 
             rBgCtx.font = 'bold 34px Caveat, cursive, sans-serif';
             rBgCtx.fillStyle = inkRef.current;
-            rBgCtx.fillText("Verification of Ohm's Law & Wire Resistance", 170, 175);
+            rBgCtx.fillText(NOTEBOOK_SAMPLES[currentSampleIndex].title, 170, 175);
         };
 
         updateRightStaticBackground();
@@ -436,8 +487,9 @@ export default function NotebookHero3D({
         notebookGroup.rotation.y = targetRotY;
 
         let isVisible = true;
+        let isPageVisible = !document.hidden;
         const handlePointerMove = (e: MouseEvent) => {
-            if (!interactive || !isVisible) return;
+            if (!interactive || !isVisible || !isPageVisible || prefersReducedMotion) return;
             const x = (e.clientX / window.innerWidth) * 2 - 1;
             const y = -(e.clientY / window.innerHeight) * 2 + 1;
             // Heavily dampened luxury float (stable, non-dizzying)
@@ -470,20 +522,30 @@ export default function NotebookHero3D({
         const observer = new IntersectionObserver(([entry]) => {
             const wasVisible = isVisible;
             isVisible = entry.isIntersecting;
-            if (isVisible && !wasVisible) {
+            if (isVisible && !wasVisible && isPageVisible) {
                 cancelAnimationFrame(animationFrameId);
                 animate();
             }
         }, { threshold: 0.05 });
         observer.observe(container);
 
+        const handleVisibilityChange = () => {
+            isPageVisible = !document.hidden;
+            if (isPageVisible && isVisible) {
+                cancelAnimationFrame(animationFrameId);
+                animate();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         // Animation Loop with Real-Time Handwriting Inscription & Pen Gliding
         const clock = new THREE.Clock();
         const lineSpacing = 42;
         const lineBaseY = 258;
+        const currentSample = () => NOTEBOOK_SAMPLES[currentSampleIndex];
 
         const animate = () => {
-            if (!isVisible) return;
+            if (!isVisible || !isPageVisible) return;
             animationFrameId = requestAnimationFrame(animate);
             const delta = clock.getDelta();
             const elapsedTime = clock.getElapsedTime();
@@ -511,22 +573,26 @@ export default function NotebookHero3D({
                 if (pauseTimer > 0) {
                     pauseTimer -= delta;
                     if (pauseTimer <= 0) {
+                        currentSampleIndex = (currentSampleIndex + 1) % NOTEBOOK_SAMPLES.length;
                         currentLine = 0;
                         currentChar = 0;
+                        renderLeftPage();
+                        leftTexture.needsUpdate = true;
+                        updateRightStaticBackground();
                     }
                 } else {
                     charTimer += delta;
                     // Write at ~35 chars/sec with natural rhythm
                     if (charTimer > 0.028) {
                         charTimer = 0;
-                        if (currentLine < INSCRIBE_NOTES.length) {
-                            const fullLine = INSCRIBE_NOTES[currentLine];
+                        if (currentLine < currentSample().lines.length) {
+                            const fullLine = currentSample().lines[currentLine];
                             if (currentChar < fullLine.length) {
                                 currentChar += 1;
                             } else {
                                 currentLine += 1;
                                 currentChar = 0;
-                                if (currentLine >= INSCRIBE_NOTES.length) {
+                                if (currentLine >= currentSample().lines.length) {
                                     pauseTimer = 4.5; // Hold completed page for 4.5s
                                 }
                             }
@@ -538,27 +604,27 @@ export default function NotebookHero3D({
 
                             // Draw completed lines
                             for (let i = 0; i < currentLine; i++) {
-                                rCtx.fillText(INSCRIBE_NOTES[i], 170, lineBaseY + i * lineSpacing);
+                                rCtx.fillText(currentSample().lines[i], 170, lineBaseY + i * lineSpacing);
                             }
 
                             // Draw active partial line & calculate pen cursor coordinates
                             const penCanvasY = lineBaseY + currentLine * lineSpacing;
 
-                            if (currentLine < INSCRIBE_NOTES.length) {
-                                const lineStr = INSCRIBE_NOTES[currentLine].slice(0, currentChar);
+                            if (currentLine < currentSample().lines.length) {
+                                const lineStr = currentSample().lines[currentLine].slice(0, currentChar);
                                 rCtx.fillText(lineStr, 170, penCanvasY);
                             }
 
                             // If page finished, draw Verified Badge
-                            if (currentLine >= INSCRIBE_NOTES.length || (currentLine === INSCRIBE_NOTES.length - 1 && currentChar === INSCRIBE_NOTES[currentLine].length)) {
+                            if (currentLine >= currentSample().lines.length || (currentLine === currentSample().lines.length - 1 && currentChar === currentSample().lines[currentLine].length)) {
                                 rCtx.strokeStyle = '#059669';
                                 rCtx.lineWidth = 2.5;
                                 rCtx.strokeRect(680, 1180, 240, 70);
                                 rCtx.font = 'bold 22px Caveat, cursive';
                                 rCtx.fillStyle = '#059669';
-                                rCtx.fillText("VERIFIED · LAB DEPT", 700, 1215);
+                                rCtx.fillText("SAMPLE PREVIEW", 700, 1215);
                                 rCtx.font = '16px Caveat, cursive';
-                                rCtx.fillText("Sign: Prof. Dr. Sharma", 700, 1240);
+                                rCtx.fillText("Review your own work", 700, 1240);
                             }
 
                             rightTexture.needsUpdate = true;
@@ -572,8 +638,8 @@ export default function NotebookHero3D({
             }
 
             // Ambient breathing float (calm, subtle micro-movement)
-                        const idleFloat = Math.sin(elapsedTime * 1.5) * 0.08;
-            const idleTilt = Math.cos(elapsedTime * 1.2) * 0.02;
+            const idleFloat = prefersReducedMotion ? 0 : Math.sin(elapsedTime * 1.5) * 0.08;
+            const idleTilt = prefersReducedMotion ? 0 : Math.cos(elapsedTime * 1.2) * 0.02;
 
             notebookGroup.position.y = THREE.MathUtils.lerp(notebookGroup.position.y, idleFloat, 0.06);
             notebookGroup.rotation.x = THREE.MathUtils.lerp(notebookGroup.rotation.x, targetRotX + idleTilt, 0.06);
@@ -585,13 +651,14 @@ export default function NotebookHero3D({
 
             renderer.render(scene, camera);
         };
-        animate();
+        if (isPageVisible) animate();
 
         return () => {
             observer.disconnect();
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener('mousemove', handlePointerMove);
             window.removeEventListener('resize', handleResize);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
 
             leftGeo.dispose();
             leftMat.dispose();
@@ -628,7 +695,7 @@ export default function NotebookHero3D({
                 <button
                     type="button"
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="p-1.5 rounded-full text-stone-600 hover:text-stone-950 hover:bg-stone-100 cursor-pointer transition-colors"
+                    className="min-w-11 min-h-11 flex items-center justify-center rounded-full text-stone-600 hover:text-stone-950 hover:bg-stone-100 cursor-pointer transition-colors"
                     title={isPlaying ? 'Pause Inscription' : 'Resume Inscription'}
                     aria-label={isPlaying ? 'Pause Inscription' : 'Resume Inscription'}
                 >
@@ -637,7 +704,7 @@ export default function NotebookHero3D({
                 <button
                     type="button"
                     onClick={handleRestart}
-                    className="p-1.5 rounded-full text-stone-600 hover:text-stone-950 hover:bg-stone-100 cursor-pointer transition-colors"
+                    className="min-w-11 min-h-11 flex items-center justify-center rounded-full text-stone-600 hover:text-stone-950 hover:bg-stone-100 cursor-pointer transition-colors"
                     title="Replay Inscription"
                     aria-label="Replay Inscription"
                 >

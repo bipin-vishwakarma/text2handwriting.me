@@ -262,11 +262,11 @@ export default function AuthPage() {
                         className="w-full max-w-[400px] relative z-10 lg:-mt-12"
                     >
                         {/* Mobile logo */}
-                        <div className="flex lg:hidden items-center gap-3 mb-10 justify-center">
+                        <div className="flex lg:hidden min-w-0 items-center gap-2.5 mb-10 justify-center">
                             <div className="bg-violet-600 p-2.5 rounded-xl shadow-lg shadow-violet-600/20">
                                 <SiteLogo size={28} className="text-white" />
                             </div>
-                            <span className="text-2xl font-bold tracking-tight text-neutral-900">text2handwriting.me</span>
+                            <span className="truncate text-lg font-bold tracking-tight text-neutral-900 sm:text-2xl">text2handwriting.me</span>
                         </div>
 
                         {errorMessage && (
@@ -316,7 +316,7 @@ export default function AuthPage() {
                                     transition={{ duration: 0.25 }}
                                 >
                                     <h1 className="text-[32px] font-semibold tracking-tight text-neutral-900 mb-2">Welcome</h1>
-                                    <p className="text-neutral-500 mb-8 text-[15px]">Log in or sign in to export a paid file and manage your account.</p>
+                                    <p className="text-neutral-500 mb-8 text-[15px]">Sign in to export a paid file and manage your account.</p>
 
                                     <div className="space-y-3.5">
                                         <button 

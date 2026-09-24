@@ -1,14 +1,14 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, ArrowRight, BookOpen, Zap, 
     ChevronDown, Camera, Flame,
     FlaskConical, Eye, PenTool, ShieldCheck,
     CheckCircle2, FileText, Layers, BadgeIndianRupee, LockKeyhole
 } from 'lucide-react';
-const NotebookHero3D = lazy(() => import('../components/landing/NotebookHero3D'));
-import { Loader2 } from 'lucide-react';
+import NotebookPreview from '../components/landing/NotebookPreview';
+import RuledPreviewText from '../components/landing/RuledPreviewText';
 import BeforeAfterSlider from '../components/landing/BeforeAfterSlider';
 import TiltCard from '../components/landing/TiltCard';
 import InteractiveStudioShowcase from '../components/landing/InteractiveStudioShowcase';
@@ -123,21 +123,10 @@ const FAQ_ITEMS = [
     }
 ];
 
-const NotebookLoader = () => (
-    <div className="w-full h-[520px] sm:h-[640px] lg:h-[760px] flex items-center justify-center bg-stone-100/50 rounded-3xl animate-pulse">
-        <Loader2 className="text-stone-300 animate-spin" size={32} />
-    </div>
-);
-
 export default function LandingPage() {
     const navigate = useNavigate();
     const setText = useStore(state => state.setText);
     const setPaperMaterial = useStore(state => state.setPaperMaterial);
-
-    // Subtle Scroll Tracking
-    const { scrollYProgress } = useScroll();
-    const yHeroNotebook = useTransform(scrollYProgress, [0, 0.4], [0, 40]);
-    const yHeroContent = useTransform(scrollYProgress, [0, 0.4], [0, -15]);
 
     // Interactive Sandbox State
     const [selectedPreset, setSelectedPreset] = useState(0);
@@ -215,20 +204,19 @@ export default function LandingPage() {
                     
                     {/* Left Column: Dramatic Editorial Copy */}
                     <motion.div 
-                        style={{ y: yHeroContent }}
                         className="min-w-0 lg:col-span-5 text-left space-y-6 z-10"
                     >
                         <motion.div
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={false}
                             animate={{ opacity: 1, y: 0 }}
-                            className="inline-flex max-w-full items-center gap-2 rounded-full border border-violet-200 bg-white/85 px-3 py-1.5 text-[11px] font-bold text-violet-800 shadow-sm backdrop-blur"
+                            className="inline-flex max-w-full items-center gap-2 border-l-2 border-violet-500 pl-3 text-[11px] font-black uppercase tracking-[0.14em] text-violet-800"
                         >
                             <Sparkles size={13} aria-hidden="true" />
                             <span className="truncate">DESIGN FREE · PAY ONLY TO EXPORT</span>
                         </motion.div>
                         {/* Grand Display Headline */}
                         <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={false}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
                             className="text-4xl sm:text-5.5xl lg:text-6xl font-black tracking-tight leading-[1.08] text-stone-950 font-display"
@@ -241,7 +229,7 @@ export default function LandingPage() {
 
                         {/* Subtitle */}
                         <motion.p
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={false}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="text-base sm:text-lg text-stone-600 leading-relaxed max-w-xl font-normal"
@@ -251,7 +239,7 @@ export default function LandingPage() {
 
                         {/* Action Buttons */}
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={false}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
                             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2"
@@ -276,7 +264,7 @@ export default function LandingPage() {
 
                         {/* Live Ink Swatch Micro-Widget */}
                         <motion.div
-                            initial={{ opacity: 0 }}
+                            initial={false}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.4 }}
                             className="pt-4 flex items-center gap-3 border-t border-stone-200/80 text-xs text-stone-500"
@@ -293,7 +281,7 @@ export default function LandingPage() {
                                         key={ink.name}
                                         type="button"
                                         onClick={() => setActiveInk(ink.color)}
-                                        className={`w-8 h-8 min-w-8 min-h-8 rounded-full border border-stone-300 transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 cursor-pointer ${
+                                        className={`w-10 h-10 min-w-10 min-h-10 rounded-full border border-stone-300 transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 cursor-pointer ${
                                             activeInk === ink.color ? 'ring-2 ring-violet-500 ring-offset-2 scale-110' : ''
                                         }`}
                                         style={{ backgroundColor: ink.color }}
@@ -305,7 +293,7 @@ export default function LandingPage() {
                             </div>
                             <span className="hidden min-[430px]:flex text-[11px] text-emerald-700 font-mono ml-auto font-bold items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                Interactive Canvas Live
+                                Live ink preview
                             </span>
                         </motion.div>
 
@@ -330,10 +318,9 @@ export default function LandingPage() {
                     <div className="min-w-0 lg:col-span-7 relative flex items-center justify-center">
                         {/* Uncaged 3D Notebook Canvas (Free Floating, Interactive) */}
                         <motion.div 
-                            style={{ y: yHeroNotebook }}
-                            className="w-full min-w-0 max-w-[min(860px,115vw)] relative cursor-grab active:cursor-grabbing drop-shadow-[0_25px_35px_rgba(0,0,0,0.15)]"
+                            className="w-full min-w-0 max-w-[min(860px,115vw)] relative "
                         >
-                            <Suspense fallback={<NotebookLoader />}><NotebookHero3D activeInk={activeInk} /></Suspense>
+                            <NotebookPreview activeInk={activeInk} />
                         </motion.div>
                     </div>
 
@@ -347,7 +334,7 @@ export default function LandingPage() {
             ========================================================= */}
             <section id="comparison" className="py-16 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto relative scroll-mt-24">
                 <div className="text-center max-w-2xl mx-auto mb-10">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100/80 border border-violet-200 text-violet-800 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+                    <span className="inline-flex items-center gap-2 border-l-2 border-violet-500 pl-3 text-xs font-mono font-bold uppercase tracking-[0.14em] text-violet-800 mb-3">
                         <Eye size={12} className="text-violet-600" />
                         <span>The Realism Difference</span>
                     </span>
@@ -374,7 +361,7 @@ export default function LandingPage() {
             ========================================================= */}
             <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 max-w-7xl mx-auto relative scroll-mt-20">
                 <div className="text-center max-w-2xl mx-auto mb-16">
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-indigo-100/80 border border-indigo-200 text-indigo-800 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+                    <span className="inline-flex items-center gap-2 border-l-2 border-indigo-500 pl-3 text-xs font-mono font-bold uppercase tracking-[0.14em] text-indigo-800 mb-3">
                         <CheckCircle2 size={13} className="text-indigo-600" />
                         <span>Workflow · 4 Simple Steps</span>
                     </span>
@@ -400,7 +387,7 @@ export default function LandingPage() {
                                 <span className="w-12 h-12 rounded-2xl bg-neutral-900 text-white flex items-center justify-center font-black text-lg shadow-md group-hover:scale-108 transition-transform">
                                     01
                                 </span>
-                                <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-[10px] font-mono font-bold uppercase">
+                                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-stone-500">
                                     Input
                                 </span>
                             </div>
@@ -429,7 +416,7 @@ export default function LandingPage() {
                                 <span className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-md group-hover:scale-108 transition-transform">
                                     02
                                 </span>
-                                <span className="px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-mono font-bold uppercase">
+                                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-indigo-700">
                                     Stationery
                                 </span>
                             </div>
@@ -458,7 +445,7 @@ export default function LandingPage() {
                                 <span className="w-12 h-12 rounded-2xl bg-cyan-600 text-white flex items-center justify-center font-black text-lg shadow-md group-hover:scale-108 transition-transform">
                                     03
                                 </span>
-                                <span className="px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-700 text-[10px] font-mono font-bold uppercase">
+                                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-cyan-700">
                                     Engine
                                 </span>
                             </div>
@@ -487,7 +474,7 @@ export default function LandingPage() {
                                 <span className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-md group-hover:scale-108 transition-transform">
                                     04
                                 </span>
-                                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold uppercase">
+                                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-emerald-700">
                                     Export
                                 </span>
                             </div>
@@ -627,38 +614,18 @@ export default function LandingPage() {
                                     </>
                                 )}
 
-                                {/* Blue ruled lines */}
-                                <div
-                                    className="absolute inset-0 pointer-events-none opacity-40"
-                                    style={{
-                                        backgroundImage: 'linear-gradient(to bottom, transparent 31px, #93c5fd 32px)',
-                                        backgroundSize: '100% 32px',
-                                    }}
-                                />
-
                                 {/* Top Date & Page header */}
                                 <div className="relative z-10 flex items-center justify-between pl-8 pb-3 border-b border-rose-200/60 text-[11px] font-mono text-neutral-400 mb-4">
                                     <span>PAGE: 01</span>
                                     <span>DATE: {new Date().toLocaleDateString('en-GB')}</span>
                                 </div>
 
-                                {/* Handwritten text render */}
-                                <div
-                                    style={{
-                                        fontFamily: activeFont,
-                                        color: activeInk,
-                                        lineHeight: '32px',
-                                        transform: activeJitter ? 'rotate(-0.25deg)' : 'none',
-                                    }}
-                                    className="relative z-10 pl-8 text-lg sm:text-xl font-normal whitespace-pre-wrap leading-[32px] select-none"
-                                >
-                                    {sandboxText}
-                                </div>
+                                <RuledPreviewText text={sandboxText} font={activeFont} ink={activeInk} variation={activeJitter} />
 
                                 {/* Simulated ink stamp bottom watermark */}
-                                <div className="relative z-10 pl-8 pt-8 flex items-center justify-between text-[10px] text-neutral-400 font-mono border-t border-neutral-200/50 mt-6">
+                                <div className="relative z-10 pl-8 pt-8 flex flex-wrap gap-2 items-center justify-between text-[10px] text-neutral-400 font-mono border-t border-neutral-200/50 mt-6">
                                     <span>Classmate 180-GSM Ruled Paper</span>
-                                    <span className="text-emerald-700 font-bold">Organic Micro-Jitter Active</span>
+                                    <span className="text-emerald-700 font-bold">{activeJitter ? 'Subtle Spacing Variation' : 'Standard Spacing'}</span>
                                 </div>
                             </div>
                         </div>
@@ -672,7 +639,7 @@ export default function LandingPage() {
             ========================================================= */}
             <section id="paper-vault" className="py-16 sm:py-20 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-20">
                 <div className="text-center max-w-2xl mx-auto mb-14">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100/80 border border-violet-200 text-violet-800 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+                    <span className="inline-flex items-center gap-2 border-l-2 border-violet-500 pl-3 text-xs font-mono font-bold uppercase tracking-[0.14em] text-violet-800 mb-3">
                         <BookOpen size={12} className="text-violet-600" />
                         <span>The Paper Vault</span>
                     </span>
@@ -789,7 +756,7 @@ export default function LandingPage() {
             ========================================================= */}
             <section id="features" className="py-16 sm:py-20 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-20">
                 <div className="text-center max-w-2xl mx-auto mb-14">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-200 text-amber-800 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+                    <span className="inline-flex items-center gap-2 border-l-2 border-amber-500 pl-3 text-xs font-mono font-bold uppercase tracking-[0.14em] text-amber-800 mb-3">
                         <Zap size={12} className="text-amber-600" />
                         <span>Core Capabilities</span>
                     </span>
@@ -1011,11 +978,11 @@ export default function LandingPage() {
                 9. CALL-TO-ACTION PORTAL
             ========================================================= */}
             <section className="py-20 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto">
-                <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-stone-900 via-indigo-950 to-violet-950 border border-indigo-500/30 p-10 sm:p-16 text-center shadow-[0_0_40px_rgba(139,92,246,0.15)] text-white">
+                <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-stone-900 via-indigo-950 to-violet-950 border border-indigo-500/30 p-6 sm:p-16 text-center shadow-[0_0_40px_rgba(139,92,246,0.15)] text-white">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-600/20 via-transparent to-transparent pointer-events-none" />
                     
                     <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs font-bold font-mono">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-[10px] sm:text-xs font-bold font-mono">
                             <Sparkles size={13} className="text-amber-400" />
                             <span>FREE TO DESIGN · PAY ONLY TO EXPORT</span>
                         </div>
@@ -1031,7 +998,7 @@ export default function LandingPage() {
                         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link
                                 to="/editor"
-                                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-400 hover:to-fuchsia-400 rounded-2xl font-bold text-base shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] hover:-translate-y-0.5 active:translate-y-0 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                className="w-full sm:w-auto px-4 sm:px-8 py-4 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-400 hover:to-fuchsia-400 rounded-2xl font-bold text-base shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] hover:-translate-y-0.5 active:translate-y-0 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 <Sparkles size={18} className="text-yellow-300" />
                                 <span>Create My Free Preview</span>

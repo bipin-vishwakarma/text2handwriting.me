@@ -38,9 +38,10 @@ does **not** set `profiles.is_pro` or confer a lifetime subscription.
 
 ## Production release blockers
 
-Do not activate live checkout on a hosting plan that disallows commercial use
-(Vercel Hobby is personal/non-commercial). Select and verify an eligible plan,
-then test the custom-domain alias and production build before switching keys.
+Production hosting is Cloudflare Pages (`text2handwriting`); the Vercel config
+is legacy. Keep checkout in test mode while Razorpay reviews the merchant
+account. After approval, configure live keys and the matching webhook secret,
+then test the custom domain and captured-payment recovery before live billing.
 The current browser-rendered export cannot enforce one paid purchase per
 document: a paid purchase can be reused for another document with the same
 page count, and modified client code can bypass the gate. If enforceable

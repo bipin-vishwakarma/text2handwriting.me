@@ -1146,3 +1146,31 @@ body.exporting .watermark-overlay {
     display: none !important;
 }
 
+/* A real paper composition at first paint; WebGL is an optional enhancement. */
+.notebook-preview { padding: 32px 10px 22px; }
+.notebook-preview__spread { position: relative; display: grid; grid-template-columns: 1fr 1fr; max-width: 720px; margin: auto; transform: rotate(-3deg); border: 1px solid #d6d0c4; border-radius: 9px 15px 15px 9px; background: #fffdf7; box-shadow: 0 24px 45px -24px #45382670, 0 5px 0 -1px #e7e0d4, 0 9px 0 -2px #f5efe3, 0 10px 0 -1px #cfc6b6; }
+.notebook-preview__page { position: relative; min-width: 0; min-height: 390px; padding: 28px 24px 48px; overflow: hidden; }
+.notebook-preview__page--left { background: linear-gradient(90deg, transparent 88%, #5141270d); }
+.notebook-preview__page--right { border-left: 1px solid #d6d0c4; background: linear-gradient(90deg, #5141270d, transparent 12%), repeating-linear-gradient(transparent 0 29px, #b4c8db60 29px 30px); background-position: 0 0, 0 90px; }
+.notebook-preview__eyebrow { display: block; font: 600 9px/1.5 'Inter', sans-serif; letter-spacing: .15em; color: #78716c; margin-bottom: 24px; }
+.notebook-preview__title { font: 500 clamp(25px, 3vw, 38px)/1.1 'Caveat', cursive; }
+.notebook-preview__note { font: 400 22px/1.3 'Caveat', cursive; }
+.notebook-preview__writing { margin-top: 24px; font: 400 clamp(17px, 2vw, 24px)/30px 'Caveat', cursive; }
+.notebook-preview__folio { position: absolute; bottom: 19px; font: 600 8px/1.4 'Inter', sans-serif; letter-spacing: .15em; color: #78716c; }
+.notebook-preview__binding { position: absolute; z-index: 1; top: 28px; bottom: 24px; left: calc(50% - 10px); width: 20px; background: repeating-linear-gradient(transparent 0 15px, #a8a29e 16px, #e7e5e4 18px, #78716c 20px, transparent 22px 36px); border-radius: 4px; }
+@media (max-width: 639px) {
+  .notebook-preview { padding: 16px 5px; }
+  .notebook-preview__page { min-height: 325px; padding: 22px 14px 38px; }
+  .notebook-preview__eyebrow { font-size: 7px; letter-spacing: .08em; margin-bottom: 20px; }
+  .notebook-preview__writing { font-size: 17px; line-height: 28px; margin-top: 20px; }
+  .notebook-preview__note { font-size: 18px; }
+  .notebook-preview__title { font-size: 27px; }
+}
+@media (max-width: 359px) {
+  .notebook-preview__page { padding-inline: 10px; }
+  .notebook-preview__writing { font-size: 15px; }
+}
+:where(a, button, input, select, textarea):focus-visible { outline: 2px solid #7c3aed; outline-offset: 3px; }
+@media (hover: none) {
+  .style-slider__arrow { width: 44px; height: 44px; }
+}

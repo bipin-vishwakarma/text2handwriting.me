@@ -1226,7 +1226,7 @@ export default function ExportModal({
                                             ) : paidPurchaseId ? (
                                                 <><Loader2 size={16} className="animate-spin" /><span>Checking previous payment...</span></>
                                             ) : isProcessingPayment ? (
-                                                <><Loader2 size={16} className="animate-spin" /><span>Processing Checkout...</span></>
+                                                <><Loader2 size={16} className="animate-spin" /><span>{checkoutStage === 'creating' ? 'Preparing checkout…' : checkoutStage === 'opening' ? 'Opening Razorpay…' : 'Confirming payment…'}</span></>
                                             ) : (
                                                 <><Lock size={16} /><span>{!isAuthenticated ? 'Sign in to export' : `Pay ₹${totalPrice} & Download ${activeFormat.toUpperCase()}`}</span></>
                                             )}

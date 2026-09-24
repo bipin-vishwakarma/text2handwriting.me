@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 
 const SITE_URL = 'https://text2handwriting.me';
-const SOCIAL_IMAGE_URL = `${SITE_URL}/og-image.jpg`;
+const SOCIAL_IMAGE_URL = `${SITE_URL}/brand/text2handwriting-og.png`;
 
 interface PageLayoutProps {
     title: string;
@@ -28,7 +28,7 @@ export default function PageLayout({
 }: PageLayoutProps) {
     const { pathname } = useLocation();
     const normalizedPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
-    const canonicalUrl = `${SITE_URL}${normalizedPath}`;
+    const canonicalUrl = normalizedPath === '/' ? `${SITE_URL}/` : `${SITE_URL}${normalizedPath}/`;
     const documentTitle = seoTitle ?? `${title} | text2handwriting.me`;
     const metaDescription = description ?? subtitle ?? 'Create and format print-ready handwritten-style documents from your own text.';
 
@@ -44,15 +44,16 @@ export default function PageLayout({
                 <meta property="og:title" content={documentTitle} />
                 <meta property="og:description" content={metaDescription} />
                 <meta property="og:image" content={SOCIAL_IMAGE_URL} />
-                <meta property="og:image:type" content="image/jpeg" />
-                <meta property="og:image:width" content="1024" />
-                <meta property="og:image:height" content="1024" />
-                <meta property="og:image:alt" content="text2handwriting.me editor preview on ruled paper" />
+                <meta property="og:image:secure_url" content={SOCIAL_IMAGE_URL} />
+                <meta property="og:image:type" content="image/png" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:alt" content="text2handwriting.me — turn your text into print-ready handwritten pages" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={documentTitle} />
                 <meta name="twitter:description" content={metaDescription} />
                 <meta name="twitter:image" content={SOCIAL_IMAGE_URL} />
-                <meta name="twitter:image:alt" content="text2handwriting.me editor preview on ruled paper" />
+                <meta name="twitter:image:alt" content="text2handwriting.me — turn your text into print-ready handwritten pages" />
                 {structuredData && <script type="application/ld+json">{JSON.stringify(structuredData)}</script>}
             </Helmet>
             <div className="min-h-screen pt-28 sm:pt-32 pb-16 sm:pb-20 relative overflow-hidden bg-[#FAF8F5] text-stone-900 selection:bg-violet-200 selection:text-violet-900">
