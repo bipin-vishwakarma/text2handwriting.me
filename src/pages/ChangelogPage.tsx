@@ -4,10 +4,10 @@ import { Rocket, Bug, Star, Clock } from 'lucide-react';
 const updates = [
     {
         version: "v2.1.0",
-        date: "September 12, 2026",
+        date: "September 24, 2026",
         type: "Feature Update",
-        title: "Premium Auth & Marketing Audit",
-        description: "Complete overhaul of the authentication flow featuring an ultra-sleek glassmorphism aesthetic. Audited and verified all fonts, updating our official offering to 54 authentic handwriting styles.",
+        title: "SEO guides, clearer exports, and product polish",
+        description: "Added practical handwriting and print guides, improved static search metadata and link previews, automated SEO regression checks, and refined mobile navigation, account, onboarding, support, and notebook-preview experiences.",
         icon: Star,
         color: "bg-indigo-100 text-indigo-600"
     },
@@ -24,8 +24,8 @@ const updates = [
         version: "v1.2.0",
         date: "January 25, 2026",
         type: "Feature",
-        title: "AI Humanizer 2.0",
-        description: "Significant improvements to the AI text humanization engine. Better rhythm, more natural word choice, and improved handwriting flow.",
+        title: "Handwriting-style controls",
+        description: "Improved spacing, baseline, ink, paper, and variation controls so documents can be formatted and reviewed more precisely before export.",
         icon: Rocket,
         color: "bg-purple-100 text-purple-600"
     },
