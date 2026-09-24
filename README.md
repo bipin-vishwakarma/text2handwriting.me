@@ -4,7 +4,7 @@
 
 <img src="public/images/logo.png" alt="text2handwriting.me Logo" width="140" />
 
-### Next-Gen Hyper-Realistic Text-to-Handwriting Studio with 3D Camera Physics, Smart Margin Indexing, Multi-Format Document Import, and Organic Human Flaws
+### Turn your own text into print-ready handwritten-style pages
 
 [![Live Site](https://img.shields.io/badge/Live-text2handwriting.me-F38020?style=for-the-badge&logo=cloudflare)](https://text2handwriting.me)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/bipin-vishwakarma/text2handwriting.me)
@@ -23,7 +23,18 @@
 
 ## 🌟 What is text2handwriting.me?
 
-**text2handwriting.me** is a privacy-first, zero-friction web application that transforms standard typed text, assignments, and study notes into **indistinguishable physical handwriting photos**.
+**text2handwriting.me** is a browser-based editor for formatting your own text, permitted assignments, and study notes as handwritten-style pages. Customize fonts, paper, ink and spacing, then review the preview before exporting. This is digital formatting, not proof of human authorship.
+
+### Try it and learn more
+
+- [Open the editor](https://text2handwriting.me/editor/) — create and preview a layout.
+- [Pricing](https://text2handwriting.me/pricing/) — previewing and paid exports are separate; check the current price before purchasing.
+- [Typed text to handwritten notes](https://text2handwriting.me/typed-text-to-handwritten-notes/)
+- [Practical record formatting guide](https://text2handwriting.me/practical-record-formatting-guide/)
+- [Print-ready handwritten PDF checklist](https://text2handwriting.me/print-ready-handwritten-pdf-guide/)
+- [Support](https://text2handwriting.me/support/)
+
+Use only content you have permission to format and follow your institution's submission rules.
 
 Unlike traditional handwriting generators that simply render flat digital fonts in a rigid grid, text2handwriting.me reproduces the subtle physical flaws, optical dynamics, and analog paper textures of real-world notes:
 - **Hand Dynamics**: Letter micro-jitter, pen pressure variance, baseline wobble, and progressive wrist fatigue.
@@ -32,7 +43,7 @@ Unlike traditional handwriting generators that simply render flat digital fonts 
 - **Multi-Format Document Ingestion**: Instant client-side import for Microsoft Word (`.docx`), PDF (`.pdf`), Markdown (`.md`), Plain Text (`.txt`), RTF, and Image OCR.
 - **Organic Corrections**: Procedural scratch-outs (wavy scribbles, blackouts, slashes) and handwritten caret (`^`) insertions.
 - **Physical Environment**: 3D perspective camera angles, smartphone cast shadows, warm desk lamp lighting, and realistic paper creases.
-- **Zero Friction**: 100% client-side rendering with zero mandatory logins or paywalls for PDF/ZIP exports.
+- **Preview before purchase**: Draft and preview in the browser; paid exports require the checkout flow. Account and payment services are separate from local document rendering.
 
 ---
 
