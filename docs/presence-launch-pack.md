@@ -1,6 +1,11 @@
 # text2handwriting.me presence launch pack
 
-Status: copy prepared, not posted or emailed. No backlinks claimed from these drafts.
+Status: GitHub repository presence and release published. One transparent directory suggestion submitted; no inclusion or backlink is claimed until an editor accepts it. No outreach email has been sent.
+
+## Published activity
+- GitHub repository description, canonical homepage, topics and README links updated.
+- Release v2.1.0 published: https://github.com/bipin-vishwakarma/text2handwriting.me/releases/tag/v2.1.0
+- Awesome Study Tools suggestion submitted with owner affiliation disclosed: https://github.com/studyarena-com/awesome-study-tools/issues/6
 
 ## Product listing
 Name: text2handwriting.me
