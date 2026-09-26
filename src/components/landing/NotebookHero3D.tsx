@@ -688,7 +688,7 @@ export default function NotebookHero3D({
     return (
         <div
             ref={containerRef}
-            className={`relative w-full h-[520px] sm:h-[640px] lg:h-[760px] select-none ${className}`}
+            className={`relative w-full h-[390px] sm:h-[640px] lg:h-[760px] select-none ${className}`}
         >
             {/* Subtle Minimal Controls */}
             <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 p-1 rounded-full bg-white/85 backdrop-blur-md border border-stone-200/80 shadow-xs pointer-events-auto">

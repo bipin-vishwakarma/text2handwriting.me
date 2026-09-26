@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
     ArrowRight,
     Check,
@@ -65,6 +65,7 @@ const TICKER_ITEMS = [
 
 export default function InteractiveStudioShowcase() {
     const [activeScene, setActiveScene] = useState(0);
+    const shouldReduceMotion = useReducedMotion();
     const scene = STUDIO_SCENES[activeScene];
     const SceneIcon = scene.icon;
 
@@ -115,7 +116,7 @@ export default function InteractiveStudioShowcase() {
                                             <motion.span
                                                 layoutId="studio-active-tab"
                                                 className="absolute inset-0 rounded-xl border border-white/12 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,.13)]"
-                                                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                                                transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }}
                                             />
                                         )}
                                         <Icon size={15} className="relative" aria-hidden="true" />
@@ -129,10 +130,10 @@ export default function InteractiveStudioShowcase() {
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={scene.id}
-                                    initial={{ opacity: 0, y: 10, filter: 'blur(5px)' }}
+                                    initial={shouldReduceMotion ? false : { opacity: 0, y: 10, filter: 'blur(5px)' }}
                                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                                    exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
-                                    transition={{ duration: 0.24 }}
+                                    exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8, filter: 'blur(4px)' }}
+                                    transition={{ duration: shouldReduceMotion ? 0 : 0.24 }}
                                 >
                                     <p className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: scene.accent }}>
                                         {scene.eyebrow}
@@ -152,22 +153,22 @@ export default function InteractiveStudioShowcase() {
                         </Link>
                     </div>
 
-                    <div className="relative min-h-[430px] sm:min-h-[520px]" aria-hidden="true">
+                    <div className="relative min-h-[360px] sm:min-h-[520px]" aria-hidden="true">
                         <motion.div
                             className="absolute left-[4%] top-[11%] h-[76%] w-[78%] rounded-[2rem] border border-white/10 bg-white/[0.055]"
-                            animate={{ rotate: activeScene === 0 ? -7 : activeScene === 1 ? -4 : -9, y: activeScene * 3 }}
-                            transition={{ type: 'spring', stiffness: 160, damping: 22 }}
+                            animate={shouldReduceMotion ? { rotate: -7, y: 0 } : { rotate: activeScene === 0 ? -7 : activeScene === 1 ? -4 : -9, y: activeScene * 3 }}
+                            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 160, damping: 22 }}
                         />
                         <motion.div
                             className="absolute right-[2%] top-[16%] h-[72%] w-[80%] rounded-[2rem] border border-white/10 bg-white/[0.07]"
-                            animate={{ rotate: activeScene === 0 ? 6 : activeScene === 1 ? 9 : 4, y: -activeScene * 4 }}
-                            transition={{ type: 'spring', stiffness: 160, damping: 22 }}
+                            animate={shouldReduceMotion ? { rotate: 6, y: 0 } : { rotate: activeScene === 0 ? 6 : activeScene === 1 ? 9 : 4, y: -activeScene * 4 }}
+                            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 160, damping: 22 }}
                         />
 
                         <motion.div
                             className="absolute inset-x-[8%] inset-y-[7%] overflow-hidden rounded-[1.8rem] border border-white/70 bg-[#fffdf8] text-stone-900 shadow-[0_34px_90px_rgba(0,0,0,.46),inset_0_1px_0_white] sm:rounded-[2.25rem]"
-                            animate={{ rotate: activeScene === 0 ? -1.6 : activeScene === 1 ? 0.8 : -0.4, scale: activeScene === 1 ? 1.015 : 1 }}
-                            transition={{ type: 'spring', stiffness: 190, damping: 24 }}
+                            animate={shouldReduceMotion ? { rotate: -1.6, scale: 1 } : { rotate: activeScene === 0 ? -1.6 : activeScene === 1 ? 0.8 : -0.4, scale: activeScene === 1 ? 1.015 : 1 }}
+                            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 190, damping: 24 }}
                         >
                             <div className="flex h-14 items-center justify-between border-b border-stone-200 bg-white/85 px-5">
                                 <div className="flex items-center gap-2">
@@ -193,10 +194,10 @@ export default function InteractiveStudioShowcase() {
                                     <AnimatePresence mode="wait">
                                         <motion.div
                                             key={scene.id}
-                                            initial={{ opacity: 0, x: 16 }}
+                                            initial={shouldReduceMotion ? false : { opacity: 0, x: 16 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -12 }}
-                                            transition={{ duration: 0.26 }}
+                                            exit={shouldReduceMotion ? undefined : { opacity: 0, x: -12 }}
+                                            transition={{ duration: shouldReduceMotion ? 0 : 0.26 }}
                                             className="relative pl-6"
                                         >
                                             <div className="mb-5 flex items-center justify-between">
@@ -224,8 +225,8 @@ export default function InteractiveStudioShowcase() {
 
                         <motion.div
                             className="absolute bottom-[2%] right-[1%] flex items-center gap-2 rounded-2xl border border-white/15 bg-[#19191f]/90 px-4 py-3 text-xs font-bold shadow-2xl backdrop-blur-xl"
-                            animate={{ y: [0, -7, 0] }}
-                            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                            animate={shouldReduceMotion ? { y: 0 } : { y: [0, -7, 0] }}
+                            transition={shouldReduceMotion ? { duration: 0 } : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                         >
                             <span className="grid h-7 w-7 place-items-center rounded-full" style={{ color: scene.accent, background: scene.tint }}>
                                 <SceneIcon size={14} />

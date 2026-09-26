@@ -173,7 +173,7 @@ export default function AuthPage() {
     }
 
     return (
-        <div className="h-[100dvh] overflow-hidden flex bg-white font-sans selection:bg-violet-200 selection:text-violet-900">
+        <div className="min-h-[100dvh] overflow-y-auto lg:h-[100dvh] lg:overflow-hidden flex bg-white font-sans selection:bg-violet-200 selection:text-violet-900">
             {/* Left Panel: The Canvas */}
             <motion.div
                 initial={{ opacity: 0 }}
@@ -245,7 +245,7 @@ export default function AuthPage() {
 
                 {/* Header */}
                 <div className="p-6 lg:p-8 flex justify-between items-center relative z-20">
-                    <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-neutral-900 transition-colors group">
+                        <Link to="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-neutral-900 transition-colors group">
                         <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center group-hover:bg-neutral-200 transition-colors">
                             <Home size={14} />
                         </div>

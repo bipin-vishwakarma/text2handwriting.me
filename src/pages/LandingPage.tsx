@@ -479,14 +479,14 @@ export default function LandingPage() {
                                 </span>
                             </div>
                             <h3 className="text-lg font-black text-stone-900 mb-2">
-                                4K Multi-Page PDF
+                                High-resolution multi-page PDF
                             </h3>
                             <p className="text-xs text-stone-600 leading-relaxed">
-                                Toggle smartphone camera shadows, desk lamp warm glow, and paper fold creases. Export print-ready 4K high-resolution PDFs or image bundles with facing diagram sheets included in flawless sequence.
+                                Add optional camera shadows, desk-lamp warmth, and paper-fold presentation effects. Export high-resolution PDFs or image bundles with facing diagram sheets in sequence.
                             </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-1.5 text-[11px] font-mono text-emerald-700 font-bold">
-                            <span>Vector crisp · 0 watermarks</span>
+                            <span>PDF or image ZIP · ready to download</span>
                         </div>
                     </motion.div>
                 </div>
@@ -596,7 +596,7 @@ export default function LandingPage() {
                                     className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-violet-600/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98"
                                 >
                                     <Sparkles size={15} className="text-yellow-300" />
-                                    <span>Transfer to Full Studio & Export PDF</span>
+                                    <span>Continue in Full Studio</span>
                                     <ArrowRight size={15} />
                                 </button>
                             </div>
@@ -604,7 +604,7 @@ export default function LandingPage() {
 
                         {/* Right: Real-time Paper Canvas Preview */}
                         <div className="lg:col-span-7">
-                            <div className="relative rounded-2xl bg-[#fdfbf7] p-8 sm:p-10 shadow-md min-h-[380px] sm:min-h-[420px] text-neutral-900 overflow-hidden border border-stone-300">
+                            <div className="relative rounded-2xl bg-[#fdfbf7] p-4 sm:p-10 shadow-md min-h-[330px] sm:min-h-[420px] text-neutral-900 overflow-hidden border border-stone-300">
                                 
                                 {/* Margin double red line */}
                                 {activeMargin && (
@@ -730,7 +730,7 @@ export default function LandingPage() {
                                         )}
                                     </div>
 
-                                    <h4 className="text-lg font-bold text-stone-900 mb-1.5">{paper.name}</h4>
+                                    <h3 className="text-lg font-bold text-stone-900 mb-1.5">{paper.name}</h3>
                                     <p className="text-xs text-stone-600 leading-relaxed">{paper.desc}</p>
                                 </div>
 
@@ -743,7 +743,7 @@ export default function LandingPage() {
                                         <span>Open in Studio</span>
                                         <ArrowRight size={12} />
                                     </button>
-                                    <span className="text-[10px] font-mono text-stone-400">Vector Print Ready</span>
+                                    <span className="text-[10px] font-mono text-stone-400">High-resolution export</span>
                                 </div>
                             </div>
                         </TiltCard>

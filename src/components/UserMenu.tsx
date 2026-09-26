@@ -31,7 +31,7 @@ export default function UserMenu() {
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="user-menu-trigger flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl transition-all cursor-pointer"
+                className="user-menu-trigger flex min-h-11 min-w-11 items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl transition-all cursor-pointer"
                 title={user.name}
             >
                 <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-black flex-shrink-0">

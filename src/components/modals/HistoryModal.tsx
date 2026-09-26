@@ -4,6 +4,7 @@ import { X, Clock, Download, Trash2, Package, ShieldCheck, Search, ArrowLeft } f
 import { useToast } from '../../hooks/useToast';
 import { getAllExportedFiles, deleteExportedFile, type StoredFile } from '../../lib/fileStorage';
 import { useScrollLock } from '../../hooks/useScrollLock';
+import { Link } from 'react-router-dom';
 
 interface HistoryModalProps {
     isOpen: boolean;
@@ -112,9 +113,9 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                                     </div>
                                     <div>
                                         <h2 className="text-lg sm:text-xl font-display font-bold text-neutral-900 leading-tight">
-                                            Vault
+                                            Export history
                                         </h2>
-                                        <p className="text-xs text-neutral-400 font-medium hidden sm:block">Manage exports</p>
+                                        <p className="text-xs text-neutral-400 font-medium hidden sm:block">Files saved in this browser</p>
                                     </div>
                                 </div>
                             </div>
@@ -154,9 +155,21 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                             ) : filteredFiles.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full text-center p-8">
                                     <Package size={24} className="text-neutral-200 mb-3" />
-                                    <p className="text-neutral-400 text-sm">
-                                        {searchQuery ? 'No matches found' : 'No history yet'}
-                                    </p>
+                                    {searchQuery ? (
+                                        <p className="text-neutral-400 text-sm">No matching exports found.</p>
+                                    ) : (
+                                        <>
+                                            <p className="text-sm font-semibold text-neutral-700">No exports saved yet</p>
+                                            <p className="mt-1 max-w-xs text-xs leading-5 text-neutral-400">Your exported PDF and ZIP files will appear here on this device.</p>
+                                            <Link
+                                                to="/editor"
+                                                onClick={onClose}
+                                                className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                            >
+                                                Open studio
+                                            </Link>
+                                        </>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="flex flex-col space-y-1">
@@ -175,18 +188,20 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                                                 </span>
                                             </div>
 
-                                            <div className="flex items-center gap-1 ml-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center gap-1 ml-4 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity">
                                                 <button 
                                                     onClick={() => handleDownload(file)}
-                                                    className="p-1.5 text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                                    className="min-h-10 min-w-10 p-2 text-neutral-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                                     title="Download"
+                                                    aria-label={`Download ${file.name}`}
                                                 >
                                                     <Download size={16} />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(file.id)}
-                                                    className="p-1.5 text-neutral-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                                                    className="min-h-10 min-w-10 p-2 text-neutral-500 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500"
                                                     title="Delete"
+                                                    aria-label={`Delete ${file.name}`}
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>

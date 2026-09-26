@@ -50,8 +50,9 @@ export default function Footer() {
 
                     {/* Navigation Columns */}
                     <motion.div variants={itemVariants} className="col-span-1 lg:col-span-2">
-                        <h4 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 focus:outline-none">Product</h4>
+                        <h2 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 focus:outline-none">Product</h2>
                         <ul className="space-y-4">
+                            <li><Link to="/pricing/" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Export Pricing</Link></li>
                             <li><Link to="/#features" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Features</Link></li>
                             <li><Link to="/#how-it-works" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">How It Works</Link></li>
                             <li><Link to="/editor" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold text-left group flex items-center gap-2">Editor Studio <span className="w-1 h-1 rounded-full bg-neutral-200 group-hover:bg-indigo-500 transition-colors" /></Link></li>
@@ -59,7 +60,7 @@ export default function Footer() {
                     </motion.div>
 
                     <motion.div variants={itemVariants} className="col-span-1 lg:col-span-2">
-                        <h4 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6">Support</h4>
+                        <h2 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6">Support</h2>
                         <ul className="space-y-3">
                             <li><Link to="/about" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">About Us</Link></li>
                             <li><Link to="/support" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Support & Contact</Link></li>
@@ -69,7 +70,7 @@ export default function Footer() {
                     </motion.div>
 
                     <motion.div variants={itemVariants} className="col-span-1 lg:col-span-2">
-                        <h4 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6">Legal</h4>
+                        <h2 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6">Legal</h2>
                         <ul className="space-y-3">
                             <li><Link to="/privacy" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Privacy Policy</Link></li>
                             <li><Link to="/terms" className="text-neutral-500 hover:text-neutral-900 transition-colors text-sm font-bold">Terms of Service</Link></li>
@@ -80,7 +81,7 @@ export default function Footer() {
                     </motion.div>
 
                     <motion.div variants={itemVariants} className="col-span-1 lg:col-span-2">
-                        <h4 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 focus:outline-none">Links</h4>
+                        <h2 className="font-black text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 focus:outline-none">Links</h2>
                         <ul className="space-y-3">
                             <li><a href="https://github.com/bipin-vishwakarma" target="_blank" rel="noopener noreferrer" className="text-neutral-500 hover:text-purple-600 transition-colors flex items-center gap-3 text-sm font-bold"><Github size={14} /> GitHub Profile</a></li>
                             <li><a href="https://github.com/bipin-vishwakarma/text2handwriting.me" target="_blank" rel="noopener noreferrer" className="text-neutral-500 hover:text-neutral-900 transition-colors flex items-center gap-3 text-sm font-bold"><PenTool size={14} /> Repository</a></li>
@@ -88,6 +89,19 @@ export default function Footer() {
                     </motion.div>
                 </div>
 
+                <nav aria-label="Handwriting guides" className="mb-10 border-t border-black/5 pt-6">
+                    <h2 className="font-bold text-sm mb-4">Handwriting guides</h2>
+                    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm text-neutral-600">
+                        {[
+                            ['text-to-cursive', 'Text to cursive'],
+                            ['assignment-maker-online', 'Assignment formatting'],
+                            ['realistic-handwriting-generator', 'Handwriting styling'],
+                            ['typed-text-to-handwritten-notes', 'Typed text to handwritten notes'],
+                            ['practical-record-formatting-guide', 'Practical record formatting'],
+                            ['print-ready-handwritten-pdf-guide', 'Print-ready PDF checklist'],
+                        ].map(([path, label]) => <li key={path}><Link className="underline underline-offset-4 hover:text-neutral-950" to={`/${path}/`}>{label}</Link></li>)}
+                    </ul>
+                </nav>
                 {/* Bottom Bar */}
                 <div className="border-t border-black/5 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                     <div className="flex items-center gap-4 text-center sm:text-left">

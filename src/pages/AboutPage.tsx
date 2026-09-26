@@ -4,13 +4,29 @@ import { Link } from 'react-router-dom';
 import MagneticButton from '../components/ui/MagneticButton';
 import { Helmet } from 'react-helmet-async';
 
+const SITE_URL = 'https://text2handwriting.me';
+const SOCIAL_IMAGE_URL = `${SITE_URL}/brand/text2handwriting-og.png`;
+const title = 'About text2handwriting.me';
+const description = 'Learn why text2handwriting.me was built and how its browser-based handwriting editor combines realistic styling with privacy-conscious processing.';
+
 export default function AboutPage() {
     return (
         <div className="min-h-screen pt-32 pb-20 relative overflow-hidden bg-[#FAF8F5] text-stone-900 selection:bg-violet-200 selection:text-violet-900">
             <Helmet>
-                <title>About Us | text2handwriting.me</title>
-                <meta name="description" content="The story behind text2handwriting.me. Built for students, by a student, to bring organic realism back to digital documents." />
-                <link rel="canonical" href="https://text2handwriting.me/about" />
+                <title>{title}</title>
+                <meta name="description" content={description} />
+                <link rel="canonical" href={`${SITE_URL}/about/`} />
+                <meta property="og:type" content="website" />
+                <meta property="og:site_name" content="text2handwriting.me" />
+                <meta property="og:url" content={`${SITE_URL}/about/`} />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta property="og:image" content={SOCIAL_IMAGE_URL} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:url" content={`${SITE_URL}/about/`} />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={description} />
+                <meta name="twitter:image" content={SOCIAL_IMAGE_URL} />
             </Helmet>
 
             {/* Decorative Background */}

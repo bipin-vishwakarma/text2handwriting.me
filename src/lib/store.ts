@@ -59,8 +59,9 @@ const initialState: StateValues = {
     randomTilt: false,
     smartMarginIndexing: true,
     coffeeStain: false,
-    spiralBinding: true,
-    inkBleedThrough: true,
+    // Keep the first canvas clean; users can opt into physical-paper effects.
+    spiralBinding: false,
+    inkBleedThrough: false,
     inkBleedIntensity: 0.12,
 
     // Per-Page Scoping
@@ -433,7 +434,8 @@ export const useStore = create<AppState>()(
                                     // Extreme Messy & Raw Human
                                     'Covered By Your Grace', 'Walter Turncoat', 'Rock Salt', 'Grape Nuts',
                                     'Swanky and Moo Moo', 'Sedgwick Ave', 'Liu Jian Mao Cao', 'Caveat',
-                                    'Coming Soon', 'Schoolbell', 'Reenie Beanie', 'Mr Dafoe',
+                                    'Coming Soon', 'Schoolbell', 'Kalam', 'Patrick Hand', 'Architects Daughter',
+                                    'Indie Flower', 'Shadows Into Light', 'Caveat Brush', 'Gotu', 'Reenie Beanie', 'Mr Dafoe',
                                     // Doctor & Student Cursive
                                     'Meddon', 'Kristi', 'WindSong', 'Cedarville Cursive', 'League Script', 'Square Peg',
                                     'La Belle Aurore', 'Waiting for the Sunrise', 'Marck Script', 'Zeyada', 'Dawning of a New Day',
@@ -514,6 +516,13 @@ export const getAvailableFonts = (state: AppState) => {
         { id: 'caveat', name: 'Natural Fast Handwriting (Organic Ballpoint Flow)', family: 'Caveat', type: 'custom' },
         { id: 'coming-soon', name: 'Casual Classroom Print (Relaxed Student Hand)', family: 'Coming Soon', type: 'custom' },
         { id: 'schoolbell', name: 'School Notebook Print (Natural Student Print)', family: 'Schoolbell', type: 'custom' },
+        { id: 'kalam', name: 'Casual Daily Notebook (Clear Student Hand)', family: 'Kalam', type: 'custom' },
+        { id: 'patrick-hand', name: 'Clean Lab Record Print (Steady Notes)', family: 'Patrick Hand', type: 'custom' },
+        { id: 'architects-daughter', name: 'Practice Sheet Print (Precise Pencil Hand)', family: 'Architects Daughter', type: 'custom' },
+        { id: 'indie-flower', name: 'Rounded Ink Print (Friendly Student Notes)', family: 'Indie Flower', type: 'custom' },
+        { id: 'shadows-into-light', name: 'Neat Margin Notes (Light Cursive Print)', family: 'Shadows Into Light', type: 'custom' },
+        { id: 'caveat-brush', name: 'Bold Brush Cursive (Expressive Ink)', family: 'Caveat Brush', type: 'custom' },
+        { id: 'gotu', name: 'Devanagari Notes (Hindi Script Support)', family: 'Gotu', type: 'custom' },
         { id: 'reenie-beanie', name: 'Tall Messy Scribble (Thin Rushed Pen)', family: 'Reenie Beanie', type: 'custom' },
         { id: 'mr-dafoe', name: 'Illegible Doctor Signature (Extreme Cursive Scrawl)', family: 'Mr Dafoe', type: 'custom' },
 

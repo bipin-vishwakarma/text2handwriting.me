@@ -174,7 +174,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
             {/* Comparison Canvas Card */}
             <div
                 ref={containerRef}
-                className="relative h-[400px] sm:h-[440px] rounded-3xl overflow-hidden shadow-2xl border border-neutral-300 ring-1 ring-black/5 cursor-ew-resize select-none touch-pan-y bg-stone-100"
+                className="relative h-[340px] sm:h-[440px] rounded-3xl overflow-hidden shadow-2xl border border-neutral-300 ring-1 ring-black/5 cursor-ew-resize select-none touch-pan-y bg-stone-100"
                 onMouseDown={(e) => {
                     updatePosition(e.clientX);
                     setIsDragging(true);
@@ -208,7 +208,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
                 }}
             >
                 {/* 1. RIGHT SIDE / BACKGROUND: REALISTIC HANDWRITTEN NOTEBOOK */}
-                <div className="absolute inset-0 bg-[#fffdfa] overflow-hidden flex flex-col justify-between p-6 sm:p-10 z-10">
+                <div className="absolute inset-0 bg-[#fffdfa] overflow-hidden flex flex-col justify-between p-4 sm:p-10 z-10">
                     {/* Ruled lines pattern */}
                     <div
                         className="absolute inset-0 pointer-events-none opacity-45"
@@ -230,7 +230,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
                     </div>
 
                     {/* Handwritten Content */}
-                    <div className="relative z-10 pl-8 sm:pl-12 max-w-2xl">
+                    <div className="relative z-10 pl-6 sm:pl-12 max-w-2xl">
                         <div
                             style={{
                                 fontFamily: preset.handwritingFont,
@@ -251,7 +251,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
 
                 {/* 2. LEFT SIDE / FOREGROUND CLIP: STERILE DIGITAL TYPED TEXT */}
                 <div
-                    className="absolute inset-0 bg-[#f8fafc] border-r-2 border-violet-600 overflow-hidden flex flex-col justify-between p-6 sm:p-10 z-20 pointer-events-none"
+                    className="absolute inset-0 bg-[#f8fafc] border-r-2 border-violet-600 overflow-hidden flex flex-col justify-between p-4 sm:p-10 z-20 pointer-events-none"
                     style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
                 >
                     {/* Faint terminal / digital grid */}

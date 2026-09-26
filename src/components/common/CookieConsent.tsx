@@ -35,17 +35,19 @@ export default function CookieConsent() {
                                     <Shield className="text-indigo-600" size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-neutral-900 text-sm">Privacy & Cookies</h4>
+                                    <h2 className="font-bold text-neutral-900 text-sm">Privacy & Cookies</h2>
                                     <p className="text-xs text-neutral-500 leading-relaxed mt-1">
                                         We use cookies to improve your experience and analyze site traffic. Your productivity is our priority.
                                     </p>
                                 </div>
                             </div>
                             <button 
+                                type="button"
+                                aria-label="Dismiss cookie notice"
                                 onClick={() => { localStorage.setItem('cookie-consent', 'dismissed'); setIsVisible(false); }}
-                                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
+                                className="p-1 min-w-11 min-h-11 shrink-0 flex items-center justify-center hover:bg-black/5 rounded-lg transition-colors"
                             >
-                                <X size={16} className="text-neutral-400" />
+                                <X size={16} className="text-neutral-600" aria-hidden="true" />
                             </button>
                         </div>
                         <div className="flex gap-3">

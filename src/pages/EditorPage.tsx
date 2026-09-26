@@ -389,6 +389,13 @@ const FONTS = [
     { name: 'Caveat', label: 'Natural Fast Handwriting (Organic Ballpoint Flow)' },
     { name: 'Coming Soon', label: 'Casual Classroom Print (Relaxed Student Hand)' },
     { name: 'Schoolbell', label: 'School Notebook Print (Natural Student Print)' },
+    { name: 'Kalam', label: 'Casual Daily Notebook (Clear Student Hand)' },
+    { name: 'Patrick Hand', label: 'Clean Lab Record Print (Steady Notes)' },
+    { name: 'Architects Daughter', label: 'Practice Sheet Print (Precise Pencil Hand)' },
+    { name: 'Indie Flower', label: 'Rounded Ink Print (Friendly Student Notes)' },
+    { name: 'Shadows Into Light', label: 'Neat Margin Notes (Light Cursive Print)' },
+    { name: 'Caveat Brush', label: 'Bold Brush Cursive (Expressive Ink)' },
+    { name: 'Gotu', label: 'Devanagari Notes (Hindi Script Support)' },
     { name: 'Reenie Beanie', label: 'Tall Messy Scribble (Thin Rushed Pen)' },
     { name: 'Mr Dafoe', label: 'Illegible Doctor Signature (Extreme Cursive Scrawl)' },
 
@@ -1438,7 +1445,7 @@ const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
             {/* Product-first workspace: document, canvas, and one clear action. */}
             <header className="editor-topbar min-h-16 pt-safe px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 z-30">
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                    <Link to="/" aria-label="Back to text2handwriting.me home" className="flex sm:hidden items-center gap-1.5 shrink-0 rounded-xl px-1 py-1 text-violet-700 hover:bg-violet-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
+                    <Link to="/" aria-label="Back to text2handwriting.me home" className="flex min-h-11 sm:hidden items-center gap-1.5 shrink-0 rounded-xl px-1 py-1 text-violet-700 hover:bg-violet-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
                         <SiteLogo size={26} animated={false} />
                         <span className="text-[11px] font-display font-black tracking-tight text-stone-900"><span className="min-[460px]:hidden">T2H</span><span className="hidden min-[460px]:inline">text2handwriting</span></span>
                     </Link>
@@ -3016,20 +3023,41 @@ const [isFocusToolsOpen, setIsFocusToolsOpen] = useState(false);
                 </main>
             </div>
 
-            {/* Mobile workspace navigation: canvas remains the primary view. */}
-            <div className="lg:hidden shrink-0 pt-2 pb-[env(safe-area-inset-bottom)] bg-stone-50/80">
-                <GlassDock
-                    compact
-                    ariaLabel="Mobile editor views"
-                    value={mobileTab}
-                    onChange={(view) => { setMobileTab(view); if (view === 'write') setActiveSidebarTab('write'); if (view === 'settings' && activeSidebarTab === 'write') setActiveSidebarTab('pen'); }}
-                    items={[
+            {/* Mobile workspace actions: the export CTA must be reachable without returning to the top bar. */}
+            <nav aria-label="Mobile editor actions" className="mobile-action-dock lg:hidden shrink-0">
+                {[
                     { id: 'write' as const, label: 'Write', icon: FileText },
                     { id: 'canvas' as const, label: 'Preview', icon: Layers3 },
                     { id: 'settings' as const, label: 'Style', icon: PanelLeft },
-                    ]}
-                />
-            </div>
+                ].map((item) => {
+                    const Icon = item.icon;
+                    const selected = mobileTab === item.id;
+                    return (
+                        <button
+                            key={item.id}
+                            type="button"
+                            aria-current={selected ? 'page' : undefined}
+                            onClick={() => {
+                                setMobileTab(item.id);
+                                if (item.id === 'write') setActiveSidebarTab('write');
+                                if (item.id === 'settings' && activeSidebarTab === 'write') setActiveSidebarTab('pen');
+                            }}
+                            className={`mobile-action-dock__item ${selected ? 'mobile-action-dock__item--active' : ''}`}
+                        >
+                            <Icon size={17} aria-hidden="true" />
+                            <span>{item.label}</span>
+                        </button>
+                    );
+                })}
+                <button
+                    type="button"
+                    onClick={() => handleStartExport('pdf')}
+                    className="mobile-action-dock__item mobile-action-dock__export"
+                >
+                    <Download size={17} aria-hidden="true" />
+                    <span>Export</span>
+                </button>
+            </nav>
 
             {/* ==================== RESET CONFIRMATION MODAL ==================== */}
             {showResetModal && (

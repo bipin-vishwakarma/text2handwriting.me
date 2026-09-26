@@ -74,7 +74,7 @@ export default function NotebookPreview({ activeInk }: { activeInk: string }) {
 
     return (
         <div className="relative">
-            <div className="h-[520px] sm:h-[640px] lg:h-[760px] flex items-center"><div className="w-full">
+            <div className="h-[390px] sm:h-[640px] lg:h-[760px] flex items-center"><div className="w-full">
             {show3D ? (
                 <PreviewBoundary fallback={<>{paper}<p role="status" className="text-center text-sm text-stone-600">3D is unavailable in this browser. Your studio still works.</p></>}>
                     <Suspense fallback={paper}><NotebookHero3D activeInk={activeInk} /></Suspense>

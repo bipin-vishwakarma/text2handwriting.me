@@ -48,6 +48,16 @@
 @media (prefers-reduced-motion: reduce) { .glass-dock *, .style-slider * { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .glass-dock { background: #fff; } }
 
+/* Compact mobile editor navigation: primary work, preview, styling, and export
+   are all reachable with a thumb from the persistent lower edge. */
+.mobile-action-dock { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; padding: .45rem max(.5rem, env(safe-area-inset-right)) max(.45rem, env(safe-area-inset-bottom)) max(.5rem, env(safe-area-inset-left)); border-top: 1px solid rgb(231 229 228 / .9); background: rgb(255 255 255 / .86); box-shadow: 0 -8px 28px rgb(41 37 36 / .08); backdrop-filter: blur(16px) saturate(1.12); -webkit-backdrop-filter: blur(16px) saturate(1.12); }
+.mobile-action-dock__item { min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .18rem; border-radius: .8rem; color: #78716c; font-size: 10px; font-weight: 750; line-height: 1; transition: background-color .16s ease, color .16s ease, transform .16s ease; }
+.mobile-action-dock__item:active { transform: scale(.97); }
+.mobile-action-dock__item:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }
+.mobile-action-dock__item--active { color: #5b21b6; background: linear-gradient(135deg, rgb(245 243 255), rgb(237 233 254 / .7)); box-shadow: inset 0 0 0 1px rgb(139 92 246 / .2); }
+.mobile-action-dock__export { color: #fff; background: linear-gradient(135deg, #7c3aed, #5b21b6); box-shadow: 0 5px 12px rgb(91 33 182 / .22), inset 0 1px 0 rgb(255 255 255 / .28); }
+@media (prefers-reduced-motion: reduce) { .mobile-action-dock__item { transition: none; } .mobile-action-dock__item:active { transform: none; } }
+
 /* Focus Mode uses a few deeper layers than the editor chrome, never the paper/export canvas. */
 .focus-backdrop { background: radial-gradient(ellipse 58% 46% at 18% 8%, rgb(139 92 246 / .20), transparent 68%), linear-gradient(145deg, rgb(23 23 28 / .93), rgb(38 36 43 / .89)); backdrop-filter: blur(10px) saturate(1.04); -webkit-backdrop-filter: blur(10px) saturate(1.04); }
 .focus-glass-shell { background: transparent; }
@@ -79,6 +89,16 @@
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .editor-topbar, .editor-sidebar, .editor-title-input, .editor-stats-pill, .editor-zoom-dock, .user-menu-trigger, .user-menu-popover, .focus-glass-header, .focus-status-bar, .focus-tools-menu { background: #fff; } .focus-backdrop { background: rgb(12 10 18 / .94); } }
 
 /* === 24 CURATED AUTHENTIC HANDWRITING FONTS (OFFLINE CACHED & DUAL-ALIASED) === */
+
+/* Google Fonts additions are bundled locally. Their OFL license notices live in
+   public/fonts/licenses so the editor never needs a third-party font request. */
+@font-face { font-family: 'Caveat Brush'; src: url('/fonts/caveat-brush.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Kalam'; src: url('/fonts/kalam.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Patrick Hand'; src: url('/fonts/patrick-hand.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Architects Daughter'; src: url('/fonts/architects-daughter.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Indie Flower'; src: url('/fonts/indie-flower.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Shadows Into Light'; src: url('/fonts/shadows-into-light.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Gotu'; src: url('/fonts/gotu.ttf') format('truetype'); font-display: swap; }
 
 /* --- TextToHandwriting Classic Vault (Handwriting 1 to 22) --- */
 @font-face {

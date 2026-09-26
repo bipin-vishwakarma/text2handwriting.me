@@ -7,6 +7,7 @@ import { ToastProvider } from './components/ui/Toast';
 import { AuthProvider } from './context/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import ScrollToTop from './components/layout/ScrollToTop';
+import RouteMeta from './components/layout/RouteMeta';
 
 // Lazy Load Pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -39,6 +40,7 @@ const PageLoader = () => (
 function InnerApp() {
   return (
     <Suspense fallback={<PageLoader />}>
+      <RouteMeta />
       <Routes>
         {/* Auth & onboarding — standalone, no RootLayout navbar */}
         <Route path="/auth" element={<AuthPage />} />
@@ -68,8 +70,8 @@ function InnerApp() {
           {/* SEO Landing Pages */}
           <Route path="text-to-cursive" element={
             <SeoLandingPage 
-              seoTitle="Text to Cursive Converter | Generate Realistic Cursive Handwriting"
-              seoDescription="Convert your typed text into beautiful, flowing cursive handwriting. Perfect for letters, invitations, and stylish assignments."
+              seoTitle="Text to cursive converter | text2handwriting.me"
+              seoDescription="Turn your own typed text into natural-looking cursive pages with adjustable spacing, paper, ink and printable PDF export."
               h1="Text to Cursive Converter"
               subtitle="Instantly transform your boring digital text into stunning, realistic cursive handwriting."
               keyword="Text to Cursive"
@@ -77,8 +79,8 @@ function InnerApp() {
           } />
           <Route path="assignment-maker-online" element={
             <SeoLandingPage 
-              seoTitle="Assignment Draft Formatting Tool | text2handwriting.me"
-              seoDescription="Format your own assignment drafts as clear handwritten-style pages with paper, margins, spacing and export controls."
+              seoTitle="Assignment handwriting maker | text2handwriting.me"
+              seoDescription="Format your own assignment drafts as realistic handwritten pages with paper, margin, spacing and export controls."
               h1="Assignment draft formatting tool"
               subtitle="Format and proofread your own assignment draft with readable paper, margin, spacing, and export controls."
               keyword="Assignment draft formatting"
@@ -86,8 +88,8 @@ function InnerApp() {
           } />
           <Route path="realistic-handwriting-generator" element={
             <SeoLandingPage 
-              seoTitle="Realistic Handwriting Generator | text2handwriting.me"
-              seoDescription="Generate ultra-realistic handwriting from text. Customize handwriting-style fonts, ink, spacing, paper, and page layout."
+              seoTitle="Realistic handwriting generator | text2handwriting.me"
+              seoDescription="Create natural-looking handwritten pages from your own text with varied styles, paper textures, ink controls and PDF export."
               h1="Realistic Handwriting Generator"
               subtitle="Create natural-looking handwritten pages with adjustable ink, paper, spacing, and realistic variation."
               keyword="Handwriting Generator"
